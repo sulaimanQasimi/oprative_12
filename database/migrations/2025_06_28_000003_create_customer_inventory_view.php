@@ -38,6 +38,9 @@ return new class extends Migration
                 ci.unit_id,
                 ci.unit_amount,
                 ci.unit_name,
+                b.purchase_price,
+                b.wholesale_price,
+                b.retail_price,
                 CASE 
                     WHEN b.expire_date IS NOT NULL AND b.expire_date < CURDATE() THEN 'expired'
                     WHEN b.expire_date IS NOT NULL AND b.expire_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'expiring_soon'

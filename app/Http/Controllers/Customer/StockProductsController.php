@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 class StockProductsController extends Controller
 {
     /**
-     * Display a listing of the customer's stock products
+     * Display a listing of the customer's stock products with batch tracking
      *
      * @param Request $request
      * @return \Inertia\Response
@@ -28,20 +28,25 @@ class StockProductsController extends Controller
             $validator = Validator::make($request->all(), [
                 'search' => 'nullable|string|max:100',
                 'per_page' => 'nullable|integer|min:5|max:100',
+                'sort_by' => 'nullable|string',
+                'sort_direction' => 'nullable|in:asc,desc',
             ]);
 
             if ($validator->fails()) {
                 return Inertia::render('Customer/StockProducts/Index', [
-                    'stockProducts' => [],
+                    'products' => [],
                     'search' => '',
-                    'isFilterOpen' => false,
+                    'sort_by' => 'net_quantity',
+                    'sort_direction' => 'desc',
                     'errors' => $validator->errors(),
                 ]);
             }
 
             // Sanitize and get input parameters
             $search = $request->input('search', '');
-            $perPage = (int) $request->input('per_page', 10);
+            $perPage = (int) $request->input('per_page', 15);
+            $sortBy = $request->input('sort_by', 'net_quantity');
+            $sortDirection = $request->input('sort_direction', 'desc');
 
             // Ensure the current user has a valid customer association
             $customer = Auth::guard('customer_user')->user()->customer;
@@ -54,46 +59,87 @@ class StockProductsController extends Controller
                 return redirect()->route('customer.login');
             }
 
-            // Query stock products with security measures
-            $stockProducts = DB::table('customer_stock_product_movements')
-                ->join('products', 'customer_stock_product_movements.product_id', '=', 'products.id')
-                ->select([
-                    'customer_stock_product_movements.product_id',
-                    'customer_stock_product_movements.customer_id',
-                    'customer_stock_product_movements.income_quantity',
-                    'customer_stock_product_movements.income_price',
-                    'customer_stock_product_movements.income_total',
-                    'customer_stock_product_movements.outcome_quantity',
-                    'customer_stock_product_movements.outcome_price',
-                    'customer_stock_product_movements.outcome_total',
-                    'customer_stock_product_movements.net_quantity',
-                    'customer_stock_product_movements.net_total',
-                    'customer_stock_product_movements.profit',
-                    'products.name as product_name',
-                    'products.barcode'
-                ])
+            // Get customer inventory data directly from the view
+            $customerInventory = DB::table('customer_inventory')
+                ->where('customer_id', $customer->id)
                 ->when($search, function ($query) use ($search) {
                     $query->where(function($q) use ($search) {
-                        // Use parameter binding for security against SQL injection
                         $searchParam = '%' . addslashes($search) . '%';
-                        $q->where('products.name', 'like', $searchParam)
-                          ->orWhere('products.barcode', 'like', $searchParam);
+                        $q->where('product_name', 'like', $searchParam)
+                          ->orWhere('product_barcode', 'like', $searchParam)
+                          ->orWhere('batch_reference', 'like', $searchParam);
                     });
                 })
-                ->where('customer_stock_product_movements.customer_id', $customer->id)
-                ->orderBy('products.name', 'asc')
-                ->paginate($perPage);
+                ->orderBy($sortBy, $sortDirection)
+                ->orderBy('expire_date', 'asc')
+                ->orderBy('batch_id', 'desc')
+                ->paginate($perPage)
+                ->through(function ($item) {
+                    // Get product details from database
+                    $product = \App\Models\Product::find($item->product_id);
+                    
+                    return [
+                        'customer_id' => $item->customer_id,
+                        'customer_name' => $item->customer_name,
+                        'customer_email' => $item->customer_email,
+                        'customer_phone' => $item->customer_phone,
+                        'product_id' => $item->product_id,
+                        'product' => [
+                            'id' => $product->id ?? $item->product_id,
+                            'name' => $product->name ?? $item->product_name,
+                            'barcode' => $product->barcode ?? $item->product_barcode,
+                            'type' => $product->type ?? 'Unknown',
+                            'is_activated' => $product->is_activated ?? true,
+                            'is_in_stock' => $product->is_in_stock ?? true,
+                        ],
+                        'batch_id' => $item->batch_id,
+                        'batch_reference' => $item->batch_reference,
+                        'issue_date' => $item->issue_date,
+                        'expire_date' => $item->expire_date,
+                        'batch_notes' => $item->batch_notes,
+                        'income_qty' => $item->income_qty,
+                        'outcome_qty' => $item->outcome_qty,
+                        'remaining_qty' => $item->remaining_qty,
+                        'total_income_value' => $item->total_income_value,
+                        'total_outcome_value' => $item->total_outcome_value,
+                        'net_quantity' => $item->net_quantity,
+                        'net_value' => $item->net_value,
+                        'expiry_status' => $item->expiry_status,
+                        'days_to_expiry' => $item->days_to_expiry,
+                        // Unit information
+                        'unit_type' => $item->unit_type,
+                        'unit_id' => $item->unit_id,
+                        'unit_amount' => $item->unit_amount,
+                        'unit_name' => $item->unit_name,
+                        // Pricing information from batch
+                        'purchase_price' => $item->purchase_price ?? 0,
+                        'wholesale_price' => $item->wholesale_price ?? 0,
+                        'retail_price' => $item->retail_price ?? 0,
+                        // Calculate average price per unit
+                        'avg_price_per_unit' => $item->income_qty > 0 ? $item->total_income_value / $item->income_qty : 0,
+                        // Calculate profit for this batch
+                        'profit' => $item->total_outcome_value - $item->total_income_value,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                });
+
+            // Add query string to pagination links
+            $customerInventory->appends($request->query());
 
             return Inertia::render('Customer/StockProducts/Index', [
-                'stockProducts' => $stockProducts,
+                'products' => $customerInventory,
                 'search' => $search,
-                'isFilterOpen' => $request->has('search')
+                'sort_by' => $sortBy,
+                'sort_direction' => $sortDirection,
+                'filters' => $request->only(['search', 'sort_by', 'sort_direction', 'per_page']),
             ]);
         } catch (ValidationException $e) {
             return Inertia::render('Customer/StockProducts/Index', [
-                'stockProducts' => [],
+                'products' => [],
                 'search' => $request->input('search', ''),
-                'isFilterOpen' => $request->has('search'),
+                'sort_by' => $request->input('sort_by', 'net_quantity'),
+                'sort_direction' => $request->input('sort_direction', 'desc'),
                 'errors' => $e->errors(),
             ]);
         } catch (QueryException $e) {
@@ -105,9 +151,10 @@ class StockProductsController extends Controller
             ]);
 
             return Inertia::render('Customer/StockProducts/Index', [
-                'stockProducts' => [],
+                'products' => [],
                 'search' => $request->input('search', ''),
-                'isFilterOpen' => $request->has('search'),
+                'sort_by' => $request->input('sort_by', 'net_quantity'),
+                'sort_direction' => $request->input('sort_direction', 'desc'),
                 'errors' => ['database' => 'A database error occurred. Please try again later.'],
             ]);
         } catch (\Exception $e) {
@@ -120,9 +167,10 @@ class StockProductsController extends Controller
             ]);
 
             return Inertia::render('Customer/StockProducts/Index', [
-                'stockProducts' => [],
+                'products' => [],
                 'search' => $request->input('search', ''),
-                'isFilterOpen' => $request->has('search'),
+                'sort_by' => $request->input('sort_by', 'net_quantity'),
+                'sort_direction' => $request->input('sort_direction', 'desc'),
                 'errors' => ['general' => 'An error occurred while loading your stock products.'],
             ]);
         }

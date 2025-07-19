@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import CustomerNavbar from '@/Components/CustomerNavbar';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
@@ -14,10 +14,19 @@ import {
     PackageSearch,
     TrendingUp,
     TrendingDown,
-    ChevronRight
+    ChevronRight,
+    ChevronLeft,
+    Boxes,
+    BarChart3,
+    Calendar
 } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
-import { motion } from 'framer-motion';
+import { Input } from '@/Components/ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // PageLoader component
 const PageLoader = ({ isVisible }) => {
@@ -205,19 +214,130 @@ const PageLoader = ({ isVisible }) => {
     );
 };
 
-export default function StockProductsIndex({ stockProducts, search, isFilterOpen, auth }) {
+export default function StockProductsIndex({ products, search, sort_by, sort_direction, filters, auth }) {
     const { t } = useLaravelReactI18n();
-    const [filterOpen, setFilterOpen] = useState(isFilterOpen);
     const [loading, setLoading] = useState(true);
+    const [isAnimated, setIsAnimated] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(search || "");
+    const [sortBy, setSortBy] = useState(sort_by || "net_quantity");
+    const [sortDirection, setSortDirection] = useState(sort_direction || "desc");
+    const [filteredProducts, setFilteredProducts] = useState(products?.data || []);
 
-    // Simulate loading delay
-    React.useEffect(() => {
+    // Animation effect
+    useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 1500);
-
+            setIsAnimated(true);
+        }, 800);
         return () => clearTimeout(timer);
     }, []);
+
+    // Filter and sort products
+    useEffect(() => {
+        let filtered = products?.data || [];
+
+        // Apply search filter
+        if (searchTerm) {
+            filtered = filtered.filter(product =>
+                product.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.batch_reference?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Apply sorting
+        filtered.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
+
+            // Handle nested product properties
+            if (sortBy.includes('product.')) {
+                const key = sortBy.replace('product.', '');
+                aValue = a.product[key];
+                bValue = b.product[key];
+            }
+
+            if (sortDirection === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        setFilteredProducts(filtered);
+    }, [products?.data, searchTerm, sortBy, sortDirection]);
+
+    // Calculate detailed summary statistics
+    const totalProducts = filteredProducts.length;
+    const totalValue = filteredProducts.reduce((sum, product) => sum + (product.total_income_value || 0), 0);
+    const totalQuantity = filteredProducts.reduce((sum, product) => sum + (product.remaining_qty || 0), 0);
+    const totalProfit = filteredProducts.reduce((sum, product) => sum + (product.profit || 0), 0);
+    
+    // Expiry statistics
+    const expiredProducts = filteredProducts.filter(product => product.expiry_status === 'expired');
+    const expiringSoonProducts = filteredProducts.filter(product => product.expiry_status === 'expiring_soon');
+    const validProducts = filteredProducts.filter(product => product.expiry_status === 'valid');
+    
+    const expiredQuantity = expiredProducts.reduce((sum, product) => sum + (product.remaining_qty || 0), 0);
+    const expiringSoonQuantity = expiringSoonProducts.reduce((sum, product) => sum + (product.remaining_qty || 0), 0);
+    const validQuantity = validProducts.reduce((sum, product) => sum + (product.remaining_qty || 0), 0);
+    
+    // Stock level statistics
+    const outOfStockProducts = filteredProducts.filter(product => (product.remaining_qty || 0) <= 0);
+    const lowStockProducts = filteredProducts.filter(product => (product.remaining_qty || 0) > 0 && (product.remaining_qty || 0) <= 10);
+    const inStockProducts = filteredProducts.filter(product => (product.remaining_qty || 0) > 10);
+    
+    // Financial statistics
+    const totalIncomeValue = filteredProducts.reduce((sum, product) => sum + (product.total_income_value || 0), 0);
+    const totalOutcomeValue = filteredProducts.reduce((sum, product) => sum + (product.total_outcome_value || 0), 0);
+    const totalRemainingValue = filteredProducts.reduce((sum, product) => sum + (product.net_value || 0), 0);
+    
+    // Batch statistics
+    const totalBatches = filteredProducts.filter(product => product.batch_id).length;
+    const batchesWithExpiry = filteredProducts.filter(product => product.expire_date).length;
+    
+    // Pricing statistics
+    const totalPurchaseValue = filteredProducts.reduce((sum, product) => sum + (product.purchase_price * (product.remaining_qty || 0)), 0);
+    const totalWholesaleValue = filteredProducts.reduce((sum, product) => sum + (product.wholesale_price * (product.remaining_qty || 0)), 0);
+    const totalRetailValue = filteredProducts.reduce((sum, product) => sum + (product.retail_price * (product.remaining_qty || 0)), 0);
+    const potentialWholesaleProfit = totalWholesaleValue - totalPurchaseValue;
+    const potentialRetailProfit = totalRetailValue - totalPurchaseValue;
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'AFN',
+            minimumFractionDigits: 0,
+        }).format(amount || 0);
+    };
+
+    const getStockStatus = (quantity) => {
+        if (quantity <= 0) return { status: 'out', color: 'bg-red-500', text: 'Out of Stock' };
+        if (quantity <= 10) return { status: 'low', color: 'bg-yellow-500', text: 'Low Stock' };
+        return { status: 'good', color: 'bg-green-500', text: 'In Stock' };
+    };
+
+    const getExpiryStatus = (batches) => {
+        if (!batches || batches.length === 0) return { status: 'no_batch', color: 'bg-gray-500', text: 'No Batch Info' };
+        
+        const batch = batches[0]; // Since we're now dealing with individual batches
+        if (batch.expiry_status === 'expired') {
+            return { status: 'expired', color: 'bg-red-500', text: 'Expired' };
+        }
+        if (batch.expiry_status === 'expiring_soon') {
+            return { status: 'expiring_soon', color: 'bg-yellow-500', text: 'Expiring Soon' };
+        }
+        return { status: 'valid', color: 'bg-green-500', text: 'Valid' };
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
 
     return (
         <>
@@ -300,287 +420,597 @@ export default function StockProductsIndex({ stockProducts, search, isFilterOpen
 
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-6">
-                            <div className="max-w-7xl mx-auto">
-                                {/* Hero Section with Gradient Background */}
-                                <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl shadow-xl p-10 mb-10 overflow-hidden">
-                                    <div className="absolute inset-0 bg-pattern opacity-10"></div>
-                                    <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-pink-400 to-indigo-500 opacity-20 rounded-full blur-3xl"></div>
-                                    <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-gradient-to-tr from-indigo-400 to-purple-500 opacity-20 rounded-full blur-3xl"></div>
-
-                                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                        <div>
-                                            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
-                                                {t('Stock Products Management')}
-                                            </h1>
-                                            <p className="text-indigo-100 text-lg max-w-2xl">
-                                                {t('Track your inventory, monitor stock levels, and analyze product performance in real-time.')}
-                                            </p>
-                                        </div>
-                                        <div className="hidden md:flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-2xl border border-white border-opacity-20 shadow-lg">
-                                            <Package className="h-16 w-16 text-white opacity-80" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                                    {/* Total Products */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-indigo-100 dark:hover:border-indigo-800 transform hover:-translate-y-1">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/30 dark:to-purple-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div className="relative flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{t('Total Products')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stockProducts.total}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('In your inventory')}</p>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <Package className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Total Stock Value */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-green-100 dark:hover:border-green-800 transform hover:-translate-y-1">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/30 dark:to-emerald-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div className="relative flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Total Stock Value')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                                                                                                        {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(stockProducts.data.reduce((sum, product) => sum + product.net_total, 0))}
-                                                </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Current inventory value')}</p>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <DollarSign className="w-8 h-8 text-green-600 dark:text-green-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Total Profit */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-purple-100 dark:hover:border-purple-800 transform hover:-translate-y-1">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/30 dark:to-pink-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div className="relative flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">{t('Total Profit')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                                                                                                        {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(stockProducts.data.reduce((sum, product) => sum + product.profit, 0))}
-                                                </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('From all transactions')}</p>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Filter Panel */}
-                                {filterOpen && (
-                                    <div className="mb-8 bg-white dark:bg-slate-900 p-6 rounded-xl shadow-md border border-gray-100 dark:border-slate-800 transition-all duration-300 animate-fadeIn">
-                                        <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4 flex items-center">
-                                            <Filter className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
-                                            {t('Search Filters')}
-                                        </h3>
-
-                                        <form action={route('customer.stock-products')} method="GET" className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {/* Product Name Filter */}
+                        <div className="p-8 space-y-8">
+                            {/* Summary Cards */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                            >
+                                {/* Total Products */}
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
                                             <div>
-                                                <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {t('Product Name or Barcode')}
-                                                </label>
-                                                <div className="mt-1 relative rounded-md shadow-sm">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <PackageSearch className="h-4 w-4 text-gray-400" />
+                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                    {t("Total Products")}
+                                                </p>
+                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                    {totalProducts}
+                                                </p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                    {totalBatches} {t("batches")}
+                                                </p>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                <Boxes className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Total Quantity */}
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                    {t("Total Quantity")}
+                                                </p>
+                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                    {totalQuantity.toLocaleString()}
+                                                </p>
+                                                <div className="flex gap-2 mt-1">
+                                                    <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 px-2 py-1 rounded">
+                                                        {inStockProducts.length} {t("in stock")}
+                                                    </span>
+                                                    <span className="text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300 px-2 py-1 rounded">
+                                                        {lowStockProducts.length} {t("low")}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                <BarChart3 className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Expiry Status */}
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                    {t("Expiry Status")}
+                                                </p>
+                                                <div className="space-y-1 mt-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-green-600 dark:text-green-400">{t("Valid")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {validProducts.length} ({validQuantity.toLocaleString()})
+                                                        </span>
                                                     </div>
-                                                    <input
-                                                        type="text"
-                                                        name="search"
-                                                        id="search"
-                                                        defaultValue={search}
-                                                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-2.5 sm:text-sm border-gray-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg"
-                                                        placeholder={t('Search by name or barcode')}
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-yellow-600 dark:text-yellow-400">{t("Expiring Soon")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {expiringSoonProducts.length} ({expiringSoonQuantity.toLocaleString()})
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-red-600 dark:text-red-400">{t("Expired")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {expiredProducts.length} ({expiredQuantity.toLocaleString()})
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
+                                                <Calendar className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Financial Overview */}
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                                    {t("Financial Overview")}
+                                                </p>
+                                                <div className="space-y-1 mt-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-green-600 dark:text-green-400">{t("Income")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {formatCurrency(totalIncomeValue)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-red-600 dark:text-red-400">{t("Outcome")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {formatCurrency(totalOutcomeValue)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between border-t pt-1">
+                                                        <span className="text-xs text-purple-600 dark:text-purple-400">{t("Profit")}</span>
+                                                        <span className={`text-sm font-bold ${totalProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                            {formatCurrency(totalProfit)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+                                                <DollarSign className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+
+                            {/* Additional Stats Row */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 1.0, duration: 0.5 }}
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                            >
+                                {/* Stock Alerts */}
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                                                    {t("Stock Alerts")}
+                                                </p>
+                                                <p className="text-2xl font-bold text-red-700 dark:text-red-300">
+                                                    {outOfStockProducts.length + lowStockProducts.length}
+                                                </p>
+                                                <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                                                    {outOfStockProducts.length} {t("out of stock")}, {lowStockProducts.length} {t("low stock")}
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg">
+                                                <TrendingDown className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Expiry Alerts */}
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                                                    {t("Expiry Alerts")}
+                                                </p>
+                                                <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">
+                                                    {expiredProducts.length + expiringSoonProducts.length}
+                                                </p>
+                                                <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                                                    {expiredProducts.length} {t("expired")}, {expiringSoonProducts.length} {t("expiring soon")}
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg">
+                                                <Calendar className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Remaining Value */}
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                                    {t("Remaining Value")}
+                                                </p>
+                                                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                                                    {formatCurrency(totalRemainingValue)}
+                                                </p>
+                                                <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                                    {t("Current inventory value")}
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                <Package className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Pricing Insights */}
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">
+                                                    {t("Pricing Insights")}
+                                                </p>
+                                                <div className="space-y-1 mt-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-blue-600 dark:text-blue-400">{t("Wholesale")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {formatCurrency(potentialWholesaleProfit)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-purple-600 dark:text-purple-400">{t("Retail")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {formatCurrency(potentialRetailProfit)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                                                <DollarSign className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Batch Information */}
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                                                    {t("Batch Info")}
+                                                </p>
+                                                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                                                    {totalBatches}
+                                                </p>
+                                                <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                                    {batchesWithExpiry} {t("with expiry dates")}
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                <Boxes className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+
+                            {/* Filters and Search */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.9, duration: 0.5 }}
+                            >
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                                            <div className="flex flex-1 gap-4 items-center">
+                                                <div className="relative flex-1 max-w-md">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                    <Input
+                                                        placeholder={t("Search products...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="pl-10 dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
                                                     />
                                                 </div>
-                                            </div>
-
-                                            {/* Filter Actions */}
-                                            <div className="md:col-span-2 flex flex-col md:flex-row justify-end gap-4 mt-2">
-                                                <Link
-                                                    href={route('customer.stock-products')}
-                                                    className="inline-flex items-center justify-center px-4 py-2.5 border border-gray-300 dark:border-slate-700 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
+                                                <Select value={sortBy} onValueChange={setSortBy}>
+                                                    <SelectTrigger className="w-48">
+                                                        <SelectValue placeholder={t("Sort by")} />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="product.name">{t("Product Name")}</SelectItem>
+                                                        <SelectItem value="remaining_qty">{t("Remaining Quantity")}</SelectItem>
+                                                        <SelectItem value="total_income_value">{t("Income Value")}</SelectItem>
+                                                        <SelectItem value="profit">{t("Profit")}</SelectItem>
+                                                        <SelectItem value="income_qty">{t("Income Quantity")}</SelectItem>
+                                                        <SelectItem value="outcome_qty">{t("Outcome Quantity")}</SelectItem>
+                                                        <SelectItem value="expire_date">{t("Expire Date")}</SelectItem>
+                                                        <SelectItem value="batch_reference">{t("Batch Reference")}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                                                    className="gap-2 dark:text-white text-black"
                                                 >
-                                                    <RefreshCw className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />
-                                                    {t('Reset Filters')}
-                                                </Link>
-
-                                                <button
-                                                    type="submit"
-                                                    className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm hover:shadow-md transition-all duration-300"
-                                                >
-                                                    <Search className="h-4 w-4 mr-2" />
-                                                    {t('Apply Filters')}
-                                                </button>
+                                                    {sortDirection === 'asc' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                                                    {sortDirection === 'asc' ? t("Ascending") : t("Descending")}
+                                                </Button>
                                             </div>
-                                        </form>
-                                    </div>
-                                )}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
 
-                                {/* Stock Products List */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden mb-8">
-                                    <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900">
-                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                                            <Package className="h-6 w-6 mr-2 text-indigo-600 dark:text-indigo-400" />
-                                            {t('Your Stock Products')}
-                                        </h3>
-                                    </div>
-
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                                            <thead>
-                                                <tr className="bg-gray-50 dark:bg-slate-800">
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                        {t('Product Details')}
-                                                    </th>
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                        {t('Stock')}
-                                                    </th>
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                        {t('Total Value')}
-                                                    </th>
-                                                    <th scope="col" className="px-6 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                                        {t('Profit')}
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
-                                                {stockProducts.data.length > 0 ? (
-                                                    stockProducts.data.map(product => (
-                                                        <tr key={product.product_id} className="group hover:bg-indigo-50/40 dark:hover:bg-slate-800/40 transition-all duration-300">
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="flex items-center">
-                                                                    <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg group-hover:shadow-xl group-hover:from-violet-600 group-hover:to-purple-700 transition-all duration-300 transform group-hover:scale-105">
-                                                                        <Box className="h-5 w-5" />
-                                                                    </div>
-                                                                    <div className="ml-4">
-                                                                        <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors duration-300">{product.product_name}</div>
-                                                                        <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                                                                            <PackageSearch className="h-4 w-4 mr-1.5 text-gray-400" />
-                                                                            {product.barcode}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm font-mono bg-indigo-50/80 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 py-1.5 px-3 rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm group-hover:shadow-md group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 inline-flex items-center transition-all duration-300">
-                                                                    <Box className="h-4 w-4 mr-2 text-indigo-500 dark:text-indigo-400" />
-                                                                    {product.net_quantity}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm font-mono bg-indigo-50/80 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 py-1.5 px-3 rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm group-hover:shadow-md group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 inline-flex items-center transition-all duration-300">
-                                                                    <DollarSign className="h-4 w-4 mr-2 text-indigo-500 dark:text-indigo-400" />
-                                                                    {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(product.net_total)}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className={`text-sm font-mono py-1.5 px-3 rounded-md border shadow-sm group-hover:shadow-md inline-flex items-center transition-all duration-300 ${
-                                                                    product.profit >= 0
-                                                                        ? 'bg-green-50/80 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-100 dark:border-green-800 group-hover:bg-green-100 dark:group-hover:bg-green-900/50'
-                                                                        : 'bg-red-50/80 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-100 dark:border-red-800 group-hover:bg-red-100 dark:group-hover:bg-red-900/50'
-                                                                }`}>
-                                                                    {product.profit >= 0 ? (
-                                                                        <TrendingUp className="h-4 w-4 mr-2 text-green-500 dark:text-green-400" />
-                                                                    ) : (
-                                                                        <TrendingDown className="h-4 w-4 mr-2 text-red-500 dark:text-red-400" />
-                                                                    )}
-                                                                    {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(product.profit)}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                ) : (
-                                                    <tr>
-                                                        <td colSpan="4" className="px-6 py-12 text-center">
-                                                            <div className="max-w-sm mx-auto">
-                                                                <div className="flex justify-center mb-4">
-                                                                    <div className="p-5 bg-indigo-100 dark:bg-indigo-900/50 rounded-full shadow-inner">
-                                                                        <Package className="h-12 w-12 text-indigo-600 dark:text-indigo-400" />
-                                                                    </div>
-                                                                </div>
-                                                                <p className="text-lg font-medium text-gray-800 dark:text-white mb-2">
-                                                                    {t('No products found')}
-                                                                </p>
-                                                                <p className="text-gray-500 dark:text-gray-400 mb-6">
-                                                                    {t('No stock products match your search criteria.')}
-                                                                </p>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {/* Pagination */}
-                                    {stockProducts.links && stockProducts.links.length > 3 && (
-                                        <div className="px-6 py-4 border-t border-gray-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900">
-                                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                                <div className="text-sm text-gray-700 dark:text-gray-300">
-                                                    {t('Showing')} <span className="font-medium text-indigo-700 dark:text-indigo-400">{stockProducts.from}</span> {t('to')} <span className="font-medium text-indigo-700 dark:text-indigo-400">{stockProducts.to}</span> {t('of')} <span className="font-medium text-indigo-700 dark:text-indigo-400">{stockProducts.total}</span> {t('results')}
+                            {/* Products Table */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 1.0, duration: 0.5 }}
+                            >
+                                <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-600/50">
+                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                <Package className="h-5 w-5 text-white" />
+                                            </div>
+                                            {t("Your Inventory")}
+                                        </CardTitle>
+                                        <CardDescription className="text-slate-600 dark:text-slate-400">
+                                            {t("Complete list of products in your inventory with batch tracking")}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="p-0">
+                                        {filteredProducts.length > 0 ? (
+                                            <div className="overflow-x-auto">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="bg-slate-50/50 dark:bg-slate-600/50">
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                {t("Batch Ref")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                {t("Product")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                {t("Barcode")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Units")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Income Qty")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Income Total")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Outcome Qty")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Outcome Total")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Remaining")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Purchase Price")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Wholesale")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Retail")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Profit")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Issue Date")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Expire Date")}
+                                                            </TableHead>
+                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                {t("Status")}
+                                                            </TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        <AnimatePresence>
+                                                            {filteredProducts.map((batch, index) => {
+                                                                const stockStatus = getStockStatus(batch.remaining_qty);
+                                                                const expiryStatus = getExpiryStatus([batch]);
+                                                                return (
+                                                                    <motion.tr
+                                                                        key={batch.batch_id || `${batch.product_id}-${index}`}
+                                                                        initial={{ opacity: 0, y: 20 }}
+                                                                        animate={{ opacity: 1, y: 0 }}
+                                                                        transition={{ delay: index * 0.05 }}
+                                                                        className="hover:bg-blue-50/50 dark:hover:bg-slate-700/50 transition-colors"
+                                                                    >
+                                                                        <TableCell>
+                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                                {batch.batch_reference || '-'}
+                                                                            </span>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                                                                    <Package className="h-5 w-5 text-white" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold text-slate-800 dark:text-white">
+                                                                                        {batch.product.name}
+                                                                                    </p>
+                                                                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                                                        {batch.product.type}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell className="font-mono text-slate-600 dark:text-slate-400">
+                                                                            {batch.product.barcode || '-'}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="space-y-1">
+                                                                                {batch.unit_name && (
+                                                                                    <div className="text-xs">
+                                                                                        <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                                            {batch.remaining_qty/batch.unit_amount} {batch.unit_name}
+                                                                                        </Badge>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center font-semibold">
+                                                                            {batch.income_qty?.toLocaleString() || 0}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right font-semibold text-green-600 dark:text-green-400">
+                                                                            {formatCurrency(batch.total_income_value)}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center font-semibold">
+                                                                            {batch.outcome_qty?.toLocaleString() || 0}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right font-semibold text-red-600 dark:text-red-400">
+                                                                            {formatCurrency(batch.total_outcome_value)}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center">
+                                                                            <Badge
+                                                                                variant="secondary"
+                                                                                className={`${stockStatus.color} text-white font-bold`}
+                                                                            >
+                                                                                {batch.remaining_qty?.toLocaleString() || 0}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right font-semibold text-slate-600 dark:text-slate-400">
+                                                                            {formatCurrency(batch.purchase_price)}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right font-semibold text-blue-600 dark:text-blue-400">
+                                                                            {formatCurrency(batch.wholesale_price)}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right font-semibold text-purple-600 dark:text-purple-400">
+                                                                            {formatCurrency(batch.retail_price)}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right font-bold">
+                                                                            <span className={batch.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                                                                {formatCurrency(batch.profit)}
+                                                                            </span>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">
+                                                                            {batch.issue_date ? formatDate(batch.issue_date) : '-'}
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Calendar className="h-4 w-4" />
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="font-medium text-sm">
+                                                                                        {batch.expire_date ? formatDate(batch.expire_date) : '-'}
+                                                                                    </span>
+                                                                                    {batch.days_to_expiry !== null && (
+                                                                                        <span className={`text-xs ${
+                                                                                            batch.days_to_expiry < 0 ? 'text-red-500' : 
+                                                                                            batch.days_to_expiry <= 30 ? 'text-orange-500' : 'text-green-500'
+                                                                                        }`}>
+                                                                                            {batch.days_to_expiry < 0 ? `${Math.abs(batch.days_to_expiry)} days expired` :
+                                                                                             batch.days_to_expiry === 0 ? 'Expires today' :
+                                                                                             `${batch.days_to_expiry} days left`}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center">
+                                                                            <Badge
+                                                                                variant="secondary"
+                                                                                className={`${expiryStatus.color} text-white`}
+                                                                            >
+                                                                                {t(expiryStatus.text)}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                    </motion.tr>
+                                                                );
+                                                            })}
+                                                        </AnimatePresence>
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        ) : (
+                                            <motion.div
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="text-center py-16"
+                                            >
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center">
+                                                        <Package className="h-8 w-8 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
+                                                            {t("No products found")}
+                                                        </h3>
+                                                        <p className="text-slate-600 dark:text-slate-400">
+                                                            {searchTerm 
+                                                                ? t("No products match your search criteria")
+                                                                : t("You don't have any products in inventory yet")
+                                                            }
+                                                        </p>
+                                                    </div>
                                                 </div>
+                                            </motion.div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
 
-                                                <nav className="relative z-0 inline-flex rounded-xl shadow-md -space-x-px overflow-hidden" aria-label="Pagination">
-                                                    {stockProducts.links.map((link, i) => {
-                                                        if (i === 0 || i === stockProducts.links.length - 1) {
-                                                            return null;
+                            {/* Pagination */}
+                            {products?.links && products.links.length > 3 && (
+                                <div className="flex justify-center">
+                                    <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {t("Showing")} {products.from} {t("to")} {products.to} {t("of")} {products.total} {t("products")}
+                                                </div>
+                                                
+                                                <div className="flex items-center gap-2">
+                                                    {products.links.map((link, index) => {
+                                                        if (link.url === null) {
+                                                            return (
+                                                                <Button
+                                                                    key={index}
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    disabled
+                                                                    className="w-10 h-10 p-0"
+                                                                >
+                                                                    {link.label === '&laquo; Previous' ? (
+                                                                        <ChevronLeft className="h-4 w-4" />
+                                                                    ) : link.label === 'Next &raquo;' ? (
+                                                                        <ChevronRight className="h-4 w-4" />
+                                                                    ) : (
+                                                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                    )}
+                                                                </Button>
+                                                            );
                                                         }
 
                                                         return (
                                                             <Link
-                                                                key={i}
+                                                                key={index}
                                                                 href={link.url}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm font-medium transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-700 ${
-                                                                    link.active
-                                                                        ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
-                                                                        : 'bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-600 dark:hover:text-indigo-400'
-                                                                }`}
-                                                                dangerouslySetInnerHTML={{ __html: link.label }}
-                                                            />
+                                                                preserveState
+                                                                preserveScroll
+                                                                only={['products', 'filters']}
+                                                            >
+                                                                <Button
+                                                                    variant={link.active ? "default" : "outline"}
+                                                                    size="sm"
+                                                                    className={`w-10 h-10 p-0 ${
+                                                                        link.active 
+                                                                            ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                                                                            : 'hover:bg-blue-50 hover:border-blue-300'
+                                                                    }`}
+                                                                >
+                                                                    {link.label === '&laquo; Previous' ? (
+                                                                        <ChevronLeft className="h-4 w-4" />
+                                                                    ) : link.label === 'Next &raquo;' ? (
+                                                                        <ChevronRight className="h-4 w-4" />
+                                                                    ) : (
+                                                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                    )}
+                                                                </Button>
+                                                            </Link>
                                                         );
                                                     })}
-                                                </nav>
-
-                                                {/* Prev/Next Buttons */}
-                                                <div className="flex space-x-2">
-                                                    <Link
-                                                        href={stockProducts.prev_page_url}
-                                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium rounded-lg ${
-                                                            stockProducts.prev_page_url
-                                                                ? 'border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
-                                                                : 'border-gray-200 dark:border-slate-800 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                                        }`}
-                                                        disabled={!stockProducts.prev_page_url}
-                                                    >
-                                                        {t('Previous')}
-                                                    </Link>
-                                                    <Link
-                                                        href={stockProducts.next_page_url}
-                                                        className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium rounded-lg ${
-                                                            stockProducts.next_page_url
-                                                                ? 'border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800'
-                                                                : 'border-gray-200 dark:border-slate-800 bg-gray-100 dark:bg-slate-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
-                                                        }`}
-                                                        disabled={!stockProducts.next_page_url}
-                                                    >
-                                                        {t('Next')}
-                                                    </Link>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        </CardContent>
+                                    </Card>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </main>
                 </div>
