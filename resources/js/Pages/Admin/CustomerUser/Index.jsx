@@ -233,10 +233,6 @@ export default function Index({ auth = {}, customerUsers = { data: [] }, permiss
                                         </Button>
                                     </Link>
                                 )}
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
                             </>
                         }
                     />
@@ -505,9 +501,6 @@ export default function Index({ auth = {}, customerUsers = { data: [] }, permiss
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                     {t("Created")}
                                                                 </TableHead>
-                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
-                                                                    {t("Actions")}
-                                                                </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -542,7 +535,7 @@ export default function Index({ auth = {}, customerUsers = { data: [] }, permiss
                                                                                 user.permissions.slice(0, 2).map((permission) => (
                                                                                     <Badge key={permission.id} variant="outline" className="text-xs">
                                                                                         <Shield className="w-3 h-3 mr-1" />
-                                                                                        {permission.name}
+                                                                                        {t(permission.name)}
                                                                                     </Badge>
                                                                                 ))
                                                                             ) : (
@@ -561,45 +554,6 @@ export default function Index({ auth = {}, customerUsers = { data: [] }, permiss
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
                                                                             {formatDate(user.created_at)}
-                                                                        </div>
-                                                                    </TableCell>
-                                                                    <TableCell className="text-right">
-                                                                        <div className="flex items-center justify-end gap-2">
-                                                                            {permissions.view_customer_user && (
-                                                                                <Link href={route('admin.customer-users.show', user.id)}>
-                                                                                    <Button 
-                                                                                        variant="ghost" 
-                                                                                        size="sm"
-                                                                                        className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/20"
-                                                                                        title={t("View")}
-                                                                                    >
-                                                                                        <Eye className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                </Link>
-                                                                            )}
-                                                                            {permissions.update_customer_user && (
-                                                                                <Link href={route('admin.customer-users.edit', user.id)}>
-                                                                                    <Button 
-                                                                                        variant="ghost" 
-                                                                                        size="sm"
-                                                                                        className="h-8 w-8 p-0 hover:bg-yellow-100 hover:text-yellow-600 dark:hover:bg-yellow-900/20"
-                                                                                        title={t("Edit")}
-                                                                                    >
-                                                                                        <Edit className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                </Link>
-                                                                            )}
-                                                                            {permissions.delete_customer_user && (
-                                                                                <Button 
-                                                                                    variant="ghost" 
-                                                                                    size="sm"
-                                                                                    onClick={() => handleDeleteUser(user.id)}
-                                                                                    className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
-                                                                                    title={t("Delete")}
-                                                                                >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                </Button>
-                                                                            )}
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
