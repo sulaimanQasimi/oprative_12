@@ -65,9 +65,8 @@ import {
     SelectValue,
 } from "@/Components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
-import CustomerLayout from "@/Layouts/CustomerLayout";
+import CustomerNavbar from "@/Components/CustomerNavbar";
 import PageLoader from "@/Components/Admin/PageLoader";
-import BackButton from "@/Components/BackButton";
 
 export default function StockIncomesIndex({ 
     auth, 
@@ -211,7 +210,7 @@ export default function StockIncomesIndex({
     };
 
     return (
-        <CustomerLayout auth={auth}>
+        <>
             <Head title={`${t("Stock Import")} - ${customer.name}`}>
                 <style>{`
                     @keyframes shimmer {
@@ -270,96 +269,65 @@ export default function StockIncomesIndex({
 
             <PageLoader isVisible={loading} icon={Download} color="green" />
 
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isAnimated ? 1 : 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
-            >
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
+                {/* Sidebar */}
+                <CustomerNavbar
+                    auth={auth || { user: { name: "Customer" } }}
+                    currentRoute="customer.stock-incomes.index"
+                />
+
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
                     {/* Header */}
                     <motion.header
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
                     >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative"
-                                >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
-                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
-                                        <Download className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
-                                    </div>
-                                </motion.div>
-                                <div>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
-                                    >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("Import Management")}
-                                    </motion.p>
-                                    <motion.h1
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
-                                    >
-                                        {t("Stock Import Records")}
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
-                                    >
-                                        <ShoppingCart className="w-4 h-4" />
-                                        {t("Track and manage your stock import records")}
-                                    </motion.p>
-                                </div>
+                        <div className="flex items-center space-x-4">
+                            <div className="relative flex flex-col">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400 mb-0.5">
+                                    {t("Import Management")}
+                                </span>
+                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    {t("Stock Import Records")}
+                                </h1>
                             </div>
+                        </div>
 
+                        <div className="flex items-center space-x-2">
                             <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <Link href={route("customer.dashboard")}>
-                                    <Button variant="outline" className="gap-2">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Dashboard")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("customer.stock-incomes.create")}>
-                                    <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Add New Import")}
-                                    </Button>
+                                <Link
+                                    href={route("customer.stock-incomes.create")}
+                                    className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center gap-2 transition-colors"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    <span>{t("Add New Import")}</span>
                                 </Link>
                             </motion.div>
                         </div>
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent">
-                        <div className="p-8">
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.8, duration: 0.5 }}
-                                className="space-y-8"
-                            >
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-slate-50 dark:bg-slate-950">
+                        <div className="max-w-7xl mx-auto relative">
+                            {/* Background Elements */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-green-50/30 to-emerald-50/30 dark:from-slate-900/30 dark:to-slate-800/30 pointer-events-none"></div>
+                            <div className="absolute -top-40 -left-40 w-80 h-80 bg-green-200/30 dark:bg-green-900/20 rounded-full filter blur-3xl animate-pulse pointer-events-none"></div>
+                            <div
+                                className="absolute -bottom-40 -right-40 w-80 h-80 bg-emerald-200/30 dark:bg-emerald-900/20 rounded-full filter blur-3xl animate-pulse pointer-events-none"
+                                style={{ animationDelay: "1s" }}
+                            ></div>
+                            <div
+                                className="absolute top-1/3 right-1/4 w-40 h-40 bg-teal-200/20 dark:bg-teal-900/10 rounded-full filter blur-2xl animate-pulse pointer-events-none"
+                                style={{ animationDelay: "2s" }}
+                            ></div>
+
+                            <div className="relative z-10">
                                 {/* Statistics Cards */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
@@ -820,11 +788,11 @@ export default function StockIncomesIndex({
                                         </div>
                                     </motion.div>
                                 )}
-                            </motion.div>
+                            </div>
                         </div>
                     </main>
                 </div>
-            </motion.div>
-        </CustomerLayout>
+            </div>
+        </>
     );
 }
