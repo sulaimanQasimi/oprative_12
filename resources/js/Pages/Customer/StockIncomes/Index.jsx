@@ -1,945 +1,830 @@
-import React, { useState, useEffect } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import CustomerNavbar from '@/Components/CustomerNavbar';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { Head, Link, router } from "@inertiajs/react";
+import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
+    Download,
+    ArrowLeft,
     Package,
+    DollarSign,
+    Calendar,
+    Hash,
+    FileText,
+    Sparkles,
+    Building2,
+    User,
     Search,
+    Filter,
     RefreshCw,
-    Eye,
+    BarChart3,
+    ChevronDown,
+    X,
+    Plus,
+    ShoppingCart,
+    Tag,
+    Barcode,
     CheckCircle,
     XCircle,
-    Clock,
-    Calendar,
-    DollarSign,
-    Building2,
-    ShoppingBag,
-    FileText,
-    Filter,
-    ChevronDown,
-    Mail,
-    User,
-    Receipt,
-    CreditCard,
-    Wallet,
-    ArrowDownRight,
-    ArrowUpRight,
-    CircleDollarSign,
-    BanknoteIcon,
-    ReceiptText,
-    ArrowRightLeft,
-    Truck,
-    PackageCheck,
-    PackageX,
-    PackageOpen,
-    Warehouse,
-    Box,
-    MapPin,
-    Route,
-    Plus,
+    Star,
+    AlertCircle,
+    ArrowUpDown,
+    Eye,
+    Settings,
+    ChevronRight,
     ChevronLeft,
-    ChevronRight
-} from 'lucide-react';
+    SkipBack,
+    SkipForward,
+    RotateCcw,
+    XOctagon,
+    Edit,
+    Trash2,
+    CircleDollarSign,
+    Receipt
+} from "lucide-react";
+import { Button } from "@/Components/ui/button";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/ui/table";
+import { Input } from "@/Components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { motion, AnimatePresence } from "framer-motion";
+import CustomerLayout from "@/Layouts/CustomerLayout";
+import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
-// PageLoader component
-const PageLoader = ({ isVisible }) => {
-    return (
-        <motion.div
-            className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 z-50 flex flex-col items-center justify-center overflow-hidden"
-            initial={{ opacity: 1 }}
-            animate={{
-                opacity: isVisible ? 1 : 0,
-                pointerEvents: isVisible ? "all" : "none",
-            }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-        >
-            {/* Background patterns */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
-
-            {/* Animated light beams */}
-            <div className="absolute w-full h-full overflow-hidden">
-                {[...Array(5)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute bg-gradient-to-r from-blue-400/10 via-indigo-500/10 to-transparent h-[30vh] w-[100vw]"
-                        style={{
-                            top: `${10 + i * 20}%`,
-                            left: "-100%",
-                            transformOrigin: "left center",
-                            rotate: `${-20 + i * 10}deg`,
-                        }}
-                        animate={{
-                            left: ["100%", "-100%"],
-                        }}
-                        transition={{
-                            duration: 15 + i * 2,
-                            repeat: Infinity,
-                            ease: "linear",
-                            delay: i * 3,
-                        }}
-                    />
-                ))}
-            </div>
-
-            <div className="relative z-10 flex flex-col items-center">
-                {/* Main animated container */}
-                <motion.div
-                    className="relative"
-                    animate={{
-                        scale: [0.95, 1.05, 0.95],
-                    }}
-                    transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
-                >
-                    {/* Icon/logo in center */}
-                    <motion.div
-                        className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
-                        animate={{
-                            rotate: [0, 10, 0, -10, 0],
-                            scale: [1, 1.1, 1, 1.1, 1],
-                        }}
-                        transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                        }}
-                    >
-                        <Box className="h-10 w-10 text-white drop-shadow-lg" />
-                    </motion.div>
-                </motion.div>
-            </div>
-        </motion.div>
-    );
-};
-
-export default function StockIncomesIndex({ auth, stockIncomes = { data: [], links: [], total: 0 }, filters = {}, products = [], statistics = {} }) {
+export default function StockIncomesIndex({ 
+    auth, 
+    customer, 
+    incomes = {
+        data: [],
+        total: 0,
+        from: 0,
+        to: 0,
+        current_page: 1,
+        last_page: 1,
+        links: [],
+    },
+    filters = {},
+    products = [],
+    statistics = {}
+}) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
-    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+    const [isAnimated, setIsAnimated] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [dateFilter, setDateFilter] = useState(filters.date || "");
+    const [sortBy, setSortBy] = useState(filters.sort_by || "created_at");
+    const [sortOrder, setSortOrder] = useState(filters.sort_order || "desc");
+    const [showFilters, setShowFilters] = useState(false);
+    const [perPage, setPerPage] = useState(filters.per_page || 15);
+    const [dateFrom, setDateFrom] = useState(filters.date_from || "");
+    const [dateTo, setDateTo] = useState(filters.date_to || "");
 
-    // Ensure stockIncomes has the proper structure
-    const safeStockIncomes = {
-        data: Array.isArray(stockIncomes?.data) ? stockIncomes.data : [],
-        links: Array.isArray(stockIncomes?.links) ? stockIncomes.links : [],
-        total: parseInt(stockIncomes?.total) || 0,
-        from: parseInt(stockIncomes?.from) || 0,
-        to: parseInt(stockIncomes?.to) || 0,
-        ...stockIncomes
-    };
-
-    const { data, setData, get, processing, errors } = useForm({
-        search: filters.search || '',
-        product: filters.product || '',
-        date_from: filters.date_from || '',
-        date_to: filters.date_to || '',
-    });
-
-    // Simulate loading delay
+    // Animation effect
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 1500);
-
+            setIsAnimated(true);
+        }, 800);
         return () => clearTimeout(timer);
     }, []);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        get(route('customer.stock-incomes.index'), {
+    // Handle search with debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            handleFilter();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    const handleFilter = () => {
+        const params = {
+            search: searchTerm,
+            per_page: perPage,
+            sort_by: sortBy,
+            sort_order: sortOrder,
+            date_from: dateFrom,
+            date_to: dateTo,
+        };
+        Object.keys(params).forEach(key => {
+            if (!params[key]) delete params[key];
+        });
+        router.get(route('customer.stock-incomes.index'), params, {
             preserveState: true,
             preserveScroll: true,
         });
     };
 
-    const handleReset = () => {
-        setData({
-            search: '',
-            product: '',
-            date_from: '',
-            date_to: '',
-        });
-        get(route('customer.stock-incomes.index'), {
+    const handleSort = (column) => {
+        const newDirection = sortBy === column && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortBy(column);
+        setSortOrder(newDirection);
+        router.get(route('customer.stock-incomes.index'), {
+            ...filters,
+            sort_by: column,
+            sort_order: newDirection,
+        }, {
             preserveState: true,
             preserveScroll: true,
         });
     };
 
-    // Calculate totals with proper error handling
-    const totalImports = safeStockIncomes.data.length;
-    const totalQuantity = safeStockIncomes.data.reduce((sum, income) => {
-        // Ensure we're working with numbers
-        const currentSum = isNaN(sum) ? 0 : sum;
-        const quantity = parseFloat(income?.quantity) || 0;
-        const unitAmount = parseFloat(income?.unit_amount) || 1;
-        
-        // For wholesale items, show the actual wholesale quantity (not the converted retail units)
-        if (income?.is_wholesale && unitAmount > 0) {
-            return currentSum + (quantity / unitAmount);
-        }
-        return currentSum + quantity;
-    }, 0) || 0;
-    
-    const totalValue = safeStockIncomes.data.reduce((sum, income) => {
-        const currentSum = isNaN(sum) ? 0 : sum;
-        const total = parseFloat(income?.total) || 0;
-        return currentSum + total;
-    }, 0) || 0;
-    
-    const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
+    const handlePageChange = (page) => {
+        router.get(route('customer.stock-incomes.index'), {
+            ...filters,
+            page: page,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setDateFrom("");
+        setDateTo("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+        setPerPage(15);
+        router.get(route('customer.stock-incomes.index'), {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const getSortIcon = (column) => {
+        if (sortBy !== column) return null;
+        return sortOrder === 'asc' ? '↑' : '↓';
+    };
+
+    // Calculate totals from paginated data
+    const incomesData = incomes?.data || incomes || [];
+
+    const getStatusBadge = (status) => {
+        const statusConfig = {
+            completed: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', label: t('Completed') },
+            pending: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300', label: t('Pending') },
+            cancelled: { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', label: t('Cancelled') },
+        };
+
+        const config = statusConfig[status] || statusConfig.pending;
+        return (
+            <Badge className={`${config.color} border-0`}>
+                {config.label}
+            </Badge>
+        );
+    };
 
     const formatCurrency = (amount) => {
-        const numericAmount = parseFloat(amount) || 0;
-        return new Intl.NumberFormat('en-US', {
+        return new Intl.NumberFormat('fa-IR', {
             style: 'currency',
-            currency: 'AFN',
+            currency: 'IRR',
             minimumFractionDigits: 0,
-        }).format(isNaN(numericAmount) ? 0 : numericAmount);
+        }).format(amount || 0);
+    };
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('fa-IR', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     };
 
     return (
-        <>
-            <Head title={t('Stock Incomes')}>
+        <CustomerLayout auth={auth}>
+            <Head title={`${t("Stock Income")} - ${customer.name}`}>
                 <style>{`
                     @keyframes shimmer {
-                        0% { transform: translateX(-100%); }
-                        100% { transform: translateX(100%); }
-                    }
-                    .animate-shimmer { animation: shimmer 3s infinite; }
-
-                    @keyframes fadeIn {
-                        from { opacity: 0; transform: translateY(10px); }
-                        to { opacity: 1; transform: translateY(0); }
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
                     }
 
-                    .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-                        background-size: 14px 14px;
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
                     }
 
-                    .dark .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
+                    }
+
+                    .glass-effect {
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .dark .glass-effect {
+                        background: rgba(0, 0, 0, 0.2);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #10b981, #059669) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #10b981, #059669) border-box;
                     }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} />
+            <PageLoader isVisible={loading} icon={TrendingUp} color="green" />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
-                {/* Sidebar */}
-                <CustomerNavbar
-                    auth={auth || {user: {name: 'Customer'}}}
-                    currentRoute="customer.stock-incomes.index"
-                />
-
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isAnimated ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+            >
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
+                <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">
-                                    {t("Customer Portal")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    <Box className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                    {t("Stock Incomes")}
-                                </h1>
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
+                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
+                                        <TrendingUp className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    </div>
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Sparkles className="w-4 h-4" />
+                                        {t("Income Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
+                                    >
+                                        {t("Stock Income Records")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <ShoppingCart className="w-4 h-4" />
+                                        {t("Track and manage your stock income records")}
+                                    </motion.p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <Link
-                                href={route('customer.stock-incomes.create')}
-                                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-200"
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
                             >
-                                <Plus className="w-5 h-5 mr-2" />
-                                {t('Add Stock Income')}
-                            </Link>
+                                <Link href={route("customer.dashboard")}>
+                                    <Button variant="outline" className="gap-2">
+                                        <ArrowLeft className="h-4 w-4" />
+                                        {t("Back to Dashboard")}
+                                    </Button>
+                                </Link>
+                                <Link href={route("customer.stock-incomes.create")}>
+                                    <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
+                                        <Plus className="h-4 w-4" />
+                                        {t("Add New Income")}
+                                    </Button>
+                                </Link>
+                            </motion.div>
                         </div>
-                    </header>
+                    </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-6">
-                            <div className="max-w-7xl mx-auto">
-                                {/* Hero Section with Gradient Background */}
-                                <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 rounded-2xl shadow-xl p-10 mb-10 overflow-hidden">
-                                    <div className="absolute inset-0 bg-pattern opacity-10"></div>
-                                    <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-blue-400 to-indigo-500 opacity-20 rounded-full blur-3xl"></div>
-                                    <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-gradient-to-tr from-indigo-400 to-blue-500 opacity-20 rounded-full blur-3xl"></div>
-
-                                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                        <div>
-                                            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
-                                                {t('Stock Incomes Management')}
-                                            </h1>
-                                            <p className="text-blue-100 text-lg max-w-2xl">
-                                                {t('Track all product additions to your inventory in one secure place.')}
-                                            </p>
-                                        </div>
-                                        <div className="hidden md:flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-2xl border border-white border-opacity-20 shadow-lg">
-                                            <PackageCheck className="h-16 w-16 text-white opacity-80" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Filters Section */}
-                                <div className="mb-6 bg-gradient-to-br from-white/80 to-indigo-50/50 backdrop-blur-xl rounded-2xl shadow-lg border border-indigo-100/50 overflow-hidden transform hover:scale-[1.01] transition-all duration-300">
-                                    <div className="p-4 border-b border-indigo-100/50 flex justify-between items-center bg-gradient-to-r from-purple-50 to-indigo-50">
-                                        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                            <div className="p-2 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-lg">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                                                </svg>
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent">
+                        <div className="p-8">
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="space-y-8"
+                            >
+                                {/* Statistics Cards */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.8, duration: 0.5 }}
+                                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                                >
+                                    <Card className="border-0 shadow-xl bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 backdrop-blur-xl">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Total Records")}</p>
+                                                    <p className="text-3xl font-bold text-green-700 dark:text-green-300">{statistics.total || 0}</p>
+                                                </div>
+                                                <div className="p-3 bg-green-500/20 rounded-xl">
+                                                    <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
+                                                </div>
                                             </div>
-                                            {t('Filters')}
-                                        </h3>
-                                        <button 
-                                            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                                            className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 hover:text-indigo-700 transition-all duration-200 group"
-                                        >
-                                            <svg 
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className={`h-5 w-5 transform transition-transform duration-300 ${showAdvancedFilters ? 'rotate-180' : ''}`}
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 backdrop-blur-xl">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Total Quantity")}</p>
+                                                    <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{(statistics.total_quantity || 0).toLocaleString()}</p>
+                                                </div>
+                                                <div className="p-3 bg-blue-500/20 rounded-xl">
+                                                    <Package className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-0 shadow-xl bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/20 backdrop-blur-xl">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t("Total Value")}</p>
+                                                    <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">{formatCurrency(statistics.total_value || 0)}</p>
+                                                </div>
+                                                <div className="p-3 bg-purple-500/20 rounded-xl">
+                                                    <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Search */}
+                                <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                    <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                    <Filter className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Search & Filter")}
+                                            </CardTitle>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowFilters(!showFilters)}
+                                                className="gap-2"
                                             >
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    {showAdvancedFilters && (
-                                        <div className="p-6 space-y-6 bg-gradient-to-br from-white to-indigo-50/30">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                                                {/* Date Range Filter */}
-                                                <div className="group">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
-                                                        {t('Date Range')}
-                                                    </label>
-                                                    <div className="relative">
-                                                        <select
-                                                            value={data.date_from && data.date_to ? 'custom' : 'all'}
-                                                            onChange={(e) => {
-                                                                if (e.target.value === 'all') {
-                                                                    setData('date_from', '');
-                                                                    setData('date_to', '');
-                                                                }
-                                                            }}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
-                                                        >
-                                                            <option value="all">{t('All Time')}</option>
-                                                            <option value="today">{t('Today')}</option>
-                                                            <option value="week">{t('This Week')}</option>
-                                                            <option value="month">{t('This Month')}</option>
-                                                            <option value="year">{t('This Year')}</option>
-                                                            <option value="custom">{t('Custom Range')}</option>
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Reference Number Search */}
-                                                <div className="group">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                        </svg>
-                                                        {t('Reference Number')}
-                                                    </label>
-                                                    <div className="relative">
-                                                        <input
-                                                            type="text"
-                                                            value={data.search}
-                                                            onChange={(e) => setData('search', e.target.value)}
-                                                            placeholder={t('Search by reference number...')}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-11 pr-4 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200"
-                                                        />
-                                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                                            <div className="p-1.5 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-lg">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                                </svg>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Product Filter */}
-                                                <div className="group">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                                        </svg>
-                                                        {t('Product')}
-                                                    </label>
-                                                    <div className="relative">
-                                                        <select
-                                                            value={data.product}
-                                                            onChange={(e) => setData('product', e.target.value)}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
-                                                        >
-                                                            <option value="">{t('All Products')}</option>
-                                                            {products.map(product => (
-                                                                <option key={product.id} value={product.id}>{product.name}</option>
-                                                            ))}
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Sort By */}
-                                                <div className="group">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-                                                        </svg>
-                                                        {t('Sort By')}
-                                                    </label>
-                                                    <div className="relative">
-                                                        <select
-                                                            value="created_at"
-                                                            onChange={(e) => {
-                                                                // Handle sort change if needed
-                                                            }}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
-                                                        >
-                                                            <option value="created_at">{t('Date')}</option>
-                                                            <option value="total">{t('Amount')}</option>
-                                                            <option value="quantity">{t('Quantity')}</option>
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Per Page */}
-                                                <div className="group">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                                                        </svg>
-                                                        {t('Per Page')}
-                                                    </label>
-                                                    <div className="relative">
-                                                        <select
-                                                            value={10}
-                                                            onChange={(e) => {
-                                                                // Handle per page change if needed
-                                                            }}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
-                                                        >
-                                                            <option value={5}>5</option>
-                                                            <option value={10}>10</option>
-                                                            <option value={15}>15</option>
-                                                            <option value={20}>20</option>
-                                                            <option value={25}>25</option>
-                                                            <option value={50}>50</option>
-                                                        </select>
-                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Custom Date Range (shown when custom is selected) */}
-                                            {(data.date_from || data.date_to) && (
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    <div className="group">
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
-                                                            {t('From Date')}
-                                                        </label>
-                                                        <input
-                                                            type="date"
-                                                            value={data.date_from}
-                                                            onChange={(e) => setData('date_from', e.target.value)}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-4 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200"
-                                                        />
-                                                    </div>
-                                                    <div className="group">
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
-                                                            {t('To Date')}
-                                                        </label>
-                                                        <input
-                                                            type="date"
-                                                            value={data.date_to}
-                                                            onChange={(e) => setData('date_to', e.target.value)}
-                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-4 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Action Buttons */}
-                                            <div className="flex justify-end space-x-4">
-                                                <button
-                                                    type="button"
-                                                    onClick={handleReset}
-                                                    className="px-6 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                                                >
-                                                    <RefreshCw className="h-4 w-4 mr-2 inline" />
-                                                    {t('Reset')}
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleSubmit}
-                                                    disabled={processing}
-                                                    className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                                                >
-                                                    <Search className="h-4 w-4 mr-2 inline" />
-                                                    {t('Apply Filters')}
-                                                </button>
-                                            </div>
+                                                <Filter className="h-4 w-4" />
+                                                {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                            </Button>
                                         </div>
-                                    )}
-                                </div>
-
-                                {/* Stock Incomes Table */}
-                                <div className="overflow-x-auto rounded-xl shadow-sm">
-                                    {safeStockIncomes.data.length === 0 ? (
-                                        <div className="bg-white rounded-xl p-12 text-center text-gray-500 border border-dashed border-gray-300">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-12 w-12 mx-auto text-gray-400 mb-4"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                            >
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        {/* Search Bar */}
+                                        <div className="mb-4">
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <Input
+                                                    placeholder={t("Search by reference or product...")}
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
                                                 />
-                                            </svg>
-                                            <p className="text-lg">
-                                                {t('No stock incomes found matching your criteria.')}
-                                            </p>
-                                            <p className="text-sm mt-2">
-                                                {t('Try changing your filters or search parameters.')}
-                                            </p>
+                                                {searchTerm && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setSearchTerm("")}
+                                                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </div>
-                                    ) : (
-                                        <table className="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-xl overflow-hidden border-collapse">
-                                            <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
-                                                <tr>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                        {/* Advanced Filters */}
+                                        {showFilters && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700"
+                                            >
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Date From")}
+                                                    </label>
+                                                    <Input
+                                                        type="date"
+                                                        value={dateFrom}
+                                                        onChange={(e) => setDateFrom(e.target.value)}
+                                                        className="h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Date To")}
+                                                    </label>
+                                                    <Input
+                                                        type="date"
+                                                        value={dateTo}
+                                                        onChange={(e) => setDateTo(e.target.value)}
+                                                        className="h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Sort By")}
+                                                    </label>
+                                                    <Select value={sortBy} onValueChange={setSortBy}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                            <SelectItem value="reference_number">{t("Reference")}</SelectItem>
+                                                            <SelectItem value="total">{t("Amount")}</SelectItem>
+                                                            <SelectItem value="quantity">{t("Quantity")}</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Per Page")}
+                                                    </label>
+                                                    <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="10">10</SelectItem>
+                                                            <SelectItem value="15">15</SelectItem>
+                                                            <SelectItem value="25">25</SelectItem>
+                                                            <SelectItem value="50">50</SelectItem>
+                                                            <SelectItem value="100">100</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="flex items-end gap-2">
+                                                    <Button
+                                                        onClick={handleFilter}
+                                                        className="h-10 bg-green-600 hover:bg-green-700 text-white"
                                                     >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
-                                                                />
-                                                            </svg>
-                                                            {t('ID')}
-                                                        </div>
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                        {t("Apply")}
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={clearFilters}
+                                                        className="h-10"
                                                     >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                                />
-                                                            </svg>
-                                                            {t('Reference')}
-                                                        </div>
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
-                                                    >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                                                                />
-                                                            </svg>
-                                                            {t('Product')}
-                                                        </div>
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
-                                                    >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                                                                />
-                                                            </svg>
-                                                            {t('Quantity')}
-                                                        </div>
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
-                                                    >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                                />
-                                                            </svg>
-                                                            {t('Total')}
-                                                        </div>
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
-                                                    >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                                />
-                                                            </svg>
-                                                            {t('Date')}
-                                                        </div>
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
-                                                    >
-                                                        <div className="flex items-center justify-end">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                />
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth="2"
-                                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                />
-                                                            </svg>
-                                                            {t('Actions')}
-                                                        </div>
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                {safeStockIncomes.data.map((income, index) => (
-                                                    <tr
-                                                        key={income.id}
-                                                        className="hover:bg-indigo-50/30 transition-colors duration-150 group"
-                                                        style={{
-                                                            animation: `fadeIn 0.5s ease-out ${
-                                                                index * 0.1
-                                                            }s both`,
-                                                        }}
-                                                    >
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            <div className="flex items-center justify-end space-x-2 rtl:space-x-reverse">
-                                                                <span className="bg-indigo-100 text-indigo-600 group-hover:bg-indigo-200 transition-colors duration-150 py-1 px-2.5 rounded-lg">
-                                                                    #{income.id}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            <div className="flex items-center justify-end">
-                                                                <span className="bg-blue-100 text-blue-600 group-hover:bg-blue-200 transition-colors duration-150 py-1 px-2.5 rounded-lg">
-                                                                    {income.reference_number || `#${String(income.id).padStart(6, "0")}`}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                            <div className="flex items-center justify-end">
-                                                                <span className="bg-purple-100 text-purple-600 group-hover:bg-purple-200 transition-colors duration-150 py-1 px-2.5 rounded-lg">
-                                                                    {income.product?.name || 'N/A'}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            <div className="flex items-center justify-end">
-                                                                <span className="bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors duration-150 py-1 px-2.5 rounded-lg">
-                                                                    <span className="font-semibold">
-                                                                        {income.is_wholesale 
-                                                                            ? `${((parseFloat(income.quantity) || 0) / (parseFloat(income.unit_amount) || 1)).toLocaleString()}`
-                                                                            : (parseFloat(income.quantity) || 0).toLocaleString()
-                                                                        }
-                                                                    </span>
-                                                                    {(income.unit_name || income.unit?.name) && (
-                                                                        <span className="ml-1 text-xs opacity-75">
-                                                                            {income.unit_name || income.unit?.name}
-                                                                            {income.unit?.symbol && ` (${income.unit.symbol})`}
-                                                                        </span>
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                            <div className="flex items-center justify-end">
-                                                                <span className="bg-green-100 text-green-700 py-1 px-2.5 rounded-lg group-hover:bg-green-200 transition-colors duration-150">
-                                                                    {formatCurrency(income.total)}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            <div className="flex items-center justify-end">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 text-indigo-400 group-hover:text-indigo-500"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                    stroke="currentColor"
-                                                                >
-                                                                    <path
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        strokeWidth="2"
-                                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                                                    />
-                                                                </svg>
-                                                                <span className="text-green-600 font-medium">
-                                                                    {new Date(income.created_at).toLocaleDateString()}
-                                                                </span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                            <div className="flex justify-end">
-                                                                <Link
-                                                                    href={route('customer.stock-incomes.show', income.id)}
-                                                                    className="flex items-center text-indigo-600 hover:text-indigo-900 font-medium bg-indigo-50 hover:bg-indigo-100 transition-colors duration-150 px-3 py-1.5 rounded-lg group-hover:scale-105 transform"
-                                                                >
-                                                                    <svg
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                        stroke="currentColor"
-                                                                    >
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            strokeWidth="2"
-                                                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                                        />
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            strokeWidth="2"
-                                                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                                        />
-                                                                    </svg>
-                                                                    {t('View Details')}
-                                                                </Link>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    )}
-                                </div>
+                                                        <RefreshCw className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </CardContent>
+                                </Card>
 
-                                {/* Pagination Controls */}
-                                {safeStockIncomes.links && safeStockIncomes.links.length > 3 && (
+                                {/* Income Records Table */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.0, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-3">
+                                                <BarChart3 className="h-5 w-5 text-green-600" />
+                                                {t("Income Records")}
+                                                <Badge variant="secondary">
+                                                    {incomesData.length} {t("of")} {incomes.total}
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            {incomesData.length > 0 ? (
+                                                <div className="overflow-x-auto">
+                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("Reference")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("Product")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Batch")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Quantity")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Unit Type")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Price")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Total")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Notes")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Date")}
+                                                                </TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            {incomesData.map((income, index) => (
+                                                                <TableRow
+                                                                    key={income.id}
+                                                                    className="hover:bg-green-50 dark:hover:bg-green-900/10"
+                                                                >
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md">
+                                                                                <FileText className="h-5 w-5" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="text-base font-medium text-slate-900 dark:text-white">
+                                                                                    {income.reference_number}
+                                                                                </div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center">
+                                                                                    <Calendar className="h-4 w-4 mr-1 text-slate-400" />
+                                                                                    {formatDate(income.created_at)}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="text-sm text-slate-900 dark:text-white">
+                                                                            {income.product?.name || 'N/A'}
+                                                                        </div>
+                                                                        {income.product?.barcode && (
+                                                                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                                                <Badge variant="outline" className="text-xs">
+                                                                                    {income.product.barcode}
+                                                                                </Badge>
+                                                                            </div>
+                                                                        )}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-center">
+                                                                        {/* Batch cell */}
+                                                                        {income.batch ? (
+                                                                            <div className="flex flex-col items-center gap-1 min-w-0">
+                                                                                <span className="font-medium text-slate-800 dark:text-white truncate" title={income.batch.reference_number}>
+                                                                                    {income.batch.reference_number}
+                                                                                </span>
+                                                                                {income.batch.expire_date && (
+                                                                                    <span className={`text-xs ${
+                                                                                        income.batch.expiry_status === 'expired' ? 'text-red-500' :
+                                                                                        income.batch.expiry_status === 'expiring_soon' ? 'text-orange-500' :
+                                                                                        income.batch.expiry_status === 'valid' ? 'text-green-500' :
+                                                                                        'text-slate-400'
+                                                                                    }`}>
+                                                                                        {formatDate(income.batch.expire_date)}
+                                                                                        {income.batch.days_to_expiry !== null && (
+                                                                                            <span className="ml-1">
+                                                                                                ({income.batch.days_to_expiry > 0 ? '+' : ''}{income.batch.days_to_expiry} {t('days')})
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </span>
+                                                                                )}
+                                                                                {income.batch.expiry_status && (
+                                                                                    <Badge 
+                                                                                        variant="outline" 
+                                                                                        className={`text-xs mt-1 ${
+                                                                                            income.batch.expiry_status === 'expired' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800' :
+                                                                                            income.batch.expiry_status === 'expiring_soon' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800' :
+                                                                                            income.batch.expiry_status === 'valid' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800' :
+                                                                                            'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {income.batch.expiry_status === 'expired' ? t('Expired') :
+                                                                                         income.batch.expiry_status === 'expiring_soon' ? t('Expiring Soon') :
+                                                                                         income.batch.expiry_status === 'valid' ? t('Valid') :
+                                                                                         t('No Expiry')}
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-slate-400 dark:text-slate-500">-</span>
+                                                                        )}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <div className="text-sm font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 py-1.5 px-3 rounded-md border border-blue-100 dark:border-blue-900 shadow-sm inline-flex items-center float-right">
+                                                                                <Package className="h-4 w-4 mr-1.5 text-blue-500 dark:text-blue-400" />
+                                                                                {income.is_wholesale 
+                                                                                    ? `${((parseFloat(income.quantity) || 0) / (parseFloat(income.unit_amount) || 1)).toLocaleString()}`
+                                                                                    : (parseFloat(income.quantity) || 0).toLocaleString()
+                                                                                }
+                                                                                {(income.unit_name || income.unit?.name) && (
+                                                                                    <span className="ml-1 text-xs opacity-75">
+                                                                                        {income.unit_name || income.unit?.name}
+                                                                                        {income.unit?.symbol && ` (${income.unit.symbol})`}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            {income.is_wholesale && (
+                                                                                <span className="text-xs text-slate-500 dark:text-slate-400 float-right">
+                                                                                    ({(parseFloat(income.quantity) || 0).toLocaleString()} retail units total)
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className={`text-sm font-mono py-1.5 px-3 rounded-md border shadow-sm inline-flex items-center float-right ${
+                                                                            income.unit_type === 'wholesale' 
+                                                                                ? "bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-100 dark:border-purple-900"
+                                                                                : "bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-100 dark:border-blue-900"
+                                                                        }`}>
+                                                                            <Package className={`h-4 w-4 mr-1.5 ${
+                                                                                income.unit_type === 'wholesale' 
+                                                                                    ? "text-purple-500 dark:text-purple-400"
+                                                                                    : "text-blue-500 dark:text-blue-400"
+                                                                            }`} />
+                                                                            {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="text-sm font-mono bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1.5 px-3 rounded-md border border-purple-100 dark:border-purple-900 shadow-sm inline-flex items-center float-right">
+                                                                            <DollarSign className="h-4 w-4 mr-1.5 text-purple-500 dark:text-purple-400" />
+                                                                            {formatCurrency(income.price)}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="text-sm font-mono bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300 py-1.5 px-3 rounded-md border border-green-100 dark:border-green-900 shadow-sm inline-flex items-center float-right">
+                                                                            <DollarSign className="h-4 w-4 mr-1.5 text-green-500 dark:text-green-400" />
+                                                                            {formatCurrency(income.total)}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-center">
+                                                                        {income.notes ? (
+                                                                            <div className="text-sm text-slate-700 dark:text-slate-300 bg-yellow-50 dark:bg-yellow-900/30 py-1.5 px-3 rounded-md border border-yellow-100 dark:border-yellow-900 shadow-sm inline-flex items-center max-w-xs">
+                                                                                <FileText className="h-4 w-4 mr-1.5 text-yellow-500 dark:text-yellow-400 flex-shrink-0" />
+                                                                                <span className="truncate" title={income.notes}>
+                                                                                    {income.notes.length > 30 ? `${income.notes.substring(0, 30)}...` : income.notes}
+                                                                                </span>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-slate-400 dark:text-slate-600 text-sm italic">
+                                                                                {t('No notes')}
+                                                                            </span>
+                                                                        )}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="text-sm text-slate-900 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 py-1.5 px-3 rounded-md inline-flex items-center float-right">
+                                                                            <Calendar className="h-4 w-4 mr-1.5 text-slate-500 dark:text-slate-400" />
+                                                                            {formatDate(income.created_at)}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))}
+                                                        </TableBody>
+                                                    </Table>
+                                                </div>
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell colSpan="8" className="h-32 text-center">
+                                                        <div className="flex flex-col items-center gap-4">
+                                                            <TrendingUp className="h-8 w-8 text-slate-400" />
+                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                {t("No income records found")}
+                                                            </p>
+                                                            <p className="text-sm text-slate-500">
+                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("You don't have any income records yet.")}
+                                                            </p>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Pagination */}
+                                {incomes?.links && incomes.links.length > 3 && (
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
                                         className="flex flex-col items-center space-y-4"
                                     >
                                         <div className="text-sm text-slate-600 dark:text-slate-400">
-                                            {t("Showing")} {safeStockIncomes.from || 0} {t("to")} {safeStockIncomes.to || 0} {t("of")} {safeStockIncomes.total || 0} {t("results")}
+                                            {t("Showing")} {incomes.from} {t("to")} {incomes.to} {t("of")} {incomes.total} {t("results")}
                                         </div>
                                         <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
-                                            {/* Previous Page */}
-                                            <button
-                                                onClick={() => {
-                                                    const prevPage = safeStockIncomes.current_page - 1;
-                                                    if (prevPage >= 1) {
-                                                        get(route('customer.stock-incomes.index', { page: prevPage }), {
-                                                            preserveState: true,
-                                                            preserveScroll: true,
-                                                        });
-                                                    }
-                                                }}
-                                                disabled={!safeStockIncomes.links || safeStockIncomes.current_page <= 1}
-                                                className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-                                                    safeStockIncomes.links && safeStockIncomes.current_page > 1
-                                                        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
-                                                        : 'text-gray-400 cursor-not-allowed'
-                                                }`}
-                                            >
-                                                <ChevronRight className="h-4 w-4" />
-                                                <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
-                                            </button>
-
-                                            {/* Page Numbers */}
-                                            {safeStockIncomes.links && safeStockIncomes.links.slice(1, -1).map((link, index) => {
-                                                if (link.url === null) {
+                                            {incomes.links.map((link, index) => {
+                                                if (link.label.includes('Previous')) {
                                                     return (
-                                                        <span key={index} className="px-3 py-2 text-gray-400">
-                                                            ...
-                                                        </span>
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <ChevronLeft className="h-4 w-4" />
+                                                            <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                        </Link>
                                                     );
                                                 }
-                                                
-                                                const pageNum = link.label;
-                                                const isActive = link.active;
-                                                
+                                                if (link.label.includes('Next')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                            <ChevronRight className="h-4 w-4" />
+                                                        </Link>
+                                                    );
+                                                }
                                                 return (
-                                                    <button
+                                                    <Link
                                                         key={index}
-                                                        onClick={() => {
-                                                            const url = new URL(link.url);
-                                                            const page = url.searchParams.get('page');
-                                                            if (page) {
-                                                                get(route('customer.stock-incomes.index', { page }), {
-                                                                    preserveState: true,
-                                                                    preserveScroll: true,
-                                                                });
-                                                            }
-                                                        }}
+                                                        href={link.url || '#'}
                                                         className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                                                            isActive
+                                                            link.active
                                                                 ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
-                                                                : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                : link.url
+                                                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
                                                         }`}
-                                                    >
-                                                        {pageNum}
-                                                    </button>
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
                                                 );
                                             })}
-
-                                            {/* Next Page */}
-                                            <button
-                                                onClick={() => {
-                                                    const nextPage = safeStockIncomes.current_page + 1;
-                                                    if (nextPage <= safeStockIncomes.last_page) {
-                                                        get(route('customer.stock-incomes.index', { page: nextPage }), {
-                                                            preserveState: true,
-                                                            preserveScroll: true,
-                                                        });
-                                                    }
-                                                }}
-                                                disabled={!safeStockIncomes.links || safeStockIncomes.current_page >= safeStockIncomes.last_page}
-                                                className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-                                                    safeStockIncomes.links && safeStockIncomes.current_page < safeStockIncomes.last_page
-                                                        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
-                                                        : 'text-gray-400 cursor-not-allowed'
-                                                }`}
-                                            >
-                                                <span className="mr-1 hidden sm:inline">{t('Next')}</span>
-                                                <ChevronRight className="h-4 w-4 rotate-180" />
-                                            </button>
                                         </div>
                                     </motion.div>
                                 )}
-
-                                <style
-                                    dangerouslySetInnerHTML={{
-                                        __html: `
-                                    @keyframes fadeIn {
-                                        from { opacity: 0; transform: translateY(10px); }
-                                        to { opacity: 1; transform: translateY(0); }
-                                    }
-                                `,
-                                    }}
-                                />
-                            </div>
+                            </motion.div>
                         </div>
                     </main>
                 </div>
-            </div>
-        </>
+            </motion.div>
+        </CustomerLayout>
     );
 }

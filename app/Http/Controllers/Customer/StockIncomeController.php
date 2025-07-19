@@ -16,39 +16,70 @@ use Spatie\Activitylog\Models\Activity;
 class StockIncomeController extends Controller
 {
     /**
-     * Display a listing of stock incomes
+     * Display a listing of stock incomes with enhanced filtering and pagination.
      */
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'product', 'date_from', 'date_to']);
+        try {
+            // Get query parameters
+            $search = $request->input('search');
+            $date = $request->input('date');
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $perPage = $request->input('per_page', 15);
 
-        // Get the authenticated customer
-        $customer = Auth::guard('customer_user')->user()->customer;
+            // Get the authenticated customer
+            $customer = Auth::guard('customer_user')->user()->customer;
 
-        $query = CustomerStockIncome::where('customer_id', $customer->id)
-            ->with(['product', 'unit'])
-            ->latest();
+            // Build the query
+            $query = $customer->customerStockIncome()
+                ->with(['product', 'unit', 'batch'])
+                ->when($search, function ($query) use ($search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('reference_number', 'like', "%{$search}%")
+                          ->orWhereHas('product', function ($productQuery) use ($search) {
+                              $productQuery->where('name', 'like', "%{$search}%")
+                                          ->orWhere('barcode', 'like', "%{$search}%")
+                                          ->orWhere('type', 'like', "%{$search}%");
+                          })
+                          ->orWhereHas('batch', function ($bq) use ($search) {
+                              $bq->where('reference_number', 'like', "%{$search}%");
+                          });
+                    });
+                })
+                ->when($date, function ($query) use ($date) {
+                    $query->whereDate('created_at', $date);
+                });
 
-        // Apply filters
-        if (!empty($filters['search'])) {
-            $query->where('reference_number', 'like', '%' . $filters['search'] . '%');
-        }
+            // Apply sorting
+            if ($sortBy === 'product.name') {
+                $query->join('products', 'customer_stock_incomes.product_id', '=', 'products.id')
+                      ->orderBy('products.name', $sortOrder)
+                      ->select('customer_stock_incomes.*');
+            } else {
+                $query->orderBy($sortBy, $sortOrder);
+            }
 
-        if (!empty($filters['product'])) {
-            $query->where('product_id', $filters['product']);
-        }
+            // Paginate the results
+            $incomes = $query->paginate($perPage);
 
-        if (!empty($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
-        }
-
-        if (!empty($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
-        }
-
-        // Get paginated results with enhanced data mapping
-        $stockIncomes = $query->paginate(10)
-            ->through(function ($income) {
+            // Format the paginated data with enhanced structure like CustomerController
+            $formattedIncomes = $incomes->through(function ($income) {
+                // Calculate days to expiry for batch
+                $daysToExpiry = null;
+                $expiryStatus = null;
+                if ($income->batch && $income->batch->expire_date) {
+                    $daysToExpiry = now()->diffInDays($income->batch->expire_date, false);
+                    if ($daysToExpiry < 0) {
+                        $expiryStatus = 'expired';
+                    } elseif ($daysToExpiry <= 30) {
+                        $expiryStatus = 'expiring_soon';
+                    } else {
+                        $expiryStatus = 'valid';
+                    }
+                } elseif ($income->batch) {
+                    $expiryStatus = 'no_expiry';
+                }
                 return [
                     'id' => $income->id,
                     'reference_number' => $income->reference_number,
@@ -58,6 +89,22 @@ class StockIncomeController extends Controller
                         'barcode' => $income->product->barcode,
                         'type' => $income->product->type,
                     ],
+                    'batch' => $income->batch ? [
+                        'id' => $income->batch->id,
+                        'reference_number' => $income->batch->reference_number,
+                        'issue_date' => $income->batch->issue_date,
+                        'expire_date' => $income->batch->expire_date,
+                        'notes' => $income->batch->notes,
+                        'unit_name' => $income->batch->unit_name,
+                        'unit_amount' => $income->batch->unit_amount,
+                        'purchase_price' => $income->batch->purchase_price,
+                        'wholesale_price' => $income->batch->wholesale_price,
+                        'retail_price' => $income->batch->retail_price,
+                        'quantity' => $income->batch->quantity,
+                        'total' => $income->batch->total,
+                        'days_to_expiry' => $daysToExpiry,
+                        'expiry_status' => $expiryStatus,
+                    ] : null,
                     'quantity' => $income->quantity,
                     'price' => $income->price,
                     'total' => $income->total,
@@ -73,27 +120,55 @@ class StockIncomeController extends Controller
                         'symbol' => $income->unit->symbol,
                     ] : null,
                     'notes' => $income->notes,
+                    'description' => $income->description,
+                    'status' => $income->status,
                     'created_at' => $income->created_at,
                     'updated_at' => $income->updated_at,
                 ];
-            })
-            ->appends($request->query());
+            });
 
-        // Get product list for filter
-        $products = Product::whereHas('customerStockIncomes', function ($q) use ($customer) {
-            $q->where('customer_id', $customer->id);
-        })->get(['id', 'name']);
+            // Add query string to pagination links
+            $formattedIncomes->appends($request->query());
 
-        return Inertia::render('Customer/StockIncomes/Index', [
-            'stockIncomes' => $stockIncomes,
-            'filters' => $filters,
-            'products' => $products,
-            'statistics' => [
-                'total' => CustomerStockIncome::where('customer_id', $customer->id)->count(),
-                'total_quantity' => CustomerStockIncome::where('customer_id', $customer->id)->sum('quantity'),
-                'total_value' => CustomerStockIncome::where('customer_id', $customer->id)->sum('total'),
-            ]
-        ]);
+            // Get product list for filter
+            $products = Product::whereHas('customerStockIncomes', function ($q) use ($customer) {
+                $q->where('customer_id', $customer->id);
+            })->get(['id', 'name']);
+
+            return Inertia::render('Customer/StockIncomes/Index', [
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'phone' => $customer->phone,
+                    'address' => $customer->address,
+                    'status' => $customer->status,
+                ],
+                'incomes' => $formattedIncomes,
+                'filters' => [
+                    'search' => $search,
+                    'date' => $date,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                ],
+                'products' => $products,
+                'statistics' => [
+                    'total' => CustomerStockIncome::where('customer_id', $customer->id)->count(),
+                    'total_quantity' => CustomerStockIncome::where('customer_id', $customer->id)->sum('quantity'),
+                    'total_value' => CustomerStockIncome::where('customer_id', $customer->id)->sum('total'),
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Customer stock income display failed', [
+                'customer_id' => Auth::guard('customer_user')->user()->customer->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()
+                ->route('customer.dashboard')
+                ->with('error', 'Error loading stock income data.');
+        }
     }
 
     /**
