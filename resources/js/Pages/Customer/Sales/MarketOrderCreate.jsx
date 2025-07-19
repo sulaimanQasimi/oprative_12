@@ -84,6 +84,9 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     const [isLoading, setIsLoading] = useState(false);
     const [accountSearchLoading, setAccountSearchLoading] = useState(false);
     const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
+    const [showBatchSelector, setShowBatchSelector] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [selectedBatch, setSelectedBatch] = useState(null);
 
     // Refs
     const searchInputRef = useRef(null);
@@ -396,19 +399,42 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         // Use product_id if available, otherwise use id
         const productId = product.product_id || product.id;
 
-        // Always start with retail pricing and units
-        const unitPrice = parseFloat(product.price || product.retail_price);
-        const unitAmount = 1;
+        // Check if product has multiple batches
+        if (product.batches && product.batches.length > 1) {
+            // Show batch selector
+            setSelectedProduct(product);
+            setShowBatchSelector(true);
+            return;
+        }
 
-        const existingItemIndex = orderItems.findIndex(item => item.product_id === productId);
+        // If single batch or no batches, add directly
+        const batch = product.batches && product.batches.length === 1 ? product.batches[0] : null;
+        addProductWithBatch(product, batch);
+    };
+
+    // Add product with specific batch
+    const addProductWithBatch = (product, batch = null) => {
+        const productId = product.product_id || product.id;
+        
+        // Use batch-specific pricing if available
+        const unitPrice = batch ? parseFloat(batch.retail_price || product.retail_price) : parseFloat(product.price || product.retail_price);
+        const wholesalePrice = batch ? parseFloat(batch.wholesale_price || product.wholesale_price) : parseFloat(product.wholesale_price || 0);
+        const unitAmount = batch ? parseFloat(batch.unit_amount || 1) : 1;
+        const unitName = batch ? batch.unit_name : product.unit_name;
+        const stock = batch ? batch.stock : product.stock;
+
+        const existingItemIndex = orderItems.findIndex(item => 
+            item.product_id === productId && 
+            item.batch_id === (batch ? batch.id : null)
+        );
 
         if (existingItemIndex !== -1) {
             // Check if there's enough stock
             const currentTotalUnits = orderItems[existingItemIndex].quantity * orderItems[existingItemIndex].unit_amount;
             const newTotalUnits = currentTotalUnits + unitAmount;
             
-            if (newTotalUnits > product.stock) {
-                showError(t('No more stock available for this product'));
+            if (newTotalUnits > stock) {
+                showError(t('No more stock available for this batch'));
                 return;
             }
 
@@ -419,8 +445,8 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
             setOrderItems(updatedItems);
         } else {
             // Check if there's enough stock for the new item
-            if (unitAmount > product.stock) {
-                showError(t('No more stock available for this product'));
+            if (unitAmount > stock) {
+                showError(t('No more stock available for this batch'));
                 return;
             }
 
@@ -432,15 +458,21 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                     price: unitPrice,
                     quantity: 1,
                     total: unitPrice,
-                    max_stock: product.stock,
+                    max_stock: stock,
                     unit_amount: unitAmount,
                     is_wholesale: false,
-                    wholesale_price: parseFloat(product.wholesale_price || 0),
-                    retail_price: parseFloat(product.price || product.retail_price),
+                    wholesale_price: wholesalePrice,
+                    retail_price: unitPrice,
                     whole_sale_unit_amount: parseFloat(product.whole_sale_unit_amount || 1),
-                    wholesaleUnit: product.wholesaleUnit || null,
-                    retailUnit: product.retailUnit || null,
-                    unit_type: product.retailUnit?.name || t('Retail Unit')
+                    batch_id: batch ? batch.id : null,
+                    batch_reference: batch ? batch.reference_number : null,
+                    batch_expire_date: batch ? batch.expire_date : null,
+                    batch_expiry_status: batch ? batch.expiry_status : null,
+                    batch_days_to_expiry: batch ? batch.days_to_expiry : null,
+                    unit_type: unitName || t('Retail Unit'),
+                    unit_name: unitName,
+                    expiry_status: batch ? batch.expiry_status : null,
+                    days_to_expiry: batch ? batch.days_to_expiry : null,
                 }
             ]);
         }
@@ -591,7 +623,11 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                 price: item.price,
                 total: item.total,
                 unit_amount: item.unit_amount || 1,
-                is_wholesale: item.is_wholesale || false
+                is_wholesale: item.is_wholesale || false,
+                batch_id: item.batch_id || null,
+                batch_reference: item.batch_reference || null,
+                unit_type: item.unit_type || 'retail',
+                unit_name: item.unit_name || null
             })),
             subtotal,
             total,
@@ -1075,7 +1111,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
 
                                                                         {/* Product info - flexible width */}
                                                                         <div className="flex-1 min-w-0">
-                                                                            <div className="flex items-center gap-2">
+                                                                            <div className="flex items-center gap-2 flex-wrap">
                                                                                 <h4 className="font-bold text-gray-800 text-sm truncate group-hover:text-green-800 transition-all duration-300">{item.name}</h4>
                                                                                 {item.is_wholesale ? (
                                                                                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -1088,6 +1124,28 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                         {t('Retail')}
                                                                                     </span>
                                                                                 )}
+                                                                                {item.batch_reference && (
+                                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                                                                                        <Hash className="h-3 w-3 mr-1" />
+                                                                                        {item.batch_reference}
+                                                                                    </span>
+                                                                                )}
+                                                                                {item.expiry_status && (
+                                                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                                                                        item.expiry_status === 'expired' 
+                                                                                            ? 'bg-red-100 text-red-700' 
+                                                                                            : item.expiry_status === 'expiring_soon' 
+                                                                                                ? 'bg-orange-100 text-orange-700' 
+                                                                                                : item.expiry_status === 'valid' 
+                                                                                                    ? 'bg-green-100 text-green-700' 
+                                                                                                    : 'bg-gray-100 text-gray-700'
+                                                                                    }`}>
+                                                                                        {item.expiry_status === 'expired' ? t('Expired') :
+                                                                                         item.expiry_status === 'expiring_soon' ? t('Expiring Soon') :
+                                                                                         item.expiry_status === 'valid' ? t('Valid') :
+                                                                                         t('No Expiry')}
+                                                                                    </span>
+                                                                                )}
                                                                             </div>
                                                                             
                                                                             {/* Pricing and Quantity Info */}
@@ -1096,9 +1154,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                     <span className="text-gray-500">{t('Price')}:</span>
                                                                                     <span className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-medium">{formatMoney(item.price)}</span>
                                                                                     <span className="text-gray-400">per {
-                                                                                        item.is_wholesale 
-                                                                                            ? (item.wholesaleUnit?.name || t('wholesale unit'))
-                                                                                            : (item.retailUnit?.name || t('retail unit'))
+                                                                                        item.unit_name || t('unit')
                                                                                     }</span>
                                                                                 </div>
                                                                                 
@@ -1107,11 +1163,11 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                     <span className="font-medium text-gray-700">{item.quantity}</span>
                                                                                     <span className="text-gray-400">×</span>
                                                                                     <span className="text-gray-500">{item.unit_amount} {
-                                                                                        item.retailUnit?.name || t('units')
+                                                                                        item.unit_name || t('units')
                                                                                     } {t('each')}</span>
                                                                                     <span className="text-gray-400">=</span>
                                                                                     <span className="font-medium text-blue-600">{item.quantity * item.unit_amount} {
-                                                                                        item.retailUnit?.name || t('units')
+                                                                                        item.unit_name || t('units')
                                                                                     } {t('total')}</span>
                                                                                 </div>
                                                                                 
@@ -1119,6 +1175,29 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                     <span className="text-gray-500">{t('Total')}:</span>
                                                                                     <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent text-sm">{formatMoney(item.price * item.quantity)}</span>
                                                                                 </div>
+                                                                                
+                                                                                {/* Batch Information */}
+                                                                                {item.batch_reference && (
+                                                                                    <div className="mt-2 p-2 bg-purple-50 rounded-lg border border-purple-100">
+                                                                                        <div className="flex items-center justify-between text-xs">
+                                                                                            <span className="text-purple-700 font-medium">{t('Batch')}: {item.batch_reference}</span>
+                                                                                            {item.batch_expire_date && (
+                                                                                                <span className={`text-xs ${
+                                                                                                    item.expiry_status === 'expired' ? 'text-red-600' :
+                                                                                                    item.expiry_status === 'expiring_soon' ? 'text-orange-600' :
+                                                                                                    'text-green-600'
+                                                                                                }`}>
+                                                                                                    {new Date(item.batch_expire_date).toLocaleDateString()}
+                                                                                                    {item.batch_days_to_expiry !== null && (
+                                                                                                        <span className="ml-1">
+                                                                                                            ({item.batch_days_to_expiry > 0 ? '+' : ''}{item.batch_days_to_expiry} {t('days')})
+                                                                                                        </span>
+                                                                                                    )}
+                                                                                                </span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
 
                                                                             {/* Wholesale checkbox with pricing info */}
@@ -1532,6 +1611,141 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                         <X className="h-5 w-5" />
                     )}
                     <span>{notification.message}</span>
+                </div>
+            )}
+
+            {/* Batch Selector Modal */}
+            {showBatchSelector && selectedProduct && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-gray-800">{t('Select Batch for')}: {selectedProduct.name}</h3>
+                            <button
+                                onClick={() => {
+                                    setShowBatchSelector(false);
+                                    setSelectedProduct(null);
+                                    setSelectedBatch(null);
+                                }}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {selectedProduct.batches && selectedProduct.batches.map((batch, index) => (
+                                <div
+                                    key={batch.id || index}
+                                    onClick={() => {
+                                        setSelectedBatch(batch);
+                                        addProductWithBatch(selectedProduct, batch);
+                                        setShowBatchSelector(false);
+                                        setSelectedProduct(null);
+                                        setSelectedBatch(null);
+                                    }}
+                                    className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                                        selectedBatch?.id === batch.id 
+                                            ? 'border-green-500 bg-green-50' 
+                                            : 'border-gray-200 hover:border-green-300'
+                                    }`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="font-semibold text-gray-800">
+                                                    {t('Batch')}: {batch.reference_number}
+                                                </span>
+                                                {batch.expiry_status && (
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                        batch.expiry_status === 'expired' 
+                                                            ? 'bg-red-100 text-red-700' 
+                                                            : batch.expiry_status === 'expiring_soon' 
+                                                                ? 'bg-orange-100 text-orange-700' 
+                                                                : batch.expiry_status === 'valid' 
+                                                                    ? 'bg-green-100 text-green-700' 
+                                                                    : 'bg-gray-100 text-gray-700'
+                                                    }`}>
+                                                        {batch.expiry_status === 'expired' ? t('Expired') :
+                                                         batch.expiry_status === 'expiring_soon' ? t('Expiring Soon') :
+                                                         batch.expiry_status === 'valid' ? t('Valid') :
+                                                         t('No Expiry')}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                                <div>
+                                                    <span className="text-gray-600">{t('Stock')}:</span>
+                                                    <span className="font-medium ml-1">{batch.stock}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-600">{t('Retail Price')}:</span>
+                                                    <span className="font-medium ml-1">{formatMoney(batch.retail_price)}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-600">{t('Wholesale Price')}:</span>
+                                                    <span className="font-medium ml-1">{formatMoney(batch.wholesale_price)}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-600">{t('Unit')}:</span>
+                                                    <span className="font-medium ml-1">{batch.unit_name || t('Unit')}</span>
+                                                </div>
+                                            </div>
+                                            
+                                            {batch.expire_date && (
+                                                <div className="mt-2 text-sm">
+                                                    <span className="text-gray-600">{t('Expiry Date')}:</span>
+                                                    <span className={`font-medium ml-1 ${
+                                                        batch.expiry_status === 'expired' ? 'text-red-600' :
+                                                        batch.expiry_status === 'expiring_soon' ? 'text-orange-600' :
+                                                        'text-green-600'
+                                                    }`}>
+                                                        {new Date(batch.expire_date).toLocaleDateString()}
+                                                        {batch.days_to_expiry !== null && (
+                                                            <span className="ml-1">
+                                                                ({batch.days_to_expiry > 0 ? '+' : ''}{batch.days_to_expiry} {t('days')})
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            
+                                            {batch.issue_date && (
+                                                <div className="mt-1 text-sm text-gray-600">
+                                                    <span>{t('Issue Date')}: {new Date(batch.issue_date).toLocaleDateString()}</span>
+                                                </div>
+                                            )}
+                                            
+                                            {batch.notes && (
+                                                <div className="mt-2 text-sm text-gray-600">
+                                                    <span>{t('Notes')}: {batch.notes}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="ml-4">
+                                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                <Plus className="h-4 w-4 text-green-600" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                onClick={() => {
+                                    setShowBatchSelector(false);
+                                    setSelectedProduct(null);
+                                    setSelectedBatch(null);
+                                }}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                {t('Cancel')}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 

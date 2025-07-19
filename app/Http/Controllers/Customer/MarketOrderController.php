@@ -1,4 +1,4 @@
-0<?php
+<?php
 
 namespace App\Http\Controllers\Customer;
 
@@ -26,34 +26,97 @@ class MarketOrderController extends Controller
      */
     public function create()
     {
-        // Get products in customer's stock
-        $products = CustomerStockProduct::with(['product.wholesaleUnit', 'product.retailUnit'])
+        // Get customer inventory with batch information
+        $customerInventory = \DB::table('customer_inventory')
             ->where('customer_id', $this->getCustomerId())
-            ->where('net_quantity', '>', 0)
+            ->where('remaining_qty', '>', 0)
             ->get()
             ->map(function ($item) {
+                // Calculate expiry status and days to expiry
+                $daysToExpiry = null;
+                $expiryStatus = null;
+                
+                if ($item->expire_date) {
+                    $daysToExpiry = now()->diffInDays($item->expire_date, false);
+                    if ($daysToExpiry < 0) {
+                        $expiryStatus = 'expired';
+                    } elseif ($daysToExpiry <= 30) {
+                        $expiryStatus = 'expiring_soon';
+                    } else {
+                        $expiryStatus = 'valid';
+                    }
+                } elseif ($item->batch_id) {
+                    $expiryStatus = 'no_expiry';
+                }
+
                 return (object)[
                     'id' => $item->product_id,
-                    'name' => $item->product->name,
-                    'price' => $item->product->retail_price,
-                    'retail_price' => $item->product->retail_price,
-                    'wholesale_price' => $item->product->wholesale_price,
-                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount ?: 1,
-                    'stock' => $item->net_quantity,
-                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
-                        'id' => $item->product->wholesaleUnit->id,
-                        'name' => $item->product->wholesaleUnit->name,
-                        'code' => $item->product->wholesaleUnit->code,
-                        'symbol' => $item->product->wholesaleUnit->symbol,
-                    ] : null,
-                    'retailUnit' => $item->product->retailUnit ? [
-                        'id' => $item->product->retailUnit->id,
-                        'name' => $item->product->retailUnit->name,
-                        'code' => $item->product->retailUnit->code,
-                        'symbol' => $item->product->retailUnit->symbol,
-                    ] : null,
+                    'name' => $item->product_name,
+                    'barcode' => $item->product_barcode,
+                    'price' => $item->retail_price,
+                    'retail_price' => $item->retail_price,
+                    'wholesale_price' => $item->wholesale_price,
+                    'purchase_price' => $item->purchase_price,
+                    'stock' => $item->remaining_qty,
+                    'net_quantity' => $item->remaining_qty,
+                    'net_value' => $item->net_value,
+                    'batch_id' => $item->batch_id,
+                    'batch_reference' => $item->batch_reference,
+                    'issue_date' => $item->issue_date,
+                    'expire_date' => $item->expire_date,
+                    'batch_notes' => $item->batch_notes,
+                    'days_to_expiry' => $daysToExpiry,
+                    'expiry_status' => $expiryStatus,
+                    'unit_type' => $item->unit_type ?? 'retail',
+                    'unit_id' => $item->unit_id,
+                    'unit_amount' => $item->unit_amount ?? 1,
+                    'unit_name' => $item->unit_name,
+                    'income_qty' => $item->income_qty,
+                    'outcome_qty' => $item->outcome_qty,
+                    'total_income_value' => $item->total_income_value,
+                    'total_outcome_value' => $item->total_outcome_value,
                 ];
             });
+
+        // Get products grouped by product with batch information
+        $products = $customerInventory->groupBy('id')->map(function ($batches, $productId) {
+            $firstBatch = $batches->first();
+            
+            return (object)[
+                'id' => $productId,
+                'name' => $firstBatch->name,
+                'barcode' => $firstBatch->barcode,
+                'price' => $firstBatch->retail_price,
+                'retail_price' => $firstBatch->retail_price,
+                'wholesale_price' => $firstBatch->wholesale_price,
+                'purchase_price' => $firstBatch->purchase_price,
+                'stock' => $batches->sum('stock'),
+                'net_quantity' => $batches->sum('net_quantity'),
+                'net_value' => $batches->sum('net_value'),
+                'batches' => $batches->map(function ($batch) {
+                    return (object)[
+                        'id' => $batch->batch_id,
+                        'reference_number' => $batch->batch_reference,
+                        'issue_date' => $batch->issue_date,
+                        'expire_date' => $batch->expire_date,
+                        'notes' => $batch->batch_notes,
+                        'stock' => $batch->stock,
+                        'days_to_expiry' => $batch->days_to_expiry,
+                        'expiry_status' => $batch->expiry_status,
+                        'unit_type' => $batch->unit_type,
+                        'unit_id' => $batch->unit_id,
+                        'unit_amount' => $batch->unit_amount,
+                        'unit_name' => $batch->unit_name,
+                        'retail_price' => $batch->retail_price,
+                        'wholesale_price' => $batch->wholesale_price,
+                        'purchase_price' => $batch->purchase_price,
+                    ];
+                })->values(),
+                'has_multiple_batches' => $batches->count() > 1,
+                'has_expiring_batches' => $batches->where('expiry_status', 'expiring_soon')->count() > 0,
+                'has_expired_batches' => $batches->where('expiry_status', 'expired')->count() > 0,
+            ];
+        })->values();
 
         // Define payment methods
         $paymentMethods = [
@@ -129,51 +192,57 @@ class MarketOrderController extends Controller
             return response()->json([]);
         }
 
-        $searchResults = CustomerStockProduct::with(['product' => function($query) {
-                $query->select('id', 'name', 'barcode', 'purchase_price', 'wholesale_price', 'retail_price',
-                             'purchase_profit', 'wholesale_profit', 'retail_profit', 'is_activated',
-                             'is_in_stock', 'is_shipped', 'is_trend', 'type', 'wholesale_unit_id', 'retail_unit_id');
-            }, 'product.wholesaleUnit', 'product.retailUnit'])
+        $searchResults = \DB::table('customer_inventory')
             ->where('customer_id', $this->getCustomerId())
-            ->where('net_quantity', '>', 0)
+            ->where('remaining_qty', '>', 0)
             ->where(function($q) use ($query) {
-                $q->whereHas('product', function($subq) use ($query) {
-                    $subq->where('name', 'like', '%' . $query . '%')
-                      ->orWhere('barcode', 'like', '%' . $query . '%');
-                });
+                $q->where('product_name', 'like', '%' . $query . '%')
+                  ->orWhere('product_barcode', 'like', '%' . $query . '%');
             })
-            ->select('customer_id', 'product_id', 'net_quantity')
             ->get()
             ->map(function ($item) {
+                // Calculate expiry status and days to expiry
+                $daysToExpiry = null;
+                $expiryStatus = null;
+                
+                if ($item->expire_date) {
+                    $daysToExpiry = now()->diffInDays($item->expire_date, false);
+                    if ($daysToExpiry < 0) {
+                        $expiryStatus = 'expired';
+                    } elseif ($daysToExpiry <= 30) {
+                        $expiryStatus = 'expiring_soon';
+                    } else {
+                        $expiryStatus = 'valid';
+                    }
+                } elseif ($item->batch_id) {
+                    $expiryStatus = 'no_expiry';
+                }
+
                 return [
                     'id' => $item->product_id,
-                    'name' => $item->product->name,
-                    'barcode' => $item->product->barcode,
-                    'purchase_price' => $item->product->purchase_price,
-                    'wholesale_price' => $item->product->wholesale_price,
-                    'retail_price' => $item->product->retail_price,
-                    'purchase_profit' => $item->product->purchase_profit,
-                    'wholesale_profit' => $item->product->wholesale_profit,
-                    'retail_profit' => $item->product->retail_profit,
-                    'is_activated' => $item->product->is_activated,
-                    'is_in_stock' => $item->product->is_in_stock,
-                    'is_shipped' => $item->product->is_shipped,
-                    'is_trend' => $item->product->is_trend,
-                    'type' => $item->product->type,
-                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount ?: 1,
-                    'stock' => $item->net_quantity,
-                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
-                        'id' => $item->product->wholesaleUnit->id,
-                        'name' => $item->product->wholesaleUnit->name,
-                        'code' => $item->product->wholesaleUnit->code,
-                        'symbol' => $item->product->wholesaleUnit->symbol,
-                    ] : null,
-                    'retailUnit' => $item->product->retailUnit ? [
-                        'id' => $item->product->retailUnit->id,
-                        'name' => $item->product->retailUnit->name,
-                        'code' => $item->product->retailUnit->code,
-                        'symbol' => $item->product->retailUnit->symbol,
-                    ] : null,
+                    'name' => $item->product_name,
+                    'barcode' => $item->product_barcode,
+                    'purchase_price' => $item->purchase_price,
+                    'wholesale_price' => $item->wholesale_price,
+                    'retail_price' => $item->retail_price,
+                    'stock' => $item->remaining_qty,
+                    'net_quantity' => $item->remaining_qty,
+                    'net_value' => $item->net_value,
+                    'batch_id' => $item->batch_id,
+                    'batch_reference' => $item->batch_reference,
+                    'issue_date' => $item->issue_date,
+                    'expire_date' => $item->expire_date,
+                    'batch_notes' => $item->batch_notes,
+                    'days_to_expiry' => $daysToExpiry,
+                    'expiry_status' => $expiryStatus,
+                    'unit_type' => $item->unit_type ?? 'retail',
+                    'unit_id' => $item->unit_id,
+                    'unit_amount' => $item->unit_amount ?? 1,
+                    'unit_name' => $item->unit_name,
+                    'income_qty' => $item->income_qty,
+                    'outcome_qty' => $item->outcome_qty,
+                    'total_income_value' => $item->total_income_value,
+                    'total_outcome_value' => $item->total_outcome_value,
                 ];
             })
             ->toArray();
@@ -198,36 +267,58 @@ class MarketOrderController extends Controller
             ], 400);
         }
 
-        $customerStockProduct = CustomerStockProduct::with(['product.wholesaleUnit', 'product.retailUnit'])
+        $customerInventory = \DB::table('customer_inventory')
             ->where('customer_id', $this->getCustomerId())
-            ->whereHas('product', function($query) use ($barcode) {
-                $query->where('barcode', $barcode);
-            })
+            ->where('product_barcode', $barcode)
+            ->where('remaining_qty', '>', 0)
             ->first();
 
-        if ($customerStockProduct && $customerStockProduct->net_quantity > 0) {
+        if ($customerInventory) {
+            // Calculate expiry status and days to expiry
+            $daysToExpiry = null;
+            $expiryStatus = null;
+            
+            if ($customerInventory->expire_date) {
+                $daysToExpiry = now()->diffInDays($customerInventory->expire_date, false);
+                if ($daysToExpiry < 0) {
+                    $expiryStatus = 'expired';
+                } elseif ($daysToExpiry <= 30) {
+                    $expiryStatus = 'expiring_soon';
+                } else {
+                    $expiryStatus = 'valid';
+                }
+            } elseif ($customerInventory->batch_id) {
+                $expiryStatus = 'no_expiry';
+            }
+
             return response()->json([
                 'success' => true,
                 'product' => [
-                    'product_id' => $customerStockProduct->product_id,
-                    'name' => $customerStockProduct->product->name,
-                    'price' => $customerStockProduct->product->retail_price,
-                    'retail_price' => $customerStockProduct->product->retail_price,
-                    'wholesale_price' => $customerStockProduct->product->wholesale_price,
-                    'whole_sale_unit_amount' => $customerStockProduct->product->whole_sale_unit_amount ?: 1,
-                    'stock' => $customerStockProduct->net_quantity,
-                    'wholesaleUnit' => $customerStockProduct->product->wholesaleUnit ? [
-                        'id' => $customerStockProduct->product->wholesaleUnit->id,
-                        'name' => $customerStockProduct->product->wholesaleUnit->name,
-                        'code' => $customerStockProduct->product->wholesaleUnit->code,
-                        'symbol' => $customerStockProduct->product->wholesaleUnit->symbol,
-                    ] : null,
-                    'retailUnit' => $customerStockProduct->product->retailUnit ? [
-                        'id' => $customerStockProduct->product->retailUnit->id,
-                        'name' => $customerStockProduct->product->retailUnit->name,
-                        'code' => $customerStockProduct->product->retailUnit->code,
-                        'symbol' => $customerStockProduct->product->retailUnit->symbol,
-                    ] : null,
+                    'product_id' => $customerInventory->product_id,
+                    'name' => $customerInventory->product_name,
+                    'barcode' => $customerInventory->product_barcode,
+                    'price' => $customerInventory->retail_price,
+                    'retail_price' => $customerInventory->retail_price,
+                    'wholesale_price' => $customerInventory->wholesale_price,
+                    'purchase_price' => $customerInventory->purchase_price,
+                    'stock' => $customerInventory->remaining_qty,
+                    'net_quantity' => $customerInventory->remaining_qty,
+                    'net_value' => $customerInventory->net_value,
+                    'batch_id' => $customerInventory->batch_id,
+                    'batch_reference' => $customerInventory->batch_reference,
+                    'issue_date' => $customerInventory->issue_date,
+                    'expire_date' => $customerInventory->expire_date,
+                    'batch_notes' => $customerInventory->batch_notes,
+                    'days_to_expiry' => $daysToExpiry,
+                    'expiry_status' => $expiryStatus,
+                    'unit_type' => $customerInventory->unit_type ?? 'retail',
+                    'unit_id' => $customerInventory->unit_id,
+                    'unit_amount' => $customerInventory->unit_amount ?? 1,
+                    'unit_name' => $customerInventory->unit_name,
+                    'income_qty' => $customerInventory->income_qty,
+                    'outcome_qty' => $customerInventory->outcome_qty,
+                    'total_income_value' => $customerInventory->total_income_value,
+                    'total_outcome_value' => $customerInventory->total_outcome_value,
                 ]
             ]);
         }
@@ -290,6 +381,10 @@ class MarketOrderController extends Controller
             'items.*.total' => 'required|numeric|min:0',
             'items.*.unit_amount' => 'nullable|numeric|min:1',
             'items.*.is_wholesale' => 'nullable|boolean',
+            'items.*.batch_id' => 'nullable|exists:batches,id',
+            'items.*.batch_reference' => 'nullable|string|max:255',
+            'items.*.unit_type' => 'nullable|string|in:retail,wholesale',
+            'items.*.unit_name' => 'nullable|string|max:255',
             'subtotal' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
             'payment_method' => 'required|in:cash,card,bank_transfer',
@@ -438,13 +533,15 @@ class MarketOrderController extends Controller
                     'price' => $storeUnitPrice,
                     'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
                     'discount_amount' => 0,
-                    'unit_type' => $isWholesale ? 'wholesale' : 'retail',
+                    'unit_type' => $item['unit_type'] ?? ($isWholesale ? 'wholesale' : 'retail'),
                     'is_wholesale' => $isWholesale,
                     'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
                     'unit_amount' => $unitAmount,
-                    'unit_name' => $isWholesale ? 
+                    'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
                         ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
-                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')
+                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
+                    'batch_id' => $item['batch_id'] ?? null,
+                    'batch_reference' => $item['batch_reference'] ?? null,
                 ]);
 
                 // Use actual units for stock outcome
@@ -455,14 +552,14 @@ class MarketOrderController extends Controller
                     'quantity' => $actualUnitsNeeded, // Use the actual units consumed
                     'price' => $storeUnitPrice,
                     'total' => $item['total'],
-                    'unit_type' => $isWholesale ? 'wholesale' : 'retail',
+                    'unit_type' => $item['unit_type'] ?? ($isWholesale ? 'wholesale' : 'retail'),
                     'is_wholesale' => $isWholesale,
                     'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
                     'unit_amount' => $unitAmount,
-                    'unit_name' => $isWholesale ? 
+                    'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
                         ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
-                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit'),
-                    'notes' => $order->order_number,
+                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
+                    'notes' => $order->order_number . ($item['batch_reference'] ? ' (Batch: ' . $item['batch_reference'] . ')' : ''),
                     'model_type' => MarketOrder::class,
                     'model_id' => $order->id
                 ]);
