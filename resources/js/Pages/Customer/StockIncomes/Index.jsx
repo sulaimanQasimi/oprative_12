@@ -195,7 +195,7 @@ export default function StockIncomesIndex({
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('fa-IR', {
             style: 'currency',
-            currency: 'IRR',
+            currency: 'AFN',
             minimumFractionDigits: 0,
         }).format(amount || 0);
     };
@@ -212,7 +212,7 @@ export default function StockIncomesIndex({
 
     return (
         <CustomerLayout auth={auth}>
-            <Head title={`${t("Stock Income")} - ${customer.name}`}>
+            <Head title={`${t("Stock Import")} - ${customer.name}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -268,7 +268,7 @@ export default function StockIncomesIndex({
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={TrendingUp} color="green" />
+            <PageLoader isVisible={loading} icon={Download} color="green" />
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -295,7 +295,7 @@ export default function StockIncomesIndex({
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
-                                        <TrendingUp className="w-8 h-8 text-white" />
+                                        <Download className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -307,7 +307,7 @@ export default function StockIncomesIndex({
                                         className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {t("Income Management")}
+                                        {t("Import Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
@@ -315,7 +315,7 @@ export default function StockIncomesIndex({
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
-                                        {t("Stock Income Records")}
+                                        {t("Stock Import Records")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -324,7 +324,7 @@ export default function StockIncomesIndex({
                                         className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <ShoppingCart className="w-4 h-4" />
-                                        {t("Track and manage your stock income records")}
+                                        {t("Track and manage your stock import records")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -344,7 +344,7 @@ export default function StockIncomesIndex({
                                 <Link href={route("customer.stock-incomes.create")}>
                                     <Button className="bg-green-600 hover:bg-green-700 text-white gap-2">
                                         <Plus className="h-4 w-4" />
-                                        {t("Add New Income")}
+                                        {t("Add New Import")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -547,7 +547,7 @@ export default function StockIncomesIndex({
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-3">
                                                 <BarChart3 className="h-5 w-5 text-green-600" />
-                                                {t("Income Records")}
+                                                {t("Import Records")}
                                                 <Badge variant="secondary">
                                                     {incomesData.length} {t("of")} {incomes.total}
                                                 </Badge>
@@ -742,12 +742,12 @@ export default function StockIncomesIndex({
                                                 <TableRow>
                                                     <TableCell colSpan="8" className="h-32 text-center">
                                                         <div className="flex flex-col items-center gap-4">
-                                                            <TrendingUp className="h-8 w-8 text-slate-400" />
+                                                            <Download className="h-8 w-8 text-slate-400" />
                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                {t("No income records found")}
+                                                                {t("No import records found")}
                                                             </p>
                                                             <p className="text-sm text-slate-500">
-                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("You don't have any income records yet.")}
+                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("You don't have any import records yet.")}
                                                             </p>
                                                         </div>
                                                     </TableCell>
