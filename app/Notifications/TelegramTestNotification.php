@@ -8,8 +8,9 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\Telegram\TelegramMessage;
 use NotificationChannels\Telegram\TelegramChannel;
-
-class TelegramTestNotification extends Notification
+use App\Services\TelegramService;
+    
+class TelegramTestNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -47,6 +48,23 @@ class TelegramTestNotification extends Notification
         }
 
         return $message;
+    }
+
+    /**
+     * Send the notification using the queue system.
+     */
+    public function sendNow(object $notifiable): void
+    {
+        $telegramService = app(TelegramService::class);
+        $chatId = $this->chatId ?? $notifiable->routeNotificationForTelegram();
+        
+        if ($chatId) {
+            $telegramService->queueMessage(
+                $this->message . "\n\nYour invoice has been *PAID*\nSent at: " . now()->format('Y-m-d H:i:s'),
+                $chatId,
+                'Markdown'
+            );
+        }
     }
 
     /**
