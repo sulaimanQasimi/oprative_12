@@ -82,7 +82,26 @@ An observer that automatically sends Telegram notifications when purchase events
 - Error handling (doesn't break main operations)
 - Uses authenticated user's chat ID
 
-### 4. Updated TelegramTestNotification
+### 4. PurchaseItemObserver (`app/Observers/PurchaseItemObserver.php`)
+
+An observer that automatically sends Telegram notifications when purchase item events occur.
+
+**Events Handled:**
+- `created` - New purchase item created
+- `updated` - Purchase item updated
+- `deleted` - Purchase item deleted
+- `restored` - Purchase item restored
+- `forceDeleted` - Purchase item force deleted
+
+**Features:**
+- Automatic notification sending for individual items
+- Detailed product information in messages
+- Purchase context information
+- Rich message formatting with emojis
+- Error handling (doesn't break main operations)
+- Uses authenticated user's chat ID
+
+### 5. Updated TelegramTestNotification
 
 Enhanced notification class that implements `ShouldQueue` for queue support.
 
@@ -158,12 +177,17 @@ $results = $telegramService->sendToMultiple(
 
 The PurchaseObserver automatically sends notifications when purchases are created, updated, or deleted. No additional code needed.
 
+### 5. Automatic Purchase Item Notifications
+
+The PurchaseItemObserver automatically sends notifications when purchase items are created, updated, or deleted. This provides detailed information about individual products in purchases.
+
 ## Test Routes
 
 The following test routes are available:
 
 - `/test` - Test basic queue messaging
 - `/test-purchase-observer` - Test purchase observer
+- `/test-purchase-item-observer` - Test purchase item observer
 - `/test-queue-telegram` - Test queue-based messaging
 - `/test-queue-all-users` - Test bulk messaging to all users
 - `/test-direct-telegram` - Test direct (synchronous) messaging
