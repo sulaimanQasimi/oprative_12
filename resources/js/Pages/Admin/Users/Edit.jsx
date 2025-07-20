@@ -47,6 +47,7 @@ export default function EditUser({ auth, user, roles, permissions, can }) {
         email: user.email || '',
         password: '',
         password_confirmation: '',
+        chat_id: user.chat_id || '',
         roles: user.roles?.map(role => role.id) || [],
         permissions: user.permissions?.map(permission => permission.id) || [],
     });
@@ -321,6 +322,27 @@ export default function EditUser({ auth, user, roles, permissions, can }) {
                                                             </Button>
                                                         </div>
                                                         {errors.password_confirmation && <p className="text-red-500 text-sm">{errors.password_confirmation}</p>}
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="chat_id">{t("Telegram Chat ID")}</Label>
+                                                        <div className="relative">
+                                                            <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                                            </svg>
+                                                            <Input
+                                                                id="chat_id"
+                                                                type="text"
+                                                                value={data.chat_id}
+                                                                onChange={(e) => setData('chat_id', e.target.value)}
+                                                                placeholder={t("Enter Telegram chat ID (optional)")}
+                                                                className="pl-10 h-12"
+                                                            />
+                                                        </div>
+                                                        {errors.chat_id && <p className="text-red-500 text-sm">{errors.chat_id}</p>}
+                                                        <p className="text-xs text-slate-500">
+                                                            {t("Used for sending Telegram notifications to this user")}
+                                                        </p>
                                                     </div>
                                                 </CardContent>
                                             </Card>

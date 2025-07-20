@@ -116,6 +116,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'chat_id' => 'nullable|string|max:255',
             'roles' => 'array',
             'permissions' => 'array',
         ]);
@@ -124,6 +125,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'chat_id' => $request->chat_id,
             'email_verified_at' => now(),
         ]);
 
@@ -198,6 +200,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'chat_id' => 'nullable|string|max:255',
             'roles' => 'array',
             'permissions' => 'array',
         ]);
@@ -205,6 +208,7 @@ class UserController extends Controller
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
+            'chat_id' => $request->chat_id,
         ]);
 
         // Update password if provided
@@ -299,13 +303,14 @@ class UserController extends Controller
             ->get();
 
         $csvData = [];
-        $csvData[] = ['ID', 'Name', 'Email', 'Roles', 'Permissions', 'Created At'];
+        $csvData[] = ['ID', 'Name', 'Email', 'Chat ID', 'Roles', 'Permissions', 'Created At'];
 
         foreach ($users as $user) {
             $csvData[] = [
                 $user->id,
                 $user->name,
                 $user->email,
+                $user->chat_id,
                 $user->roles->pluck('name')->implode(', '),
                 $user->permissions->pluck('name')->implode(', '),
                 $user->created_at->format('Y-m-d H:i:s'),
@@ -378,6 +383,7 @@ class UserController extends Controller
                     'name' => $userData['name'],
                     'email' => $userData['email'],
                     'password' => Hash::make($userData['password'] ?? 'password123'),
+                    'chat_id' => $userData['chat_id'] ?? null,
                     'email_verified_at' => now(),
                 ]);
 

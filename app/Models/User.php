@@ -29,6 +29,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'chat_id',
     ];
 
     /**
@@ -92,5 +93,21 @@ class User extends Authenticatable
         return $this->belongsToMany(Warehouse::class, 'ware_house_users')
             ->withPivot(['role', 'is_active'])
             ->withTimestamps();
+    }
+
+    /**
+     * Route notifications for the Telegram channel.
+     */
+    public function routeNotificationForTelegram()
+    {
+        return $this->chat_id;
+    }
+
+    /**
+     * Check if user has Telegram chat ID configured.
+     */
+    public function hasTelegramChatId(): bool
+    {
+        return !empty($this->chat_id);
     }
 }
