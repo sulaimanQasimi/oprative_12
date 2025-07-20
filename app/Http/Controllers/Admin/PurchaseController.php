@@ -142,7 +142,7 @@ class PurchaseController extends Controller
                 'currency_rate' => $validated['currency_rate'],
                 'status' => $validated['status'],
             ]);
-
+            
             DB::commit();
 
             return redirect()->route('admin.purchases.show', $purchase->id)

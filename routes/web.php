@@ -56,11 +56,52 @@ Route::prefix('adminpanel')
 
 Route::get('/test', function () {
     $telegramService = app(\App\Services\TelegramService::class);
-        
+
     // Test single message
     $telegramService->queueMessage(
         "Hello! This is a *queued* message from Laravel.\nSent at: " . now()->format('Y-m-d H:i:s'),
-        auth()->user()->chat_id, // Replace with actual chat ID
+        7360745986, // Replace with actual chat ID
         'Markdown'
-    ); 
+    );
+    $telegramService->queueMessage(
+        "Hello! This is a *queued* message from Laravel.\nSent at: " . now()->format('Y-m-d H:i:s'),
+        7360745986, // Replace with actual chat ID
+        'Markdown'
+    );
+    $telegramService->queueMessage(
+        "Hello! This is a *queued* message from Laravel.\nSent at: " . now()->format('Y-m-d H:i:s'),
+        7360745986, // Replace with actual chat ID
+        'Markdown'
+    );
+});
+
+// Test Purchase Observer
+Route::get('/test-purchase-observer', function () {
+    try {
+        // Create a test purchase to trigger the observer
+        $purchase = \App\Models\Purchase::create([
+            'user_id' => 1, // Make sure this user exists and has chat_id
+            'supplier_id' => 1, // Make sure this supplier exists
+            'currency_id' => 1, // Make sure this currency exists
+            'warehouse_id' => 1, // Make sure this warehouse exists
+            'invoice_number' => 'TEST-' . time(),
+            'invoice_date' => now(),
+            'currency_rate' => '1.00',
+            'status' => 'purchase',
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Test purchase created successfully',
+            'purchase' => [
+                'id' => $purchase->id,
+                'invoice_number' => $purchase->invoice_number,
+                'status' => $purchase->status
+            ],
+            'note' => 'Check your Telegram for the notification (if user has chat_id configured)'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
 });
