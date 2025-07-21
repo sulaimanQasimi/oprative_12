@@ -40,6 +40,7 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
     const [orderSectionVisible, setOrderSectionVisible] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+
     // Batch Selection State
     const [showBatchModal, setShowBatchModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -149,11 +150,14 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
         const productId = product.product_id || product.id;
         
         // Use batch-specific data if available
-        const unitPrice = batch ? parseFloat(batch.retail_price) : parseFloat(product.retail_price);
+        const retailPrice = batch ? parseFloat(batch.retail_price) : parseFloat(product.retail_price);
         const wholesalePrice = batch ? parseFloat(batch.wholesale_price) : parseFloat(product.wholesale_price || 0);
         const unitAmount = batch ? parseFloat(batch.unit_amount || 1) : 1;
         const unitName = batch ? batch.unit_name : product.unit_name;
         const stock = batch ? batch.stock : product.stock;
+
+        // Always start with retail price, user can toggle to wholesale later
+        const unitPrice = retailPrice;
 
         // Check if item already exists with same batch
         const existingItemIndex = orderItems.findIndex(item => 
@@ -176,15 +180,15 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                 total: unitPrice,
                 max_stock: stock,
                 unit_amount: unitAmount,
-                is_wholesale: false,
+                is_wholesale: false, // Always start with retail
                 wholesale_price: wholesalePrice,
-                retail_price: unitPrice,
+                retail_price: retailPrice,
                 batch_id: batch ? batch.id : null,
                 batch_reference: batch ? batch.reference_number : null,
                 batch_expire_date: batch ? batch.expire_date : null,
                 batch_expiry_status: batch ? batch.expiry_status : null,
                 batch_days_to_expiry: batch ? batch.days_to_expiry : null,
-                unit_type: unitName || t('Retail Unit'),
+                unit_type: 'retail',
                 unit_name: unitName,
                 expiry_status: batch ? batch.expiry_status : null,
                 days_to_expiry: batch ? batch.days_to_expiry : null,
@@ -215,27 +219,30 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
         const item = orderItems[itemIndex];
         const product = selectedProduct;
         
-        const unitPrice = batch ? parseFloat(batch.retail_price) : parseFloat(product.retail_price);
+        const retailPrice = batch ? parseFloat(batch.retail_price) : parseFloat(product.retail_price);
         const wholesalePrice = batch ? parseFloat(batch.wholesale_price) : parseFloat(product.wholesale_price || 0);
         const unitAmount = batch ? parseFloat(batch.unit_amount || 1) : 1;
         const unitName = batch ? batch.unit_name : product.unit_name;
         const stock = batch ? batch.stock : product.stock;
 
+        // Keep the current wholesale/retail mode for this item
+        const currentPrice = item.is_wholesale && wholesalePrice > 0 ? wholesalePrice : retailPrice;
+
         const updatedItems = [...orderItems];
         updatedItems[itemIndex] = {
             ...item,
-            price: unitPrice,
-            total: item.quantity * unitPrice,
+            price: currentPrice,
+            total: item.quantity * currentPrice,
             max_stock: stock,
             unit_amount: unitAmount,
             wholesale_price: wholesalePrice,
-            retail_price: unitPrice,
+            retail_price: retailPrice,
             batch_id: batch ? batch.id : null,
             batch_reference: batch ? batch.reference_number : null,
             batch_expire_date: batch ? batch.expire_date : null,
             batch_expiry_status: batch ? batch.expiry_status : null,
             batch_days_to_expiry: batch ? batch.days_to_expiry : null,
-            unit_type: unitName || t('Retail Unit'),
+            unit_type: item.is_wholesale ? 'wholesale' : 'retail',
             unit_name: unitName,
             expiry_status: batch ? batch.expiry_status : null,
             days_to_expiry: batch ? batch.days_to_expiry : null,
@@ -294,6 +301,32 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
         setOrderItems(orderItems.filter((_, i) => i !== index));
     };
 
+    const toggleItemWholesale = (index) => {
+        if (index < 0 || index >= orderItems.length) return;
+        
+        const item = orderItems[index];
+        if (!item.wholesale_price || item.wholesale_price <= 0) {
+            showError(t('No wholesale price available for this item'));
+            return;
+        }
+
+        const updatedItems = [...orderItems];
+        const newIsWholesale = !item.is_wholesale;
+        const newPrice = newIsWholesale ? item.wholesale_price : item.retail_price;
+        
+        updatedItems[index] = {
+            ...item,
+            is_wholesale: newIsWholesale,
+            price: newPrice,
+            total: item.quantity * newPrice,
+            unit_type: newIsWholesale ? 'wholesale' : 'retail'
+        };
+        
+        setOrderItems(updatedItems);
+        
+        showSuccess(newIsWholesale ? t('Switched to wholesale pricing') : t('Switched to retail pricing'));
+    };
+
     const calculateTotal = () => {
         const newSubtotal = orderItems.reduce((sum, item) => sum + item.total, 0);
         setSubtotal(newSubtotal);
@@ -333,7 +366,8 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                 is_wholesale: item.is_wholesale || false,
                 batch_id: item.batch_id || null,
                 batch_reference: item.batch_reference || null,
-                unit_type: item.unit_type || 'retail',
+                batch_number: item.batch_reference || null, // Add batch number for backend
+                unit_type: item.is_wholesale ? 'wholesale' : 'retail',
                 unit_name: item.unit_name || null
             })),
             subtotal,
@@ -429,6 +463,8 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
         updateChangeDue();
     }, [amountPaid, total]);
 
+
+
     // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -469,14 +505,16 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                 <h1 className="text-2xl font-bold text-gray-900">{t('Point of Sale')}</h1>
                                 <p className="text-sm text-gray-600">{t('Customer Portal')}</p>
                             </div>
-                            <button
-                                onClick={startNewOrder}
-                                disabled={isLoading || orderSectionVisible}
-                                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
-                            >
-                                <Plus className="h-5 w-5 mr-2" />
-                                {t('Start New Sale')}
-                            </button>
+                            <div className="flex items-center space-x-4">
+                                <button
+                                    onClick={startNewOrder}
+                                    disabled={isLoading || orderSectionVisible}
+                                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
+                                >
+                                    <Plus className="h-5 w-5 mr-2" />
+                                    {t('Start New Sale')}
+                                </button>
+                            </div>
                         </div>
                     </header>
 
@@ -551,7 +589,17 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                                                                     </span>
                                                                                 )}
                                                                                 {item.quantity} × {formatMoney(item.price)}
+                                                                                {item.is_wholesale && (
+                                                                                    <span className="inline-flex items-center ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                                                                        {t('Wholesale')}
+                                                                                    </span>
+                                                                                )}
                                                                             </p>
+                                                                            {item.wholesale_price > 0 && item.retail_price !== item.wholesale_price && (
+                                                                                <p className="text-xs text-gray-400">
+                                                                                    {t('Retail')}: {formatMoney(item.retail_price)} | {t('Wholesale')}: {formatMoney(item.wholesale_price)}
+                                                                                </p>
+                                                                            )}
                                                                         </div>
                                                                     </div>
                                                                     <div className="flex items-center space-x-4">
@@ -572,14 +620,28 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                                                         </div>
                                                                         <div className="text-right">
                                                                             <p className="font-medium">{formatMoney(item.total)}</p>
-                                                                            {item.batches && item.batches.length > 1 && (
-                                                                                <button
-                                                                                    onClick={() => changeItemBatch(index)}
-                                                                                    className="text-xs text-blue-600 hover:text-blue-800"
-                                                                                >
-                                                                                    {t('Change Batch')}
-                                                                                </button>
-                                                                            )}
+                                                                            <div className="flex flex-col gap-1 mt-1">
+                                                                                {item.wholesale_price > 0 && (
+                                                                                    <button
+                                                                                        onClick={() => toggleItemWholesale(index)}
+                                                                                        className={`text-xs px-2 py-1 rounded ${
+                                                                                            item.is_wholesale
+                                                                                                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                                                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {item.is_wholesale ? t('Wholesale') : t('Retail')}
+                                                                                    </button>
+                                                                                )}
+                                                                                {item.batches && item.batches.length > 1 && (
+                                                                                    <button
+                                                                                        onClick={() => changeItemBatch(index)}
+                                                                                        className="text-xs text-blue-600 hover:text-blue-800"
+                                                                                    >
+                                                                                        {t('Change Batch')}
+                                                                                    </button>
+                                                                                )}
+                                                                            </div>
                                                                         </div>
                                                                         <button
                                                                             onClick={() => removeItem(index)}
@@ -747,7 +809,7 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                         <Package className="h-5 w-5 text-gray-500" />
                                         <span className="font-medium">{t('No Batch')}</span>
                                     </div>
-                                    <p className="text-sm text-gray-500">{t('Use default pricing')}</p>
+                                    <p className="text-sm text-gray-500">{t('Use default retail pricing')}</p>
                                 </button>
 
                                                                  {/* Batch Options */}
@@ -795,9 +857,15 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                                      <span className="font-medium">{batch.stock}</span>
                                                  </div>
                                                  <div className="flex justify-between">
-                                                     <span className="text-gray-500">{t('Price')}:</span>
+                                                     <span className="text-gray-500">{t('Retail Price')}:</span>
                                                      <span className="font-medium text-green-600">{formatMoney(batch.retail_price)}</span>
                                                  </div>
+                                                 {batch.wholesale_price > 0 && (
+                                                     <div className="flex justify-between">
+                                                         <span className="text-gray-500">{t('Wholesale Price')}:</span>
+                                                         <span className="font-medium text-blue-600">{formatMoney(batch.wholesale_price)}</span>
+                                                     </div>
+                                                 )}
                                                  {batch.expire_date && (
                                                      <div className="flex justify-between">
                                                          <span className="text-gray-500">{t('Expires')}:</span>

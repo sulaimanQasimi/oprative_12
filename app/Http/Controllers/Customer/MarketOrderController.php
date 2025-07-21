@@ -311,6 +311,7 @@ class MarketOrderController extends Controller
             'items.*.is_wholesale' => 'nullable|boolean',
             'items.*.batch_id' => 'nullable|exists:batches,id',
             'items.*.batch_reference' => 'nullable|string|max:255',
+            'items.*.batch_number' => 'nullable|string|max:255',
             'items.*.unit_type' => 'nullable|string|in:retail,wholesale',
             'items.*.unit_name' => 'nullable|string|max:255',
             'subtotal' => 'required|numeric|min:0',
@@ -470,6 +471,7 @@ class MarketOrderController extends Controller
                         ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
                     'batch_id' => $item['batch_id'] ?? null,
                     'batch_reference' => $item['batch_reference'] ?? null,
+                    'batch_number' => $item['batch_number'] ?? $item['batch_reference'] ?? null,
                 ]);
 
                 // Use actual units for stock outcome
@@ -487,6 +489,9 @@ class MarketOrderController extends Controller
                     'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
                         ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
                         ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
+                    'batch_id' => $item['batch_id'] ?? null,
+                    'batch_reference' => $item['batch_reference'] ?? null,
+                    'batch_number' => $item['batch_number'] ?? $item['batch_reference'] ?? null,
                     'notes' => $order->order_number . ($item['batch_reference'] ? ' (Batch: ' . $item['batch_reference'] . ')' : ''),
                     'model_type' => MarketOrder::class,
                     'model_id' => $order->id
