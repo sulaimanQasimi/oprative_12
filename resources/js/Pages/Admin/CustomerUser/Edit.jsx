@@ -16,7 +16,8 @@ import {
     EyeOff,
     CheckCircle,
     Info,
-    Edit as EditIcon
+    Edit as EditIcon,
+    MessageSquare
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -57,6 +58,7 @@ export default function Edit({ auth = {}, customerUser = {}, customers = [], per
         password_confirmation: '',
         customer_id: customerUser?.customer_id || '',
         permissions: customerUser?.permissions?.map(p => p.id) || [],
+        chat_id: customerUser?.chat_id || '',
     });
 
     // Animation effect
@@ -319,6 +321,43 @@ export default function Edit({ auth = {}, customerUser = {}, customers = [], per
                                                         )}
                                                     </motion.div>
                                                 </div>
+
+                                                {/* Chat ID */}
+                                                <motion.div
+                                                    initial={{ y: 20, opacity: 0 }}
+                                                    animate={{ y: 0, opacity: 1 }}
+                                                    transition={{ delay: 1.25, duration: 0.4 }}
+                                                    className="space-y-3"
+                                                >
+                                                    <Label htmlFor="chat_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <MessageSquare className="w-5 h-5 text-teal-500" />
+                                                        {t("Chat ID")}
+                                                        <Badge variant="secondary" className="text-xs">
+                                                            {t("Optional")}
+                                                        </Badge>
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <MessageSquare className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                        <Input
+                                                            id="chat_id"
+                                                            type="text"
+                                                            placeholder={t("Enter chat ID (e.g., Telegram chat ID)")}
+                                                            value={data.chat_id}
+                                                            onChange={(e) => setData('chat_id', e.target.value)}
+                                                            className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.chat_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-teal-300 focus:border-teal-500'} bg-white dark:bg-slate-800`}
+                                                        />
+                                                    </div>
+                                                    {formErrors.chat_id && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {formErrors.chat_id}
+                                                        </motion.p>
+                                                    )}
+                                                </motion.div>
 
                                                 {/* Customer Selection */}
                                                 <motion.div

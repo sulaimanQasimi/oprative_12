@@ -16,7 +16,8 @@ import {
     CheckCircle,
     AlertCircle,
     MapPin,
-    Phone
+    Phone,
+    MessageSquare
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -210,6 +211,22 @@ export default function Show({ auth = {}, customerUser = {} }) {
                                                         <span className="text-sm font-medium">{t("Email Address")}</span>
                                                     </div>
                                                     <p className="text-lg font-semibold text-slate-900 dark:text-white">{customerUser.email}</p>
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                        <MessageSquare className="w-4 h-4" />
+                                                        <span className="text-sm font-medium">{t("Chat ID")}</span>
+                                                    </div>
+                                                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                                                        {customerUser.chat_id ? (
+                                                            <Badge variant="outline" className="text-sm">
+                                                                {customerUser.chat_id}
+                                                            </Badge>
+                                                        ) : (
+                                                            <span className="text-slate-400">{t("Not set")}</span>
+                                                        )}
+                                                    </p>
                                                 </div>
 
                                                 <div className="space-y-2">

@@ -23,6 +23,7 @@ class AuthService
             'password' => Hash::make($data['password']),
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
+            'chat_id' => $data['chat_id'] ?? null,
             'email_verification_token' => $this->generateVerificationToken(),
         ]);
     }

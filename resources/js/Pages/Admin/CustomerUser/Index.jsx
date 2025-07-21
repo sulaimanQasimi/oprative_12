@@ -20,7 +20,8 @@ import {
     Edit,
     Trash2,
     Shield,
-    Eye
+    Eye,
+    MessageSquare
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -496,6 +497,9 @@ export default function Index({ auth = {}, customerUsers = { data: [] }, permiss
                                                                     {t("Customer")}
                                                                 </TableHead>
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("Chat ID")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                     {t("Permissions")}
                                                                 </TableHead>
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
@@ -527,6 +531,20 @@ export default function Index({ auth = {}, customerUsers = { data: [] }, permiss
                                                                         <div className="flex items-center gap-2">
                                                                             <Building2 className="h-4 w-4 text-slate-400" />
                                                                             <span className="font-medium">{user.customer?.name || '-'}</span>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <MessageSquare className="h-4 w-4 text-slate-400" />
+                                                                            <span className="font-medium text-sm">
+                                                                                {user.chat_id ? (
+                                                                                    <Badge variant="outline" className="text-xs">
+                                                                                        {user.chat_id}
+                                                                                    </Badge>
+                                                                                ) : (
+                                                                                    <span className="text-slate-400">{t("Not set")}</span>
+                                                                                )}
+                                                                            </span>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>

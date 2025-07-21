@@ -86,6 +86,7 @@ class CustomerUserController extends Controller
             'email' => 'required|string|email|max:255|unique:customer_users',
             'password' => 'required|string|min:8|confirmed',
             'customer_id' => 'required|exists:customers,id',
+            'chat_id' => 'nullable|string|max:255',
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,id',
         ]);
@@ -98,6 +99,7 @@ class CustomerUserController extends Controller
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'customer_id' => $validated['customer_id'],
+                'chat_id' => $validated['chat_id'] ?? null,
             ]);
 
             // Assign permissions
@@ -189,6 +191,7 @@ class CustomerUserController extends Controller
             'email' => 'required|string|email|max:255|unique:customer_users,email,' . $customerUser->id,
             'password' => 'nullable|string|min:8|confirmed',
             'customer_id' => 'required|exists:customers,id',
+            'chat_id' => 'nullable|string|max:255',
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,id',
         ]);
@@ -200,6 +203,7 @@ class CustomerUserController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'customer_id' => $validated['customer_id'],
+                'chat_id' => $validated['chat_id'] ?? null,
             ]);
 
             if ($request->filled('password')) {
