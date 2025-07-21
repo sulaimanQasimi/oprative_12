@@ -63,11 +63,11 @@ class StockProductsController extends Controller
             $customerInventory = DB::table('customer_inventory')
                 ->where('customer_id', $customer->id)
                 ->when($search, function ($query) use ($search) {
-                    $query->where(function($q) use ($search) {
+                    $query->where(function ($q) use ($search) {
                         $searchParam = '%' . addslashes($search) . '%';
                         $q->where('product_name', 'like', $searchParam)
-                          ->orWhere('product_barcode', 'like', $searchParam)
-                          ->orWhere('batch_reference', 'like', $searchParam);
+                            ->orWhere('product_barcode', 'like', $searchParam)
+                            ->orWhere('batch_reference', 'like', $searchParam);
                     });
                 })
                 ->orderBy($sortBy, $sortDirection)
@@ -77,7 +77,7 @@ class StockProductsController extends Controller
                 ->through(function ($item) {
                     // Get product details from database
                     $product = \App\Models\Product::find($item->product_id);
-                    
+
                     return [
                         'customer_id' => $item->customer_id,
                         'customer_name' => $item->customer_name,
@@ -126,6 +126,36 @@ class StockProductsController extends Controller
 
             // Add query string to pagination links
             $customerInventory->appends($request->query());
+
+            // Send Telegram message for each expired product
+            try {
+                $customerUser = Auth::guard('customer_user')->user();
+                if ($customerUser && $customerUser->chat_id) {
+                    $telegramService = app(\App\Services\TelegramService::class);
+                    foreach ($customerInventory as $product) {
+                        if ((isset($product['expiry_status']) && $product['expiry_status'] === 'expired') || (isset($product['days_to_expiry']) && $product['days_to_expiry'] < 0)) {
+                            $message = "⚠️ *محصول منقضی شده!*
+
+";
+                            $message .= "*نام محصول:* `{$product['product']['name']}`\n";
+                            $message .= "*بارکد:* `{$product['product']['barcode']}`\n";
+                            $message .= "*شماره بچ:* `{$product['batch_reference']}`\n";
+                            $message .= "*تاریخ انقضا:* `{$product['expire_date']}`\n";
+                            $message .= "*مقدار باقی‌مانده:* `{$product['remaining_qty']}`\n";
+                            $message .= "\n*اطلاعات مشتری:*\n". auth()->user()?->customer?->name;
+                            $message .= "\n*تلفن:* `". auth()->user()?->customer?->phone."`\n";
+                            $message .= "\n*ایمیل:* `". auth()->user()?->customer?->email."`\n";
+                            $message .= "\nلطفاً نسبت به این محصول منقضی شده اقدام نمایید.";
+                            $telegramService->queueMessage($message, $customerUser->chat_id, 'Markdown');
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send Telegram notification for expired products', [
+                    'error' => $e->getMessage(),
+                    'user_id' => $customerUser->id ?? null,
+                ]);
+            }
 
             return Inertia::render('Customer/StockProducts/Index', [
                 'products' => $customerInventory,
