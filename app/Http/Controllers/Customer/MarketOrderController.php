@@ -166,7 +166,15 @@ class MarketOrderController extends Controller
                 }
 
                 // Determine unit names: retail from product, wholesale from inventory
-                $retailUnitName = $item->retail_unit_name ?: 'Piece';
+                $retailUnitName =DB::table('products')
+                ->select('units.name as retail_unit_name')
+                ->where('products.id',$item->product_id)
+                ->join('units','products.retail_unit_id','=','units.id')
+                ->first()
+                ->retail_unit_name;
+
+
+
                 $wholesaleUnitName = $item->inventory_unit_name ?: $item->wholesale_unit_name ?: 'Wholesale Unit';
 
                 return (object)[
@@ -190,7 +198,12 @@ class MarketOrderController extends Controller
             });
 
             // Use retail unit name from product for main product info
-            $retailUnitName = $firstItem->retail_unit_name ?: 'Piece';
+            $retailUnitName =DB::table('products')
+            ->select('units.name as retail_unit_name')
+            ->where('products.id',$firstItem->product_id)
+            ->join('units','products.unit_id','=','units.id')
+            ->first()
+            ->retail_unit_name;
             $wholesaleUnitName = $firstItem->inventory_unit_name ?: $firstItem->wholesale_unit_name ?: 'Wholesale Unit';
 
             $product = (object)[
@@ -204,9 +217,11 @@ class MarketOrderController extends Controller
                 'purchase_price' => $firstItem->purchase_price,
                 'stock' => $customerInventory->sum('remaining_qty'),
                 'net_quantity' => $customerInventory->sum('remaining_qty'),
-             'retail_unit_name' => $retailUnitName,
+                'net_value' => $customerInventory->sum('net_value'),
+                'retail_unit_name' => $retailUnitName,
                 'wholesale_unit_name' => $wholesaleUnitName,
                 'wholesale_unit_amount' => $firstItem->whole_sale_unit_amount ?? $firstItem->unit_amount ?? 1,
+                'unit_name' => $retailUnitName, // Default unit name for frontend compatibility
                 'batches' => $batches,
                 'has_multiple_batches' => true,
                 'has_expiring_batches' => $batches->where('expiry_status', 'expiring_soon')->count() > 0,
@@ -233,7 +248,16 @@ class MarketOrderController extends Controller
             }
 
             // Determine unit names: retail from product, wholesale from inventory
-            $retailUnitName = $item->retail_unit_name ?: 'Piece';
+            $retailUnitName = 
+            DB::table('products')
+            ->select('units.name as retail_unit_name')
+            ->where('products.id',$item->product_id)
+            ->join('units','products.unit_id','=','units.id')
+            ->first()
+            ->retail_unit_name
+            
+            
+            ?: 'Piece';
             $wholesaleUnitName = $item->inventory_unit_name ?: $item->wholesale_unit_name ?: 'Wholesale Unit';
 
             $product = (object)[
@@ -260,6 +284,7 @@ class MarketOrderController extends Controller
                 'retail_unit_name' => $retailUnitName,
                 'wholesale_unit_name' => $wholesaleUnitName,
                 'wholesale_unit_amount' => $item->whole_sale_unit_amount ?? $item->unit_amount ?? 1,
+                'unit_name' => $retailUnitName, // Default unit name for frontend compatibility
                 'income_qty' => $item->income_qty,
                 'outcome_qty' => $item->outcome_qty,
                 'total_income_value' => $item->total_income_value,

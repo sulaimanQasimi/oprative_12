@@ -136,7 +136,16 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                 showError(t('Product not found or out of stock'));
             }
         } catch (error) {
-            showError(t('Error processing barcode') + ': ' + (error.response?.data?.message || error.message));
+            const errorMessage = error.response?.data?.message || error.message;
+            if (error.response && error.response.status === 404 && errorMessage.includes('order')) {
+                showError(t('Order expired or not found. Please start a new order.'));
+                resetOrder(true);
+            } else if (errorMessage.includes('order') && errorMessage.includes('invalid')) {
+                showError(t('Invalid order ID. Click "Start New Sale" to begin a fresh order.'));
+                resetOrder(true);
+            } else {
+                showError(t('Error processing barcode') + ': ' + errorMessage);
+            }
         } finally {
             setIsLoading(false);
             if (barcodeInputRef.current) {
@@ -432,8 +441,19 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                     .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
                     .join('\n');
                 showError(t('Validation error') + ':\n' + errorMessages);
+            } else if (error.response && error.response.status === 404) {
+                // Order not found - offer to start new order
+                showError(t('Order expired or not found. Please start a new order.'));
+                resetOrder(true);
             } else {
-                showError(t('Error completing order') + ': ' + (error.response?.data?.message || error.message));
+                const errorMessage = error.response?.data?.message || error.message;
+                if (errorMessage.includes('order') && errorMessage.includes('invalid')) {
+                    // Invalid order ID - offer to start new order
+                    showError(t('Invalid order ID. Click "Start New Sale" to begin a fresh order.'));
+                    resetOrder(true);
+                } else {
+                    showError(t('Error completing order') + ': ' + errorMessage);
+                }
             }
         } finally {
             setIsLoading(false);
@@ -548,6 +568,16 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                 </div>
                             </div>
                             <div className="flex items-center space-x-4">
+                                {orderSectionVisible && (
+                                    <button
+                                        onClick={() => resetOrder(false)}
+                                        disabled={isLoading}
+                                        className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:transform-none"
+                                    >
+                                        <X className="h-4 w-4 mr-2" />
+                                        {t('Reset Order')}
+                                    </button>
+                                )}
                                 <button
                                     onClick={startNewOrder}
                                     disabled={isLoading || orderSectionVisible}
@@ -648,76 +678,135 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                                                                     </div>
                                                                                 )}
                                                                             </div>
-                                                                        <div>
-                                                                            <h4 className="font-medium">{item.name}</h4>
-                                                                            <p className="text-sm text-gray-500">
-                                                                                {item.batch_reference && (
-                                                                                    <span className="inline-flex items-center mr-2">
+                                                                        <div className="flex-1">
+                                                                            <h4 className="font-bold text-lg text-gray-800 mb-1">{item.name}</h4>
+                                                                            
+                                                                            {/* Batch Information */}
+                                                                            {item.batch_reference && (
+                                                                                <div className="mb-2">
+                                                                                    <span className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700 text-xs rounded-lg font-medium">
                                                                                         <Hash className="h-3 w-3 mr-1" />
-                                                                                        {item.batch_reference}
+                                                                                        {t('Batch')}: {item.batch_reference}
                                                                                     </span>
-                                                                                )}
-                                                                                {item.quantity} {item.unit_name && item.unit_amount > 1 ? `(${item.quantity * item.unit_amount} ${item.unit_name})` : ''} × {formatMoney(item.price)}
-                                                                                {item.is_wholesale && (
-                                                                                    <span className="inline-flex items-center ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* Quantity and Unit Information */}
+                                                                            <div className="space-y-1 mb-2">
+                                                                                <div className="flex items-center space-x-2">
+                                                                                    <span className="text-sm font-semibold text-gray-700">{t('Quantity')}:</span>
+                                                                                    <span className="text-lg font-bold text-blue-600">
+                                                                                        {item.quantity} {item.is_wholesale ? item.wholesale_unit_name : item.retail_unit_name}
+                                                                                    </span>
+                                                                                    {item.is_wholesale && item.unit_amount > 1 && (
+                                                                                        <span className="text-sm text-gray-500">
+                                                                                            ({item.quantity * item.unit_amount} {item.retail_unit_name})
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                                
+                                                                                <div className="flex items-center space-x-2">
+                                                                                    <span className="text-sm font-semibold text-gray-700">{t('Unit Price')}:</span>
+                                                                                    <span className="text-lg font-bold text-green-600">{formatMoney(item.price)}</span>
+                                                                                    <span className="text-sm text-gray-500">
+                                                                                        per {item.is_wholesale ? item.wholesale_unit_name : item.retail_unit_name}
+                                                                                    </span>
+                                                                                </div>
+
+                                                                                <div className="flex items-center space-x-2">
+                                                                                    <span className="text-sm font-semibold text-gray-700">{t('Remaining Stock')}:</span>
+                                                                                    <span className={`text-sm font-bold ${item.max_stock > 10 ? 'text-green-600' : item.max_stock > 5 ? 'text-orange-600' : 'text-red-600'}`}>
+                                                                                        {item.max_stock} {item.retail_unit_name || 'units'}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {/* Mode Badge */}
+                                                                            <div className="flex items-center space-x-2">
+                                                                                {item.is_wholesale ? (
+                                                                                    <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs rounded-full font-bold shadow-md">
+                                                                                        <ShoppingBag className="h-3 w-3 mr-1" />
                                                                                         {t('Wholesale')}
                                                                                     </span>
+                                                                                ) : (
+                                                                                    <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-xs rounded-full font-bold shadow-md">
+                                                                                        <Package className="h-3 w-3 mr-1" />
+                                                                                        {t('Retail')}
+                                                                                    </span>
                                                                                 )}
-                                                                            </p>
+                                                                            </div>
+
+                                                                            {/* Price Comparison */}
                                                                             {item.wholesale_price > 0 && item.retail_price !== item.wholesale_price && (
-                                                                                <p className="text-xs text-gray-400">
-                                                                                    {t('Retail')}: {formatMoney(item.retail_price)} | {t('Wholesale')}: {formatMoney(item.wholesale_price)}
-                                                                                </p>
+                                                                                <div className="mt-2 p-2 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg">
+                                                                                    <div className="flex justify-between text-xs">
+                                                                                        <span className="text-emerald-600 font-medium">
+                                                                                            {t('Retail')}: {formatMoney(item.retail_price)}/{item.retail_unit_name}
+                                                                                        </span>
+                                                                                        <span className="text-blue-600 font-medium">
+                                                                                            {t('Wholesale')}: {formatMoney(item.wholesale_price)}/{item.wholesale_unit_name}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </div>
                                                                             )}
                                                                         </div>
                                                                     </div>
-                                                                    <div className="flex items-center space-x-4">
-                                                                        <div className="flex items-center space-x-2">
+                                                                    <div className="flex flex-col space-y-4 ml-4">
+                                                                        {/* Quantity Controls */}
+                                                                        <div className="flex items-center space-x-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-3">
                                                                             <button
                                                                                 onClick={() => updateQuantity(index, -1)}
-                                                                                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+                                                                                className="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all duration-200"
                                                                             >
-                                                                                <Minus className="h-4 w-4" />
+                                                                                <Minus className="h-5 w-5" />
                                                                             </button>
-                                                                            <span className="w-8 text-center">{item.quantity}</span>
+                                                                            <div className="flex flex-col items-center">
+                                                                                <span className="text-2xl font-bold text-gray-800">{item.quantity}</span>
+                                                                                <span className="text-xs text-gray-500">{item.is_wholesale ? item.wholesale_unit_name : item.retail_unit_name}</span>
+                                                                            </div>
                                                                             <button
                                                                                 onClick={() => updateQuantity(index, 1)}
-                                                                                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+                                                                                className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-xl flex items-center justify-center shadow-lg transform hover:scale-105 transition-all duration-200"
                                                                             >
-                                                                                <Plus className="h-4 w-4" />
+                                                                                <Plus className="h-5 w-5" />
                                                                             </button>
                                                                         </div>
-                                                                        <div className="text-right">
-                                                                            <p className="font-medium">{formatMoney(item.total)}</p>
-                                                                            <div className="flex flex-col gap-1 mt-1">
+
+                                                                        {/* Total and Actions */}
+                                                                        <div className="text-center bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-3">
+                                                                            <p className="text-sm text-gray-600 mb-1">{t('Total')}</p>
+                                                                            <p className="text-2xl font-bold text-purple-600">{formatMoney(item.total)}</p>
+                                                                            
+                                                                            <div className="flex flex-col gap-2 mt-3">
                                                                                 {item.wholesale_price > 0 && (
                                                                                     <button
                                                                                         onClick={() => toggleItemWholesale(index)}
-                                                                                        className={`text-xs px-2 py-1 rounded ${
+                                                                                        className={`px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 ${
                                                                                             item.is_wholesale
-                                                                                                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                                                                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                                                                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
+                                                                                                : 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg'
                                                                                         }`}
                                                                                     >
-                                                                                        {item.is_wholesale ? t('Wholesale') : t('Retail')}
+                                                                                        {item.is_wholesale ? t('Switch to Retail') : t('Switch to Wholesale')}
                                                                                     </button>
                                                                                 )}
                                                                                 {item.batches && item.batches.length > 1 && (
                                                                                     <button
                                                                                         onClick={() => changeItemBatch(index)}
-                                                                                        className="text-xs text-blue-600 hover:text-blue-800"
+                                                                                        className="px-3 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl text-sm font-semibold hover:from-purple-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
                                                                                     >
                                                                                         {t('Change Batch')}
                                                                                     </button>
                                                                                 )}
+                                                                                <button
+                                                                                    onClick={() => removeItem(index)}
+                                                                                    className="px-3 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                                                                                >
+                                                                                    <X className="h-4 w-4 mr-1 inline" />
+                                                                                    {t('Remove')}
+                                                                                </button>
                                                                             </div>
                                                                         </div>
-                                                                        <button
-                                                                            onClick={() => removeItem(index)}
-                                                                            className="text-red-500 hover:text-red-700"
-                                                                        >
-                                                                            <X className="h-5 w-5" />
-                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -977,16 +1066,16 @@ export default function MarketOrderCreate({ auth, paymentMethods, tax_percentage
                                              <div className="space-y-1 text-xs">
                                                  <div className="flex justify-between">
                                                      <span className="text-gray-500">{t('Stock')}:</span>
-                                                     <span className="font-medium">{batch.stock} {batch.unit_name || ''}</span>
+                                                     <span className="font-medium">{batch.stock} {batch.retail_unit_name || 'units'}</span>
                                                  </div>
                                                  <div className="flex justify-between">
                                                      <span className="text-gray-500">{t('Retail Price')}:</span>
-                                                     <span className="font-medium text-green-600">{formatMoney(batch.retail_price)} / {batch.unit_name || 'unit'}</span>
+                                                     <span className="font-medium text-green-600">{formatMoney(batch.retail_price)} / {batch.retail_unit_name || 'unit'}</span>
                                                  </div>
                                                  {batch.wholesale_price > 0 && (
                                                      <div className="flex justify-between">
                                                          <span className="text-gray-500">{t('Wholesale Price')}:</span>
-                                                         <span className="font-medium text-blue-600">{formatMoney(batch.wholesale_price)} / {batch.unit_name || 'unit'}</span>
+                                                         <span className="font-medium text-blue-600">{formatMoney(batch.wholesale_price)} / {batch.wholesale_unit_name || 'unit'}</span>
                                                      </div>
                                                  )}
                                                  {batch.expire_date && (
