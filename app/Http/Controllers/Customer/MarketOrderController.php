@@ -105,9 +105,35 @@ class MarketOrderController extends Controller
         }
 
         $customerInventory = \DB::table('customer_inventory')
-            ->where('customer_id', $this->getCustomerId())
-            ->where('product_barcode', $barcode)
-            ->where('remaining_qty', '>', 0)
+            ->join('products', 'customer_inventory.product_id', '=', 'products.id')
+            ->leftJoin('units as retail_units', 'products.retail_unit_id', '=', 'retail_units.id')
+            ->leftJoin('units as wholesale_units', 'products.wholesale_unit_id', '=', 'wholesale_units.id')
+            ->where('customer_inventory.customer_id', $this->getCustomerId())
+            ->where('customer_inventory.product_barcode', $barcode)
+            ->where('customer_inventory.remaining_qty', '>', 0)
+            ->select('customer_inventory.*', 'products.*', 
+                'retail_units.name as retail_unit_name',
+                'wholesale_units.name as wholesale_unit_name',
+                'customer_inventory.product_id',
+                'customer_inventory.product_name',
+                'customer_inventory.product_barcode',
+                'customer_inventory.batch_id',
+                'customer_inventory.batch_reference',
+                'customer_inventory.issue_date',
+                'customer_inventory.expire_date',
+                'customer_inventory.batch_notes',
+                'customer_inventory.remaining_qty',
+                'customer_inventory.retail_price',
+                'customer_inventory.wholesale_price',
+                'customer_inventory.purchase_price',
+                'customer_inventory.unit_type',
+                'customer_inventory.unit_id',
+                'customer_inventory.unit_amount',
+                'customer_inventory.unit_name as inventory_unit_name',
+                'customer_inventory.income_qty',
+                'customer_inventory.outcome_qty',
+                'customer_inventory.total_income_value',
+                'customer_inventory.total_outcome_value')
             ->get();
 
         if ($customerInventory->isEmpty()) {
@@ -139,6 +165,10 @@ class MarketOrderController extends Controller
                     $expiryStatus = 'no_expiry';
                 }
 
+                // Determine unit names: retail from product, wholesale from inventory
+                $retailUnitName = $item->retail_unit_name ?: 'Piece';
+                $wholesaleUnitName = $item->inventory_unit_name ?: $item->wholesale_unit_name ?: 'Wholesale Unit';
+
                 return (object)[
                     'id' => $item->batch_id,
                     'reference_number' => $item->batch_reference,
@@ -151,12 +181,17 @@ class MarketOrderController extends Controller
                     'unit_type' => $item->unit_type ?? 'retail',
                     'unit_id' => $item->unit_id,
                     'unit_amount' => $item->unit_amount ?? 1,
-                    'unit_name' => $item->unit_name,
+                    'retail_unit_name' => $retailUnitName,
+                    'wholesale_unit_name' => $wholesaleUnitName,
                     'retail_price' => $item->retail_price,
                     'wholesale_price' => $item->wholesale_price,
                     'purchase_price' => $item->purchase_price,
                 ];
             });
+
+            // Use retail unit name from product for main product info
+            $retailUnitName = $firstItem->retail_unit_name ?: 'Piece';
+            $wholesaleUnitName = $firstItem->inventory_unit_name ?: $firstItem->wholesale_unit_name ?: 'Wholesale Unit';
 
             $product = (object)[
                 'id' => $firstItem->product_id,
@@ -169,7 +204,9 @@ class MarketOrderController extends Controller
                 'purchase_price' => $firstItem->purchase_price,
                 'stock' => $customerInventory->sum('remaining_qty'),
                 'net_quantity' => $customerInventory->sum('remaining_qty'),
-                'net_value' => $customerInventory->sum('net_value'),
+             'retail_unit_name' => $retailUnitName,
+                'wholesale_unit_name' => $wholesaleUnitName,
+                'wholesale_unit_amount' => $firstItem->whole_sale_unit_amount ?? $firstItem->unit_amount ?? 1,
                 'batches' => $batches,
                 'has_multiple_batches' => true,
                 'has_expiring_batches' => $batches->where('expiry_status', 'expiring_soon')->count() > 0,
@@ -195,6 +232,10 @@ class MarketOrderController extends Controller
                 $expiryStatus = 'no_expiry';
             }
 
+            // Determine unit names: retail from product, wholesale from inventory
+            $retailUnitName = $item->retail_unit_name ?: 'Piece';
+            $wholesaleUnitName = $item->inventory_unit_name ?: $item->wholesale_unit_name ?: 'Wholesale Unit';
+
             $product = (object)[
                 'id' => $item->product_id,
                 'product_id' => $item->product_id,
@@ -206,7 +247,6 @@ class MarketOrderController extends Controller
                 'purchase_price' => $item->purchase_price,
                 'stock' => $item->remaining_qty,
                 'net_quantity' => $item->remaining_qty,
-                'net_value' => $item->net_value,
                 'batch_id' => $item->batch_id,
                 'batch_reference' => $item->batch_reference,
                 'issue_date' => $item->issue_date,
@@ -217,7 +257,9 @@ class MarketOrderController extends Controller
                 'unit_type' => $item->unit_type ?? 'retail',
                 'unit_id' => $item->unit_id,
                 'unit_amount' => $item->unit_amount ?? 1,
-                'unit_name' => $item->unit_name,
+                'retail_unit_name' => $retailUnitName,
+                'wholesale_unit_name' => $wholesaleUnitName,
+                'wholesale_unit_amount' => $item->whole_sale_unit_amount ?? $item->unit_amount ?? 1,
                 'income_qty' => $item->income_qty,
                 'outcome_qty' => $item->outcome_qty,
                 'total_income_value' => $item->total_income_value,
@@ -235,7 +277,8 @@ class MarketOrderController extends Controller
                         'unit_type' => $item->unit_type ?? 'retail',
                         'unit_id' => $item->unit_id,
                         'unit_amount' => $item->unit_amount ?? 1,
-                        'unit_name' => $item->unit_name,
+                        'retail_unit_name' => $retailUnitName,
+                        'wholesale_unit_name' => $wholesaleUnitName,
                         'retail_price' => $item->retail_price,
                         'wholesale_price' => $item->wholesale_price,
                         'purchase_price' => $item->purchase_price,
@@ -402,43 +445,58 @@ class MarketOrderController extends Controller
 
             // Process each order item
             foreach ($items as $item) {
-                // First get the product to access wholesale unit amount
-                $stockProduct = CustomerStockProduct::with('product')
+                // First get the product and inventory information with unit relationships
+                $stockProduct = CustomerStockProduct::with(['product.unit'])
                     ->where('customer_id', $this->getCustomerId())
                     ->where('product_id', $item['product_id'])
                     ->first();
 
                 if (!$stockProduct) {
-                    $product = Product::find($item['product_id']);
+                    $product = Product::with('unit')->find($item['product_id']);
                     $productName = $product ? $product->name : 'Unknown Product';
                     throw new \Exception("Product not found: {$productName}");
                 }
 
+                // Get inventory data for unit information
+                $inventoryData = \DB::table('customer_inventory')
+                    ->where('customer_id', $this->getCustomerId())
+                    ->where('product_id', $item['product_id']);
+                
+                if (isset($item['batch_id']) && $item['batch_id']) {
+                    $inventoryData = $inventoryData->where('batch_id', $item['batch_id']);
+                } else {
+                    $inventoryData = $inventoryData->whereNull('batch_id');
+                }
+                
+                $inventoryData = $inventoryData->first();
+
                 // Determine if this is wholesale or retail based on unit_type
                 $isWholesale = isset($item['unit_type']) && $item['unit_type'] === 'wholesale';
                 
-                // Get unit information from product
+                // Get unit information from product and inventory
                 $product = $stockProduct->product;
-                $retailUnit = $product->retailUnit;
-                $wholesaleUnit = $product->wholesaleUnit;
-                
+                $retailUnit = $product->unit?->name;
+
                 // Set unit information based on wholesale/retail
                 if ($isWholesale) {
-                    $unitAmount = $product->whole_sale_unit_amount ?? 1;
-                    $unitId = $product->wholesale_unit_id;
-                    $unitName = $wholesaleUnit ? $wholesaleUnit->name : 'Wholesale Unit';
+                    // Wholesale: get unit from inventory/customer_inventory
+                    $unitAmount = $item['unit_amount'] ?? ($product->whole_sale_unit_amount ?? 1);
+                    $unitId = $product->wholesale_unit_id ?? ($inventoryData ? $inventoryData->unit_id : null);
+                    $unitName = $inventoryData ? $inventoryData->unit_name : ($product->unit?->name ?? 'Wholesale Unit');
                     $unitPrice = $product->wholesale_price ?? 0;
+                    
+                    // For wholesale: quantity * unit_amount = actual units needed
+                    $actualUnitsNeeded = $item['quantity'] * $unitAmount; // e.g., 2 boxes * 12 pieces = 24 pieces
                 } else {
-                    $unitAmount = 1; // Retail is always 1 unit
+                    // Retail: get unit from product table
+                    $unitAmount = 1; // Retail quantity represents individual pieces
                     $unitId = $product->retail_unit_id;
-                    $unitName = $retailUnit ? $retailUnit->name : 'Retail Unit';
+                    $unitName = $retailUnit ? $retailUnit : 'Piece';
                     $unitPrice = $product->retail_price ?? 0;
+                    
+                    // For retail: quantity represents individual units
+                    $actualUnitsNeeded = $item['quantity']; // e.g., 5 pieces = 5 pieces
                 }
-
-                // Calculate actual units needed
-                // For wholesale: quantity * unit_amount (e.g., 2 boxes * 12 pieces = 24 pieces)
-                // For retail: quantity * 1 (e.g., 5 pieces * 1 = 5 pieces)
-                $actualUnitsNeeded = $item['quantity'] * $unitAmount;
                 
                 // Verify sufficient stock
                 if ($stockProduct->net_quantity < $actualUnitsNeeded) {
