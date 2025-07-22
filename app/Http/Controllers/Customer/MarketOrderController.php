@@ -425,11 +425,20 @@ class MarketOrderController extends Controller
                     throw new \Exception("Insufficient stock for product: {$productName}. Required: {$actualUnitsNeeded}, Available: {$stockProduct->net_quantity}");
                 }
 
+                $storeQuantity = $actualUnitsNeeded; // Always store actual units consumed
+                $frontendTotal = floatval($item['total']); // What the frontend calculated and customer saw
+                
                 // Log for debugging
                 FacadesLog::info("Processing item: Product ID {$item['product_id']}, Wholesale: " . ($isWholesale ? 'Yes' : 'No') . ", Quantity: {$item['quantity']}, Unit Amount: {$unitAmount}, Actual Units: {$actualUnitsNeeded}");
                 
-                $storeQuantity = $actualUnitsNeeded; // Always store actual units consumed
-                $frontendTotal = floatval($item['total']); // What the frontend calculated and customer saw
+                // Log price information for debugging
+                FacadesLog::info("Price information for product {$item['product_id']}:", [
+                    'wholesale_price' => $stockProduct->product->wholesale_price,
+                    'retail_price' => $stockProduct->product->retail_price,
+                    'item_price' => $item['price'] ?? 'not set',
+                    'frontend_total' => $frontendTotal,
+                    'is_wholesale' => $isWholesale
+                ]);
                 
                 if ($isWholesale) {
                     // For wholesale: Use frontend total and calculate unit price per individual unit
@@ -477,28 +486,21 @@ class MarketOrderController extends Controller
                     }
                 }
 
-                MarketOrderItem::create([
-                    'market_order_id' => $order->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $storeQuantity, // Store actual individual units (e.g., 14)
-                    'unit_price' => $storeUnitPrice, // Price per individual unit (calculated or from DB)
-                    'price' => $storeUnitPrice,
-                    'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
-                    'discount_amount' => 0,
-                    'unit_type' => $item['unit_type'] ?? ($isWholesale ? 'wholesale' : 'retail'),
+                // Final validation to ensure unit price is valid
+                if ($storeUnitPrice <= 0) {
+                    throw new \Exception("Invalid unit price for product: {$stockProduct->product->name}. Unit price cannot be zero or negative.");
+                }
+
+                // Log final unit price for debugging
+                FacadesLog::info("Final unit price for product {$item['product_id']}: {$storeUnitPrice}", [
+                    'product_name' => $stockProduct->product->name,
                     'is_wholesale' => $isWholesale,
-                    'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
-                    'unit_amount' => $unitAmount,
-                    'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
-                        ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
-                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
-                    'batch_id' => $item['batch_id'] ?? null,
-                    'batch_reference' => $item['batch_reference'] ?? null,
-                    'batch_number' => $item['batch_number'] ?? $item['batch_reference'] ?? null,
+                    'store_quantity' => $storeQuantity,
+                    'calculated_subtotal' => $calculatedSubtotal
                 ]);
 
-                // Use actual units for stock outcome
-                CustomerStockOutcome::create([
+                // Create stock outcome first to get the outcome_id
+                $stockOutcome = CustomerStockOutcome::create([
                     'reference_number' => $order->order_number,
                     'customer_id' => $this->getCustomerId(),
                     'product_id' => $item['product_id'],
@@ -518,6 +520,24 @@ class MarketOrderController extends Controller
                     'notes' => $order->order_number . ($item['batch_reference'] ? ' (Batch: ' . $item['batch_reference'] . ')' : ''),
                     'model_type' => MarketOrder::class,
                     'model_id' => $order->id
+                ]);
+
+                // Create market order item with reference to the stock outcome
+                MarketOrderItem::create([
+                    'market_order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $storeQuantity, // Store actual individual units (e.g., 14)
+                    'unit_price' => $storeUnitPrice, // Price per individual unit (calculated or from DB)
+                    'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
+                    'discount_amount' => 0,
+                    'unit_type' => $item['unit_type'] ?? ($isWholesale ? 'wholesale' : 'retail'),
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
+                        ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
+                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
+                    'outcome_id' => $stockOutcome->id, // Link to the created stock outcome
                 ]);
             }
 

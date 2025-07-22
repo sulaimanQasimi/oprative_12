@@ -62,4 +62,9 @@ class CustomerStockOutcome extends Model
     {
         return $this->belongsTo(Batch::class);
     }
+
+    public function marketOrderItems()
+    {
+        return $this->hasMany(MarketOrderItem::class, 'outcome_id');
+    }
 }
