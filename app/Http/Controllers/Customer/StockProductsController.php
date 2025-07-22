@@ -36,7 +36,7 @@ class StockProductsController extends Controller
                 return Inertia::render('Customer/StockProducts/Index', [
                     'products' => [],
                     'search' => '',
-                    'sort_by' => 'net_quantity',
+                    'sort_by' => 'remaining_qty',
                     'sort_direction' => 'desc',
                     'errors' => $validator->errors(),
                 ]);
@@ -45,7 +45,7 @@ class StockProductsController extends Controller
             // Sanitize and get input parameters
             $search = $request->input('search', '');
             $perPage = (int) $request->input('per_page', 15);
-            $sortBy = $request->input('sort_by', 'net_quantity');
+            $sortBy = $request->input('sort_by', 'remaining_qty');
             $sortDirection = $request->input('sort_direction', 'desc');
 
             // Ensure the current user has a valid customer association
@@ -75,8 +75,11 @@ class StockProductsController extends Controller
                 ->orderBy('batch_id', 'desc')
                 ->paginate($perPage)
                 ->through(function ($item) {
-                    // Get product details from database
-                    $product = \App\Models\Product::find($item->product_id);
+                    // Calculate additional fields based on view data
+                    $netQuantity = $item->remaining_qty ?? 0;
+                    $netValue = ($item->total_income_value ?? 0) - ($item->total_outcome_value ?? 0);
+                    $avgPricePerUnit = ($item->income_qty ?? 0) > 0 ? ($item->total_income_value ?? 0) / ($item->income_qty ?? 1) : 0;
+                    $profit = ($item->total_outcome_value ?? 0) - ($item->total_income_value ?? 0);
 
                     return [
                         'customer_id' => $item->customer_id,
@@ -85,25 +88,25 @@ class StockProductsController extends Controller
                         'customer_phone' => $item->customer_phone,
                         'product_id' => $item->product_id,
                         'product' => [
-                            'id' => $product->id ?? $item->product_id,
-                            'name' => $product->name ?? $item->product_name,
-                            'barcode' => $product->barcode ?? $item->product_barcode,
-                            'type' => $product->type ?? 'Unknown',
-                            'is_activated' => $product->is_activated ?? true,
-                            'is_in_stock' => $product->is_in_stock ?? true,
+                            'id' => $item->product_id,
+                            'name' => $item->product_name,
+                            'barcode' => $item->product_barcode,
+                            'type' => 'Product', // Default type since not in view
+                            'is_activated' => true, // Default value
+                            'is_in_stock' => $netQuantity > 0,
                         ],
                         'batch_id' => $item->batch_id,
                         'batch_reference' => $item->batch_reference,
                         'issue_date' => $item->issue_date,
                         'expire_date' => $item->expire_date,
                         'batch_notes' => $item->batch_notes,
-                        'income_qty' => $item->income_qty,
-                        'outcome_qty' => $item->outcome_qty,
-                        'remaining_qty' => $item->remaining_qty,
-                        'total_income_value' => $item->total_income_value,
-                        'total_outcome_value' => $item->total_outcome_value,
-                        'net_quantity' => $item->net_quantity,
-                        'net_value' => $item->net_value,
+                        'income_qty' => $item->income_qty ?? 0,
+                        'outcome_qty' => $item->outcome_qty ?? 0,
+                        'remaining_qty' => $netQuantity,
+                        'total_income_value' => $item->total_income_value ?? 0,
+                        'total_outcome_value' => $item->total_outcome_value ?? 0,
+                        'net_quantity' => $netQuantity,
+                        'net_value' => $netValue,
                         'expiry_status' => $item->expiry_status,
                         'days_to_expiry' => $item->days_to_expiry,
                         // Unit information
@@ -116,9 +119,16 @@ class StockProductsController extends Controller
                         'wholesale_price' => $item->wholesale_price ?? 0,
                         'retail_price' => $item->retail_price ?? 0,
                         // Calculate average price per unit
-                        'avg_price_per_unit' => $item->income_qty > 0 ? $item->total_income_value / $item->income_qty : 0,
+                        'avg_price_per_unit' => $avgPricePerUnit,
                         // Calculate profit for this batch
-                        'profit' => $item->total_outcome_value - $item->total_income_value,
+                        'profit' => $profit,
+                        // Additional batch properties
+                        'purchase_id' => $item->purchase_id,
+                        'purchase_item_id' => $item->purchase_item_id,
+                        'is_wholesale' => $item->is_wholesale ?? false,
+                        'batch_price' => $item->price ?? 0,
+                        'batch_total' => $item->total ?? 0,
+                        'batch_quantity' => $item->quantity ?? 0,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -168,7 +178,7 @@ class StockProductsController extends Controller
             return Inertia::render('Customer/StockProducts/Index', [
                 'products' => [],
                 'search' => $request->input('search', ''),
-                'sort_by' => $request->input('sort_by', 'net_quantity'),
+                'sort_by' => $request->input('sort_by', 'remaining_qty'),
                 'sort_direction' => $request->input('sort_direction', 'desc'),
                 'errors' => $e->errors(),
             ]);
@@ -183,7 +193,7 @@ class StockProductsController extends Controller
             return Inertia::render('Customer/StockProducts/Index', [
                 'products' => [],
                 'search' => $request->input('search', ''),
-                'sort_by' => $request->input('sort_by', 'net_quantity'),
+                'sort_by' => $request->input('sort_by', 'remaining_qty'),
                 'sort_direction' => $request->input('sort_direction', 'desc'),
                 'errors' => ['database' => 'A database error occurred. Please try again later.'],
             ]);
@@ -191,7 +201,7 @@ class StockProductsController extends Controller
             Log::error('Error in stock products', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
-                'user_id' => Auth::guard('customer_user')->id(),
+                'user_id' => Auth::guard(name: 'customer_user')->id(),
                 'customer_id' => Auth::guard('customer_user')->user()->customer_id ?? null,
                 'ip' => $request->ip(),
             ]);
@@ -199,7 +209,7 @@ class StockProductsController extends Controller
             return Inertia::render('Customer/StockProducts/Index', [
                 'products' => [],
                 'search' => $request->input('search', ''),
-                'sort_by' => $request->input('sort_by', 'net_quantity'),
+                'sort_by' => $request->input('sort_by', 'remaining_qty'),
                 'sort_direction' => $request->input('sort_direction', 'desc'),
                 'errors' => ['general' => 'An error occurred while loading your stock products.'],
             ]);

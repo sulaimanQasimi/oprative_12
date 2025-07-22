@@ -433,24 +433,47 @@ class MarketOrderController extends Controller
                 
                 if ($isWholesale) {
                     // For wholesale: Use frontend total and calculate unit price per individual unit
-                    $storeUnitPrice = $stockProduct->product->wholesale_price;
+                    $storeUnitPrice = $stockProduct->product->wholesale_price ?? 0;
                     $calculatedSubtotal = $item['quantity'] * $storeUnitPrice; // Use what customer actually paid
+                    
+                    // If wholesale price is null or 0, calculate from frontend total
+                    if ($storeUnitPrice <= 0) {
+                        $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : 0;
+                        $calculatedSubtotal = $frontendTotal;
+                    }
                 } else {
                     // For retail: Use database price and calculate total
-                    $storeUnitPrice = $stockProduct->product->retail_price;
+                    $storeUnitPrice = $stockProduct->product->retail_price ?? 0;
                     $calculatedSubtotal = $storeQuantity * $storeUnitPrice;
                     
-                    // Validate against frontend total with small tolerance
-                    $tolerance = 0.01; // 1 cent tolerance
-                    if (abs($calculatedSubtotal - $frontendTotal) > $tolerance) {
-                        FacadesLog::warning("Retail price mismatch - using frontend total", [
-                            'product_id' => $item['product_id'],
-                            'calculated' => $calculatedSubtotal,
-                            'frontend' => $frontendTotal,
-                            'difference' => abs($calculatedSubtotal - $frontendTotal)
-                        ]);
+                    // If retail price is null or 0, use frontend total
+                    if ($storeUnitPrice <= 0) {
+                        $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : 0;
                         $calculatedSubtotal = $frontendTotal;
-                        $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : $storeUnitPrice;
+                    } else {
+                        // Validate against frontend total with small tolerance
+                        $tolerance = 0.01; // 1 cent tolerance
+                        if (abs($calculatedSubtotal - $frontendTotal) > $tolerance) {
+                            FacadesLog::warning("Retail price mismatch - using frontend total", [
+                                'product_id' => $item['product_id'],
+                                'calculated' => $calculatedSubtotal,
+                                'frontend' => $frontendTotal,
+                                'difference' => abs($calculatedSubtotal - $frontendTotal)
+                            ]);
+                            $calculatedSubtotal = $frontendTotal;
+                            $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : $storeUnitPrice;
+                        }
+                    }
+                }
+                
+                // Ensure unit price is never null or negative
+                if ($storeUnitPrice <= 0) {
+                    // Fallback to item price if available
+                    $storeUnitPrice = floatval($item['price'] ?? 0);
+                    
+                    // If still 0, calculate from total
+                    if ($storeUnitPrice <= 0) {
+                        $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : 0;
                     }
                 }
 

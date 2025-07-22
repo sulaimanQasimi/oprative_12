@@ -222,7 +222,7 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [searchTerm, setSearchTerm] = useState(search || "");
-    const [sortBy, setSortBy] = useState(sort_by || "net_quantity");
+    const [sortBy, setSortBy] = useState(sort_by || "remaining_qty");
     const [sortDirection, setSortDirection] = useState(sort_direction || "desc");
     const [filteredProducts, setFilteredProducts] = useState(products?.data || []);
     const [notificationPermission, setNotificationPermission] = useState(Notification.permission || "default");
@@ -364,6 +364,8 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
     // Batch statistics
     const totalBatches = filteredProducts.filter(product => product.batch_id).length;
     const batchesWithExpiry = filteredProducts.filter(product => product.expire_date).length;
+    const wholesaleBatches = filteredProducts.filter(product => product.is_wholesale).length;
+    const retailBatches = filteredProducts.filter(product => !product.is_wholesale).length;
     
     // Pricing statistics
     const totalPurchaseValue = filteredProducts.reduce((sum, product) => sum + (product.purchase_price * (product.remaining_qty || 0)), 0);
@@ -503,13 +505,13 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                                    {t("Total Products")}
+                                                    {t("Total Batches")}
                                                 </p>
                                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                    {totalProducts}
+                                                    {totalBatches}
                                                 </p>
                                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                    {totalBatches} {t("batches")}
+                                                    {totalProducts} {t("unique products")}
                                                 </p>
                                             </div>
                                             <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
@@ -815,6 +817,36 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                         </div>
                                     </CardContent>
                                 </Card>
+
+                                {/* Wholesale vs Retail */}
+                                <Card className="border-0 shadow-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 backdrop-blur-sm">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                                                    {t("Batch Types")}
+                                                </p>
+                                                <div className="space-y-1 mt-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-purple-600 dark:text-purple-400">{t("Wholesale")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {wholesaleBatches}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-xs text-pink-600 dark:text-pink-400">{t("Retail")}</span>
+                                                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                            {retailBatches}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+                                                <Package className="h-6 w-6 text-white" />
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </motion.div>
 
                             {/* Filters and Search */}
@@ -849,6 +881,10 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                                         <SelectItem value="outcome_qty">{t("Outcome Quantity")}</SelectItem>
                                                         <SelectItem value="expire_date">{t("Expire Date")}</SelectItem>
                                                         <SelectItem value="batch_reference">{t("Batch Reference")}</SelectItem>
+                                                        <SelectItem value="purchase_price">{t("Purchase Price")}</SelectItem>
+                                                        <SelectItem value="wholesale_price">{t("Wholesale Price")}</SelectItem>
+                                                        <SelectItem value="retail_price">{t("Retail Price")}</SelectItem>
+                                                        <SelectItem value="days_to_expiry">{t("Days to Expiry")}</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <Button
@@ -953,9 +989,16 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                                                         className="hover:bg-blue-50/50 dark:hover:bg-slate-700/50 transition-colors"
                                                                     >
                                                                         <TableCell>
-                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
-                                                                                {batch.batch_reference || '-'}
-                                                                            </span>
+                                                                            <div className="space-y-1">
+                                                                                <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                                    {batch.batch_reference || '-'}
+                                                                                </span>
+                                                                                {batch.batch_notes && (
+                                                                                    <div className="text-xs text-slate-500 dark:text-slate-400 max-w-32 truncate" title={batch.batch_notes}>
+                                                                                        {batch.batch_notes}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
                                                                         </TableCell>
                                                                         <TableCell>
                                                                             <div className="flex items-center gap-3">
@@ -966,9 +1009,16 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                                                                     <p className="font-semibold text-slate-800 dark:text-white">
                                                                                         {batch.product.name}
                                                                                     </p>
-                                                                                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                                                        {batch.product.type}
-                                                                                    </p>
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                                                            {batch.product.type}
+                                                                                        </p>
+                                                                                        {batch.is_wholesale && (
+                                                                                            <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
+                                                                                                {t("Wholesale")}
+                                                                                            </Badge>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </div>
                                                                             </div>
                                                                         </TableCell>
@@ -977,11 +1027,16 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                                                         </TableCell>
                                                                         <TableCell>
                                                                             <div className="space-y-1">
-                                                                                {batch.unit_name && (
+                                                                                {batch.unit_name && batch.unit_amount && (
                                                                                     <div className="text-xs">
                                                                                         <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                                            {batch.remaining_qty/batch.unit_amount} {batch.unit_name}
+                                                                                            {batch.remaining_qty > 0 ? (batch.remaining_qty / batch.unit_amount).toFixed(2) : 0} {batch.unit_name}
                                                                                         </Badge>
+                                                                                    </div>
+                                                                                )}
+                                                                                {batch.unit_type && (
+                                                                                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                        {batch.unit_type}
                                                                                     </div>
                                                                                 )}
                                                                             </div>
