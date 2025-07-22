@@ -414,9 +414,30 @@ class MarketOrderController extends Controller
                     throw new \Exception("Product not found: {$productName}");
                 }
 
-                // Calculate actual units needed (for wholesale items)
-                $isWholesale = isset($item['is_wholesale']) && $item['is_wholesale'];
-                $unitAmount = $isWholesale ? ($stockProduct->product->whole_sale_unit_amount ?: 1) : 1;
+                // Determine if this is wholesale or retail based on unit_type
+                $isWholesale = isset($item['unit_type']) && $item['unit_type'] === 'wholesale';
+                
+                // Get unit information from product
+                $product = $stockProduct->product;
+                $retailUnit = $product->retailUnit;
+                $wholesaleUnit = $product->wholesaleUnit;
+                
+                // Set unit information based on wholesale/retail
+                if ($isWholesale) {
+                    $unitAmount = $product->whole_sale_unit_amount ?? 1;
+                    $unitId = $product->wholesale_unit_id;
+                    $unitName = $wholesaleUnit ? $wholesaleUnit->name : 'Wholesale Unit';
+                    $unitPrice = $product->wholesale_price ?? 0;
+                } else {
+                    $unitAmount = 1; // Retail is always 1 unit
+                    $unitId = $product->retail_unit_id;
+                    $unitName = $retailUnit ? $retailUnit->name : 'Retail Unit';
+                    $unitPrice = $product->retail_price ?? 0;
+                }
+
+                // Calculate actual units needed
+                // For wholesale: quantity * unit_amount (e.g., 2 boxes * 12 pieces = 24 pieces)
+                // For retail: quantity * 1 (e.g., 5 pieces * 1 = 5 pieces)
                 $actualUnitsNeeded = $item['quantity'] * $unitAmount;
                 
                 // Verify sufficient stock
@@ -433,17 +454,20 @@ class MarketOrderController extends Controller
                 
                 // Log price information for debugging
                 FacadesLog::info("Price information for product {$item['product_id']}:", [
-                    'wholesale_price' => $stockProduct->product->wholesale_price,
-                    'retail_price' => $stockProduct->product->retail_price,
+                    'wholesale_price' => $product->wholesale_price,
+                    'retail_price' => $product->retail_price,
                     'item_price' => $item['price'] ?? 'not set',
                     'frontend_total' => $frontendTotal,
-                    'is_wholesale' => $isWholesale
+                    'is_wholesale' => $isWholesale,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName
                 ]);
                 
+                // Calculate unit price and subtotal
                 if ($isWholesale) {
-                    // For wholesale: Use frontend total and calculate unit price per individual unit
-                    $storeUnitPrice = $stockProduct->product->wholesale_price ?? 0;
-                    $calculatedSubtotal = $item['quantity'] * $storeUnitPrice; // Use what customer actually paid
+                    // For wholesale: Use wholesale price per individual unit
+                    $storeUnitPrice = $unitPrice;
+                    $calculatedSubtotal = $actualUnitsNeeded * $storeUnitPrice;
                     
                     // If wholesale price is null or 0, calculate from frontend total
                     if ($storeUnitPrice <= 0) {
@@ -451,9 +475,9 @@ class MarketOrderController extends Controller
                         $calculatedSubtotal = $frontendTotal;
                     }
                 } else {
-                    // For retail: Use database price and calculate total
-                    $storeUnitPrice = $stockProduct->product->retail_price ?? 0;
-                    $calculatedSubtotal = $storeQuantity * $storeUnitPrice;
+                    // For retail: Use retail price per individual unit
+                    $storeUnitPrice = $unitPrice;
+                    $calculatedSubtotal = $actualUnitsNeeded * $storeUnitPrice;
                     
                     // If retail price is null or 0, use frontend total
                     if ($storeUnitPrice <= 0) {
@@ -496,7 +520,9 @@ class MarketOrderController extends Controller
                     'product_name' => $stockProduct->product->name,
                     'is_wholesale' => $isWholesale,
                     'store_quantity' => $storeQuantity,
-                    'calculated_subtotal' => $calculatedSubtotal
+                    'calculated_subtotal' => $calculatedSubtotal,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName
                 ]);
 
                 // Create stock outcome first to get the outcome_id
@@ -507,13 +533,11 @@ class MarketOrderController extends Controller
                     'quantity' => $actualUnitsNeeded, // Use the actual units consumed
                     'price' => $storeUnitPrice,
                     'total' => $item['total'],
-                    'unit_type' => $item['unit_type'] ?? ($isWholesale ? 'wholesale' : 'retail'),
+                    'unit_type' => $isWholesale ? 'wholesale' : 'retail',
                     'is_wholesale' => $isWholesale,
-                    'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
+                    'unit_id' => $unitId,
                     'unit_amount' => $unitAmount,
-                    'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
-                        ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
-                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
+                    'unit_name' => $unitName,
                     'batch_id' => $item['batch_id'] ?? null,
                     'batch_reference' => $item['batch_reference'] ?? null,
                     'batch_number' => $item['batch_number'] ?? $item['batch_reference'] ?? null,
@@ -526,17 +550,15 @@ class MarketOrderController extends Controller
                 MarketOrderItem::create([
                     'market_order_id' => $order->id,
                     'product_id' => $item['product_id'],
-                    'quantity' => $storeQuantity, // Store actual individual units (e.g., 14)
+                    'quantity' => $storeQuantity, // Store actual individual units (e.g., 24 pieces for 2 boxes)
                     'unit_price' => $storeUnitPrice, // Price per individual unit (calculated or from DB)
                     'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
                     'discount_amount' => 0,
-                    'unit_type' => $item['unit_type'] ?? ($isWholesale ? 'wholesale' : 'retail'),
+                    'unit_type' => $isWholesale ? 'wholesale' : 'retail',
                     'is_wholesale' => $isWholesale,
-                    'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
+                    'unit_id' => $unitId,
                     'unit_amount' => $unitAmount,
-                    'unit_name' => $item['unit_name'] ?? ($isWholesale ? 
-                        ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
-                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')),
+                    'unit_name' => $unitName,
                     'outcome_id' => $stockOutcome->id, // Link to the created stock outcome
                 ]);
             }
