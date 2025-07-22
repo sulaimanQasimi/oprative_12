@@ -10,6 +10,7 @@ use App\Models\CustomerStockOutcome;
 use App\Models\CustomerStockProduct;
 use App\Models\Account;
 use App\Models\AccountOutcome;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -551,7 +552,6 @@ class MarketOrderController extends Controller
                     // For wholesale: Use wholesale price per individual unit
                     $storeUnitPrice = $unitPrice;
                     $calculatedSubtotal = $actualUnitsNeeded * $storeUnitPrice;
-                    
                     // If wholesale price is null or 0, calculate from frontend total
                     if ($storeUnitPrice <= 0) {
                         $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : 0;
@@ -648,6 +648,9 @@ class MarketOrderController extends Controller
 
             DB::commit();
 
+            // Send Telegram notification
+            $this->sendOrderCompletionNotification($order, $items, $amountPaid, $accountId);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order completed successfully!'
@@ -660,6 +663,162 @@ class MarketOrderController extends Controller
                 'message' => 'Error completing order: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Send Telegram notification for order completion
+     */
+    private function sendOrderCompletionNotification($order, $items, $amountPaid, $accountId = null): void
+    {
+        try {
+            $telegramService = app(TelegramService::class);
+            
+            // Get the authenticated user's chat ID
+            $user = auth()->guard('customer_user')->user();
+            if (!$user || !$user->chat_id) {
+                return; // No chat ID configured, skip notification
+            }
+
+            // Create detailed message
+            $message = $this->createOrderCompletionMessage($order, $items, $amountPaid, $accountId);
+            
+            // Queue the Telegram message
+            $telegramService->queueMessage(
+                $message,
+                $user->chat_id,
+                'Markdown'
+            );
+
+        } catch (\Exception $e) {
+            // Log error but don't throw to avoid breaking the main operation
+            FacadesLog::error('Failed to send Telegram notification for order completion', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Create detailed Persian message for order completion
+     */
+    private function createOrderCompletionMessage($order, $items, $amountPaid, $accountId = null): string
+    {
+        $user = auth()->guard('customer_user')->user();
+        $customer = $user->customer;
+        $account = $accountId ? Account::find($accountId) : null;
+        
+        $message = "*🎉 سفارش با موفقیت تکمیل شد*\n\n";
+        
+        // Order Information
+        $message .= "📋 *اطلاعات سفارش:*\n";
+        $message .= "🔢 شماره سفارش: `{$order->order_number}`\n";
+        $message .= "💰 مبلغ کل: `" . number_format($order->total_amount) . " افغانی`\n";
+        $message .= "💳 روش پرداخت: `{$this->getPaymentMethodName($order->payment_method)}`\n";
+        $message .= "💵 مبلغ پرداخت شده: `" . number_format($amountPaid) . " افغانی`\n";
+        
+        if ($amountPaid < $order->total_amount) {
+            $remaining = $order->total_amount - $amountPaid;
+            $message .= "⚖️ مانده: `" . number_format($remaining) . " افغانی`\n";
+            if ($account) {
+                $message .= "🏦 حساب مانده: `{$account->name}` ({$account->account_number})\n";
+            }
+        }
+        
+        $message .= "📅 زمان سفارش: `" . $order->created_at->format('Y-m-d H:i:s') . "`\n\n";
+        
+        // Customer Information
+        $message .= "👤 *اطلاعات مشتری:*\n";
+        $message .= "🏢 نام مشتری: `{$customer->name}`\n";
+        $message .= "📍 آدرس: `{$customer->address}`\n";
+        $message .= "📞 تلفن: `{$customer->phone}`\n";
+        $message .= "👨‍💼 کاربر: `{$user->name}`\n\n";
+        
+        // Items Information
+        $message .= "📦 *اقلام سفارش:*\n";
+        $totalItems = 0;
+        
+        foreach ($items as $index => $item) {
+            $totalItems++;
+            
+            // Get product information
+            $product = \App\Models\Product::with('unit')->find($item['product_id']);
+            $isWholesale = $item['is_wholesale'] ?? false;
+            $unitAmount = $item['unit_amount'] ?? 1;
+            
+            $message .= "\n*{$totalItems}. {$product->name}*\n";
+            $message .= "📊 تعداد: `{$item['quantity']} " . ($isWholesale ? 'عدد عمده' : ($product->unit?->name ?? 'واحد')) . "`\n";
+            
+            if ($isWholesale && $unitAmount > 1) {
+                $actualUnits = $item['quantity'] * $unitAmount;
+                $message .= "📐 معادل: `{$actualUnits} " . ($product->unit?->name ?? 'واحد') . "`\n";
+            }
+            
+            $message .= "💰 قیمت واحد: `" . number_format($item['price']) . " افغانی`\n";
+            $message .= "💵 مجموع: `" . number_format($item['total']) . " افغانی`\n";
+            $message .= "🏷️ نوع: `" . ($isWholesale ? 'عمده فروشی' : 'خرده فروشی') . "`\n";
+            
+            // Batch information if available
+            if (!empty($item['batch_reference'])) {
+                $message .= "📦 شماره دسته: `{$item['batch_reference']}`\n";
+                
+                // Get batch details
+                $batch = \DB::table('customer_inventory')
+                    ->where('customer_id', $this->getCustomerId())
+                    ->where('product_id', $item['product_id'])
+                    ->where('batch_reference', $item['batch_reference'])
+                    ->first();
+                
+                if ($batch) {
+                    if ($batch->issue_date) {
+                        $message .= "📅 تاریخ تولید: `{$batch->issue_date}`\n";
+                    }
+                    if ($batch->expire_date) {
+                        $message .= "⏰ تاریخ انقضا: `{$batch->expire_date}`\n";
+                        
+                        // Calculate days to expiry
+                        $daysToExpiry = now()->diffInDays($batch->expire_date, false);
+                        if ($daysToExpiry < 0) {
+                            $message .= "⚠️ وضعیت: `منقضی شده`\n";
+                        } elseif ($daysToExpiry <= 30) {
+                            $message .= "🔶 وضعیت: `نزدیک به انقضا ({$daysToExpiry} روز)`\n";
+                        } else {
+                            $message .= "✅ وضعیت: `سالم ({$daysToExpiry} روز تا انقضا)`\n";
+                        }
+                    }
+                    
+                    // Remaining stock after this order
+                    $remainingStock = $batch->remaining_qty - ($isWholesale ? $item['quantity'] * $unitAmount : $item['quantity']);
+                    $message .= "📊 موجودی باقی مانده: `{$remainingStock} " . ($product->unit?->name ?? 'واحد') . "`\n";
+                }
+            }
+        }
+        
+        $message .= "\n📊 *خلاصه:*\n";
+        $message .= "🛍️ تعداد کل اقلام: `{$totalItems}`\n";
+        $message .= "💰 مبلغ کل: `" . number_format($order->total_amount) . " افغانی`\n";
+        $message .= "✅ وضعیت: `تکمیل شده`\n\n";
+        
+        if (!empty($order->notes)) {
+            $message .= "📝 یادداشت: `{$order->notes}`\n\n";
+        }
+        
+        $message .= "🕐 زمان ارسال: " . now()->format('Y-m-d H:i:s');
+        
+        return $message;
+    }
+
+    /**
+     * Get Persian payment method name
+     */
+    private function getPaymentMethodName($method): string
+    {
+        $methods = [
+            'cash' => 'نقدی',
+            'card' => 'کارت',
+            'bank_transfer' => 'انتقال بانکی'
+        ];
+        
+        return $methods[$method] ?? $method;
     }
 
     /**
