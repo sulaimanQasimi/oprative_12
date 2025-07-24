@@ -240,6 +240,7 @@ export default function ApiSelect({
                                 options.map((option) => (
                                     <motion.button
                                         key={option.value}
+                                        type="button"
                                         whileHover={{ backgroundColor: "rgba(34, 197, 94, 0.1)" }}
                                         onClick={() => handleOptionSelect(option)}
                                         className={`
