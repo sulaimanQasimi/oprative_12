@@ -28,7 +28,7 @@ Route::post('/login', function (Request $request) {
 
     $user = User::where('email', $request->email)->first();
 
-    if (! $user || ! Hash::check($request->password, $user->password)) {
+    if (!$user || !Hash::check($request->password, $user->password)) {
         throw ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],
         ]);
@@ -100,11 +100,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('products/search/{query}', [ProductController::class, 'search']);
 
 });
-    // Face Recognition Routes
-    Route::prefix('face')->group(function () {
-        Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
-        Route::post('/verify', [App\Http\Controllers\FaceRecognitionController::class, 'verify']);
-        Route::post('/search', [App\Http\Controllers\FaceRecognitionController::class, 'search']);
-        Route::get('/employee/{employeeId}', [App\Http\Controllers\FaceRecognitionController::class, 'getEmployeeFaceData']);
-        Route::post('/deactivate/{faceDataId}', [App\Http\Controllers\FaceRecognitionController::class, 'deactivate']);
-    });
+// Face Recognition Routes
+Route::prefix('face')->group(function () {
+    Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
+    Route::post('/verify', [App\Http\Controllers\FaceRecognitionController::class, 'verify']);
+    Route::post('/search', [App\Http\Controllers\FaceRecognitionController::class, 'search']);
+    Route::get('/employee/{employeeId}', [App\Http\Controllers\FaceRecognitionController::class, 'getEmployeeFaceData']);
+    Route::post('/deactivate/{faceDataId}', [App\Http\Controllers\FaceRecognitionController::class, 'deactivate']);
+});
+
+/**
+ * Select Product
+ */
+Route::get('products/select', [ProductController::class, 'select']);
