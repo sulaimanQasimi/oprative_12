@@ -1,4 +1,13 @@
 {
+  "Batch": "دسته",
+  "Received": "دریافتی",
+  "Sold": "فروشی",
+  "Sell Rate": "نرخ فروش",
+  "Sales Value": "ارزش فروش",
+  "Quantity Purchased":"موجودی خریداری شده",
+
+
+
   "Bank Transfer": "تراکنش بانکی",
   "Amount Received": "مبلغ دریافتی",
   "Shortcuts": "میانبرها",

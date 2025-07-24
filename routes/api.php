@@ -108,6 +108,10 @@ Route::get('suppliers/select', [App\Http\Controllers\Api\SupplierController::cla
 Route::get('currencies/select', [App\Http\Controllers\Api\CurrencyController::class, 'select']);
 Route::get('warehouses/select', [App\Http\Controllers\Api\WarehouseController::class, 'select']);
 
+// Customer Inventory & Sales Data
+Route::get('customer-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getByPurchase']);
+Route::get('customer-inventory/analytics/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getSalesAnalytics']);
+
 // Face Recognition Routes
 Route::prefix('face')->group(function () {
     Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
