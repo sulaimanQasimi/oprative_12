@@ -92,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Product CRUD API Routes
-    Route::apiResource('products', ProductController::class);
+    // Route::apiResource('products', ProductController::class);
 
     // Additional product routes
     Route::get('products/{product}/restore', [ProductController::class, 'restore']);
@@ -100,6 +100,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('products/search/{query}', [ProductController::class, 'search']);
 
 });
+
+// Public Select Endpoints (no authentication required)
+Route::get('products/select', [ProductController::class, 'select']);
+Route::get('units/select', [App\Http\Controllers\Api\UnitController::class, 'select']);
+Route::get('suppliers/select', [App\Http\Controllers\Api\SupplierController::class, 'select']);
+Route::get('currencies/select', [App\Http\Controllers\Api\CurrencyController::class, 'select']);
+Route::get('warehouses/select', [App\Http\Controllers\Api\WarehouseController::class, 'select']);
+
 // Face Recognition Routes
 Route::prefix('face')->group(function () {
     Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
@@ -108,8 +116,3 @@ Route::prefix('face')->group(function () {
     Route::get('/employee/{employeeId}', [App\Http\Controllers\FaceRecognitionController::class, 'getEmployeeFaceData']);
     Route::post('/deactivate/{faceDataId}', [App\Http\Controllers\FaceRecognitionController::class, 'deactivate']);
 });
-
-/**
- * Select Product
- */
-Route::get('products/select', [ProductController::class, 'select']);

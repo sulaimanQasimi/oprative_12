@@ -37,6 +37,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+import ApiSelect from "@/Components/ApiSelect";
 import { Textarea } from "@/Components/ui/textarea";
 import { Badge } from "@/Components/ui/badge";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
@@ -81,11 +82,9 @@ export default function CreateItem({ auth, purchase, products, units, permission
         return () => clearTimeout(timer);
     }, []);
 
-    // Update selected product when product_id changes
+    // Reset form fields when product changes
     useEffect(() => {
-        if (data.product_id && products) {
-            const product = products.find(p => p.id === parseInt(data.product_id));
-            setSelectedProduct(product || null);
+        if (data.product_id && selectedProduct) {
             // Automatically set unit_type to 'wholesale' since we're using the product's unit
             setData(prevData => ({ 
                 ...prevData, 
@@ -94,10 +93,10 @@ export default function CreateItem({ auth, purchase, products, units, permission
                 notes: '', 
                 batch: { ...prevData.batch, wholesale_price: '', retail_price: '', purchase_price: '' } 
             }));
-        } else {
+        } else if (!data.product_id) {
             setSelectedProduct(null);
         }
-    }, [data.product_id, products]);
+    }, [data.product_id, selectedProduct]);
 
     // Auto-set wholesale/retail based on unit amount
     useEffect(() => {
@@ -279,88 +278,63 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                 </CardHeader>
                                 <CardContent className="p-8">
                                     <form onSubmit={handleSubmit} className="space-y-8">
-                                        {/* Product Selection */}
-                                        <motion.div
-                                            initial={{ x: -20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.1, duration: 0.4 }}
-                                            className="space-y-3"
-                                        >
-                                            <Label htmlFor="product_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                <Package className="w-5 h-5 text-green-500 dark:text-green-400" />
-                                                {t("Product")} *
-                                            </Label>
-                                            <Select value={data.product_id} onValueChange={(value) => setData('product_id', value)}>
-                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}>
-                                                    <SelectValue placeholder={t("Select product")} />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                                                    {products?.map((product) => (
-                                                        <SelectItem key={product.id} value={product.id.toString()} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                            <div className="flex items-center space-x-4">
-                                                                <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
-                                                                    <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <div className="font-semibold text-gray-900 dark:text-white">{product.name}</div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                                                        <Barcode className="w-3 h-3" />
-                                                                        {product.barcode || `ID: ${product.id}`}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.product_id && (
-                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
-                                                    <AlertCircle className="w-4 h-4" />
-                                                    {errors.product_id}
-                                                </motion.p>
-                                            )}
-                                        </motion.div>
+                                                                {/* Product Selection */}
+                        <motion.div
+                            initial={{ x: -20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 0.1, duration: 0.4 }}
+                            className="space-y-3"
+                        >
+                            <Label htmlFor="product_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                <Package className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                {t("Product")} *
+                            </Label>
+                            <ApiSelect
+                                apiEndpoint="/api/products/select"
+                                placeholder={t("Select product")}
+                                searchPlaceholder={t("Search products...")}
+                                icon={Package}
+                                direction="ltr"
+                                value={data.product_id}
+                                onChange={(value, option) => {
+                                    setData('product_id', value);
+                                    // Store the selected product data for later use
+                                    if (option && option.product) {
+                                        setSelectedProduct(option.product);
+                                    }
+                                }}
+                                error={errors.product_id}
+                                searchParam="search"
+                                requireAuth={false}
+                            />
+                        </motion.div>
 
-                                        {/* Unit Selection */}
-                                        <motion.div
-                                            initial={{ x: 20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.2, duration: 0.4 }}
-                                            className="space-y-3"
-                                        >
-                                            <Label htmlFor="unit_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-                                                {t("Unit")} *
-                                            </Label>
-                                            <Select value={data.unit_id} onValueChange={(value) => setData('unit_id', value)}>
-                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_id ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}>
-                                                    <SelectValue placeholder={t("Select unit")} />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                                                    {units?.map((unit) => (
-                                                        <SelectItem key={unit.id} value={unit.id.toString()} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                            <div className="flex items-center space-x-4">
-                                                                <div className="p-2 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg">
-                                                                    <Weight className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <div className="font-semibold text-gray-900 dark:text-white">{unit.name}</div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                                        {unit.code}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.unit_id && (
-                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
-                                                    <AlertCircle className="w-4 h-4" />
-                                                    {errors.unit_id}
-                                                </motion.p>
-                                            )}
-                                        </motion.div>
+                                                                {/* Unit Selection */}
+                        <motion.div
+                            initial={{ x: 20, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 0.2, duration: 0.4 }}
+                            className="space-y-3"
+                        >
+                            <Label htmlFor="unit_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                {t("Unit")} *
+                            </Label>
+                            <ApiSelect
+                                apiEndpoint="/api/units/select"
+                                placeholder={t("Select unit")}
+                                searchPlaceholder={t("Search units...")}
+                                icon={Weight}
+                                direction="ltr"
+                                value={data.unit_id}
+                                onChange={(value, option) => {
+                                    setData('unit_id', value);
+                                }}
+                                error={errors.unit_id}
+                                searchParam="search"
+                                requireAuth={false}
+                            />
+                        </motion.div>
 
                                         {/* Product Unit Information Display */}
                                         {selectedProduct && (

@@ -32,6 +32,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
+import ApiSelect from "@/Components/ApiSelect";
 import {
     Tabs,
     TabsContent,
@@ -1213,24 +1214,26 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                     {t("Select Destination Warehouse")}
                                                                 </h3>
                                                                 
-                                                                <div className="space-y-3">
-                                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                                        {t("Warehouse")} <span className="text-red-500">*</span>
-                                                                    </label>
-                                                                    <select
-                                                                        value={selectedWarehouse}
-                                                                        onChange={(e) => setSelectedWarehouse(e.target.value)}
-                                                                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                                                                        disabled={warehouseTransferLoading}
-                                                                    >
-                                                                        <option value="">{t("Choose a warehouse...")}</option>
-                                                                        {(warehouses || []).map((warehouse) => (
-                                                                            <option key={warehouse.id} value={warehouse.id}>
-                                                                                {warehouse.name} ({warehouse.code})
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
-                                                                </div>
+                                                                                                                <div className="space-y-3">
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                        {t("Warehouse")} <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <ApiSelect
+                                                        apiEndpoint="/api/warehouses/select"
+                                                        placeholder={t("Choose a warehouse...")}
+                                                        searchPlaceholder={t("Search warehouses...")}
+                                                        icon={Building2}
+                                                        direction="ltr"
+                                                        value={selectedWarehouse}
+                                                        onChange={(value, option) => {
+                                                            setSelectedWarehouse(value);
+                                                        }}
+                                                        searchParam="search"
+                                                        requireAuth={false}
+                                                        disabled={warehouseTransferLoading}
+                                                        className="w-full"
+                                                    />
+                                                </div>
 
                                                                 <div className="space-y-3">
                                                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">

@@ -20,14 +20,25 @@ class ProductController extends Controller
 
     public function select(Request $request)
     {
-        $products = Product::where('name', 'like', '%' . $request->search . '%')
-            ->orWhere('barcode', 'like', '%' . $request->search . '%')
-            ->get();
+        $query = Product::with('unit');
+        
+        if ($request->has('search') && !empty($request->search)) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('barcode', 'like', '%' . $search . '%')
+                  ->orWhere('id', 'like', '%' . $search . '%');
+            });
+        }
+
+        $products = $query->get();
 
         return $products->map(function ($product) {
             return [
                 'value' => $product->id,
                 'label' => $product->name,
+                'subtitle' => $product->barcode ? "Barcode: {$product->barcode}" : "ID: {$product->id}",
+                'product' => $product->toArray() // Include full product data for form logic
             ];
         });
     }
