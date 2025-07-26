@@ -358,6 +358,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/create', [PurchaseController::class, 'create'])->name('admin.purchases.create');
         Route::post('/', [PurchaseController::class, 'store'])->name('admin.purchases.store');
         Route::get('/{purchase:id}', [PurchaseController::class, 'show'])->name('admin.purchases.show');
+        Route::get('/{purchase:id}/print', [PurchaseController::class, 'print'])->name('admin.purchases.print');
         Route::get('/{purchase:id}/edit', [PurchaseController::class, 'edit'])->name('admin.purchases.edit');
         Route::put('/{purchase:id}', [PurchaseController::class, 'update'])->name('admin.purchases.update');
         Route::delete('/{purchase:id}', [PurchaseController::class, 'destroy'])->name('admin.purchases.destroy');

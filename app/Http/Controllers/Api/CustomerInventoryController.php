@@ -196,8 +196,10 @@ class CustomerInventoryController extends Controller
                     'wbi.product_barcode',
                     'wbi.warehouse_id',
                     'wbi.warehouse_name',
+
                     'wbi.unit_type',
                     'wbi.unit_name',
+                    'wbi.unit_amount',
                     'wbi.income_qty',
                     'wbi.outcome_qty',
                     'wbi.remaining_qty',

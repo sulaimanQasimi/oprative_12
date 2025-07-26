@@ -297,6 +297,16 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                             </div>
 
                             <div className="flex items-center space-x-3">
+                                <Link href={route('admin.purchases.print', purchase.id)} target="_blank">
+                                    <Button 
+                                        size="sm"
+                                        className="h-10 px-4 bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                                    >
+                                        <FileText className="h-4 w-4 mr-2" />
+                                        {t("Print Report")}
+                                    </Button>
+                                </Link>
+
                                 {permissions.can_update && (
                                     <Link href={route('admin.purchases.edit', purchase.id)}>
                                         <Button 
