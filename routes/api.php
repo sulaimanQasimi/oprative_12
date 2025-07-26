@@ -112,6 +112,9 @@ Route::get('warehouses/select', [App\Http\Controllers\Api\WarehouseController::c
 Route::get('customer-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getByPurchase']);
 Route::get('customer-inventory/analytics/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getSalesAnalytics']);
 
+// Warehouse Inventory Data
+Route::get('warehouse-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getWarehouseInventory']);
+
 // Face Recognition Routes
 Route::prefix('face')->group(function () {
     Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);

@@ -39,6 +39,9 @@ class CustomerInventoryController extends Controller
                     'ci.purchase_price',
                     'ci.wholesale_price',
                     'ci.retail_price',
+                    'ci.unit_amount',
+                    'ci.unit_name',
+
                     DB::raw('SUM(ci.income_qty) as total_received'),
                     DB::raw('SUM(ci.outcome_qty) as total_sold'),
                     DB::raw('SUM(ci.remaining_qty) as total_remaining'),
@@ -51,7 +54,7 @@ class CustomerInventoryController extends Controller
                 ->groupBy(
                     'ci.batch_id', 'ci.batch_reference', 'ci.product_name', 'ci.product_barcode',
                     'ci.issue_date', 'ci.expire_date', 'ci.expiry_status', 'ci.days_to_expiry',
-                    'ci.unit_type', 'ci.unit_name', 'ci.purchase_price', 'ci.wholesale_price', 'ci.retail_price'
+                      'ci.unit_type', 'ci.unit_name', 'ci.purchase_price', 'ci.wholesale_price', 'ci.retail_price'
                 )
                 ->get();
 
@@ -146,6 +149,112 @@ class CustomerInventoryController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Failed to fetch sales analytics',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getWarehouseInventory(Request $request, $purchaseId)
+    {
+        try {
+            // Get warehouse inventory data for batches related to this purchase
+            $warehouseInventory = DB::table('warehouse_batch_inventory as wbi')
+                ->join('batches as b', 'wbi.batch_id', '=', 'b.id')
+                ->select('wbi.*')
+                ->where('b.purchase_id', $purchaseId)
+                ->orderBy('wbi.warehouse_name')
+                ->orderBy('wbi.batch_id')
+                ->get();
+
+            // Group by warehouse and calculate totals
+            $warehouseSummary = DB::table('warehouse_batch_inventory as wbi')
+                ->join('batches as b', 'wbi.batch_id', '=', 'b.id')
+                ->select(
+                    'wbi.warehouse_id',
+                    'wbi.warehouse_name',
+                    DB::raw('COUNT(DISTINCT wbi.batch_id) as total_batches'),
+                    DB::raw('COUNT(DISTINCT wbi.product_id) as total_products'),
+                    DB::raw('SUM(wbi.income_qty) as total_received'),
+                    DB::raw('SUM(wbi.outcome_qty) as total_dispatched'),
+                    DB::raw('SUM(wbi.remaining_qty) as total_remaining'),
+                    DB::raw('SUM(wbi.total_income_value) as total_value'),
+                    DB::raw('AVG(CASE WHEN wbi.income_qty > 0 THEN (wbi.outcome_qty / wbi.income_qty) * 100 ELSE 0 END) as avg_utilization_rate')
+                )
+                ->where('b.purchase_id', $purchaseId)
+                ->whereNotNull('wbi.warehouse_id')
+                ->groupBy('wbi.warehouse_id', 'wbi.warehouse_name')
+                ->orderBy('total_value', 'desc')
+                ->get();
+
+            // Get batch details by warehouse
+            $batchDetails = DB::table('warehouse_batch_inventory as wbi')
+                ->join('batches as b', 'wbi.batch_id', '=', 'b.id')
+                ->select(
+                    'wbi.batch_id',
+                    'wbi.batch_reference',
+                    'wbi.product_name',
+                    'wbi.product_barcode',
+                    'wbi.warehouse_id',
+                    'wbi.warehouse_name',
+                    'wbi.unit_type',
+                    'wbi.unit_name',
+                    'wbi.income_qty',
+                    'wbi.outcome_qty',
+                    'wbi.remaining_qty',
+                    'wbi.total_income_value',
+                    'wbi.total_outcome_value',
+                    'wbi.issue_date',
+                    'wbi.expire_date',
+                    'wbi.expiry_status',
+                    'wbi.days_to_expiry',
+                    'wbi.batch_notes'
+                )
+                ->where('b.purchase_id', $purchaseId)
+                ->orderBy('wbi.warehouse_name')
+                ->orderBy('wbi.expiry_status', 'desc')
+                ->orderBy('wbi.expire_date')
+                ->get();
+
+            // Calculate overall warehouse metrics
+            $warehouseMetrics = DB::table('warehouse_batch_inventory as wbi')
+                ->join('batches as b', 'wbi.batch_id', '=', 'b.id')
+                ->select(
+                    DB::raw('COUNT(DISTINCT wbi.warehouse_id) as total_warehouses'),
+                    DB::raw('COUNT(DISTINCT wbi.batch_id) as total_batches'),
+                    DB::raw('SUM(wbi.income_qty) as total_received_qty'),
+                    DB::raw('SUM(wbi.outcome_qty) as total_dispatched_qty'),
+                    DB::raw('SUM(wbi.remaining_qty) as total_remaining_qty'),
+                    DB::raw('SUM(wbi.total_income_value) as total_inventory_value'),
+                    DB::raw('SUM(wbi.total_outcome_value) as total_dispatched_value'),
+                    DB::raw('AVG(CASE WHEN wbi.income_qty > 0 THEN (wbi.outcome_qty / wbi.income_qty) * 100 ELSE 0 END) as avg_dispatch_rate')
+                )
+                ->where('b.purchase_id', $purchaseId)
+                ->first();
+
+            // Get expiry analysis
+            $expiryAnalysis = DB::table('warehouse_batch_inventory as wbi')
+                ->join('batches as b', 'wbi.batch_id', '=', 'b.id')
+                ->select(
+                    'wbi.expiry_status',
+                    DB::raw('COUNT(DISTINCT wbi.batch_id) as batch_count'),
+                    DB::raw('SUM(wbi.remaining_qty) as remaining_qty'),
+                    DB::raw('SUM(wbi.total_income_value) as total_value')
+                )
+                ->where('b.purchase_id', $purchaseId)
+                ->groupBy('wbi.expiry_status')
+                ->get();
+
+            return response()->json([
+                'warehouse_inventory' => $warehouseInventory,
+                'warehouse_summary' => $warehouseSummary,
+                'batch_details' => $batchDetails,
+                'warehouse_metrics' => $warehouseMetrics,
+                'expiry_analysis' => $expiryAnalysis
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to fetch warehouse inventory data',
                 'message' => $e->getMessage()
             ], 500);
         }
