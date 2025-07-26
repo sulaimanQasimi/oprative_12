@@ -799,9 +799,9 @@ export default function Print({ auth, purchase, purchaseItems, additionalCosts, 
                                                             <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg font-bold font-mono inline-block">
                                                                 {batch.unit_amount && batch.unit_amount > 0 ? 
                                                                     `${(batch.income_qty / batch.unit_amount).toLocaleString('fa')} ${batch.unit_name || ''}` 
-                                                                    : (batch.income_qty || 0).toLocaleString('fa')
-                                                                }
-                                                            </span>
+                                                                                                                                          : (batch.income_qty || 0).toLocaleString('fa')
+                                                                  }
+                                                              </span>
                                                         </td>
                                                         <td className="p-4 text-center border-l border-gray-100">
                                                             <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-lg font-bold font-mono inline-block">

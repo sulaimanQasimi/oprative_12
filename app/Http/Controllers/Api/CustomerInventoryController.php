@@ -35,12 +35,14 @@ class CustomerInventoryController extends Controller
                     'ci.expiry_status',
                     'ci.days_to_expiry',
                     'ci.unit_type',
-                    'ci.unit_name',
                     'ci.purchase_price',
                     'ci.wholesale_price',
                     'ci.retail_price',
                     'ci.unit_amount',
                     'ci.unit_name',
+                    'ci.income_qty',
+                    'ci.outcome_qty',
+                    'ci.remaining_qty',
 
                     DB::raw('SUM(ci.income_qty) as total_received'),
                     DB::raw('SUM(ci.outcome_qty) as total_sold'),
@@ -54,7 +56,8 @@ class CustomerInventoryController extends Controller
                 ->groupBy(
                     'ci.batch_id', 'ci.batch_reference', 'ci.product_name', 'ci.product_barcode',
                     'ci.issue_date', 'ci.expire_date', 'ci.expiry_status', 'ci.days_to_expiry',
-                      'ci.unit_type', 'ci.unit_name', 'ci.purchase_price', 'ci.wholesale_price', 'ci.retail_price'
+                    'ci.unit_type', 'ci.unit_name', 'ci.purchase_price', 'ci.wholesale_price', 'ci.retail_price', 'ci.unit_amount',
+                     'ci.income_qty', 'ci.outcome_qty', 'ci.remaining_qty'
                 )
                 ->get();
 
