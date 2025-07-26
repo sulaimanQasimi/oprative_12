@@ -43,6 +43,7 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:customer_users,email'],
             'phone' => ['required', 'string', 'max:20'],
+            'chat_id' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
     }
@@ -106,6 +107,7 @@ class RegisterRequest extends FormRequest
                     'email' => $this->email,
                     'phone' => $this->phone,
                     'password' => Hash::make($this->password),
+                    'chat_id' => $this->chat_id ?? null,
                 ]);
 
                 // Assign default role and permissions

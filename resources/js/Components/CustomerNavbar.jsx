@@ -87,7 +87,7 @@ export default function CustomerNavbar({ auth, currentRoute }) {
     };
 
     return (
-        <div className="w-20 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg z-10">
+        <div className="w-20 flex-shrink-0 bg-white shadow-lg z-10">
             <div className="h-full flex flex-col items-center justify-between py-6">
                 <div className="flex flex-col items-center space-y-6">
                     {/* Logo */}

@@ -25,6 +25,9 @@ class CustomerStockOutcome extends Model
         'unit_id',
         'unit_amount',
         'unit_name',
+        'batch_id',
+        'batch_reference',
+        'batch_number',
         'notes'
     ];
 
@@ -36,6 +39,7 @@ class CustomerStockOutcome extends Model
         'total' => 'float',
         'price' => 'float',
         'unit_amount' => 'float',
+        'batch_id' => 'integer',
     ];
 
     // Relationships
@@ -52,5 +56,15 @@ class CustomerStockOutcome extends Model
     public function unit()
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
+    }
+
+    public function marketOrderItems()
+    {
+        return $this->hasMany(MarketOrderItem::class, 'outcome_id');
     }
 }

@@ -18,7 +18,8 @@ class MarketOrderItem extends Model
         'is_wholesale',
         'unit_id',
         'unit_amount',
-        'unit_name'
+        'unit_name',
+        'outcome_id'
     ];
 
     public function order()
@@ -34,5 +35,10 @@ class MarketOrderItem extends Model
     public function unit()
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    public function stockOutcome()
+    {
+        return $this->belongsTo(CustomerStockOutcome::class, 'outcome_id');
     }
 }

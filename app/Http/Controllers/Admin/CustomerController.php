@@ -318,6 +318,7 @@ class CustomerController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'chat_id' => $validated['chat_id'] ?? null,
             ]);
 
             // Assign role and permissions
@@ -1061,6 +1062,7 @@ class CustomerController extends Controller
             'name' => 'required|string|max:255',
             'email' => $emailRule,
             'password' => $passwordRule,
+            'chat_id' => 'nullable|string|max:255',
             'role' => 'required|string|exists:roles,name',
             'permissions' => 'nullable|array',
         ]);

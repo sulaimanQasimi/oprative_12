@@ -241,6 +241,75 @@ class PurchaseController extends Controller
     }
 
     /**
+     * Display printable version of the purchase.
+     */
+    public function print(Purchase $purchase)
+    {
+        $this->authorize('view', $purchase);
+
+        try {
+            $purchase->load([
+                'supplier',
+                'currency',
+                'user',
+                'warehouse',
+                'purchaseItems.product.unit',
+                'purchaseItems.batch',
+                'payments.supplier',
+                'payments.currency',
+                'payments.user',
+                'additional_costs'
+            ]);
+
+            // Calculate totals using model accessors
+            $itemsTotal = $purchase->purchaseItems->sum('total_price');
+            $additionalCostsTotal = $purchase->additional_costs->sum('amount');
+            $totalAmount = $itemsTotal + $additionalCostsTotal;
+            $paidAmount = $purchase->payments->sum('amount');
+            $dueAmount = $totalAmount - $paidAmount;
+
+            // Get warehouses for reference
+            $warehouses = \App\Models\Warehouse::select('id', 'name', 'code')
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+
+            return Inertia::render('Admin/Purchase/Print', [
+                'purchase' => [
+                    'id' => $purchase->id,
+                    'invoice_number' => $purchase->invoice_number,
+                    'invoice_date' => $purchase->invoice_date,
+                    'status' => $purchase->status,
+                    'currency_rate' => $purchase->currency_rate,
+                    'warehouse_id' => $purchase->warehouse_id,
+                    'is_moved_to_warehouse' => $purchase->is_moved_to_warehouse,
+                    'reference_no' => $purchase->reference_no,
+                    'note' => $purchase->note,
+                    'supplier' => $purchase->supplier,
+                    'currency' => $purchase->currency,
+                    'user' => $purchase->user,
+                    'warehouse' => $purchase->warehouse,
+                    'items_total' => $itemsTotal,
+                    'additional_costs_total' => $additionalCostsTotal,
+                    'total_amount' => $totalAmount,
+                    'paid_amount' => $paidAmount,
+                    'due_amount' => $dueAmount,
+                    'created_at' => $purchase->created_at,
+                    'updated_at' => $purchase->updated_at,
+                ],
+                'purchaseItems' => $purchase->purchaseItems()->with(['batch', 'product'])->get()->toArray(),
+                'payments' => $purchase->payments,
+                'additionalCosts' => $purchase->additional_costs,
+                'warehouses' => $warehouses,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading purchase for print: ' . $e->getMessage());
+            return redirect()->route('admin.purchases.show', $purchase)
+                ->with('error', 'Error loading purchase for print: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Show the form for editing the specified purchase.
      */
     public function edit(Purchase $purchase)

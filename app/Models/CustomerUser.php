@@ -28,6 +28,7 @@ class CustomerUser extends Authenticatable
         'email',
         'password',
         'customer_id',
+        'chat_id',
     ];
 
     /**

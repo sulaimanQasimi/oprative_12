@@ -28,7 +28,7 @@ Route::post('/login', function (Request $request) {
 
     $user = User::where('email', $request->email)->first();
 
-    if (! $user || ! Hash::check($request->password, $user->password)) {
+    if (!$user || !Hash::check($request->password, $user->password)) {
         throw ValidationException::withMessages([
             'email' => ['The provided credentials are incorrect.'],
         ]);
@@ -92,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Product CRUD API Routes
-    Route::apiResource('products', ProductController::class);
+    // Route::apiResource('products', ProductController::class);
 
     // Additional product routes
     Route::get('products/{product}/restore', [ProductController::class, 'restore']);
@@ -100,11 +100,26 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('products/search/{query}', [ProductController::class, 'search']);
 
 });
-    // Face Recognition Routes
-    Route::prefix('face')->group(function () {
-        Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
-        Route::post('/verify', [App\Http\Controllers\FaceRecognitionController::class, 'verify']);
-        Route::post('/search', [App\Http\Controllers\FaceRecognitionController::class, 'search']);
-        Route::get('/employee/{employeeId}', [App\Http\Controllers\FaceRecognitionController::class, 'getEmployeeFaceData']);
-        Route::post('/deactivate/{faceDataId}', [App\Http\Controllers\FaceRecognitionController::class, 'deactivate']);
-    });
+
+// Public Select Endpoints (no authentication required)
+Route::get('products/select', [ProductController::class, 'select']);
+Route::get('units/select', [App\Http\Controllers\Api\UnitController::class, 'select']);
+Route::get('suppliers/select', [App\Http\Controllers\Api\SupplierController::class, 'select']);
+Route::get('currencies/select', [App\Http\Controllers\Api\CurrencyController::class, 'select']);
+Route::get('warehouses/select', [App\Http\Controllers\Api\WarehouseController::class, 'select']);
+
+// Customer Inventory & Sales Data
+Route::get('customer-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getByPurchase']);
+Route::get('customer-inventory/analytics/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getSalesAnalytics']);
+
+// Warehouse Inventory Data
+Route::get('warehouse-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getWarehouseInventory']);
+
+// Face Recognition Routes
+Route::prefix('face')->group(function () {
+    Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
+    Route::post('/verify', [App\Http\Controllers\FaceRecognitionController::class, 'verify']);
+    Route::post('/search', [App\Http\Controllers\FaceRecognitionController::class, 'search']);
+    Route::get('/employee/{employeeId}', [App\Http\Controllers\FaceRecognitionController::class, 'getEmployeeFaceData']);
+    Route::post('/deactivate/{faceDataId}', [App\Http\Controllers\FaceRecognitionController::class, 'deactivate']);
+});

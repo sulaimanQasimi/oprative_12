@@ -23,7 +23,10 @@ import {
     Hash,
     Receipt,
     Calculator,
-    AlertCircle
+    AlertCircle,
+    TrendingUp,
+    ShoppingBag,
+    Users
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -32,6 +35,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
+import ApiSelect from "@/Components/ApiSelect";
 import {
     Tabs,
     TabsContent,
@@ -51,6 +55,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
+import axios from "axios";
 
 export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments, warehouses, permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -60,6 +65,16 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
     const [selectedWarehouse, setSelectedWarehouse] = useState("");
     const [warehouseTransferLoading, setWarehouseTransferLoading] = useState(false);
     const [transferNotes, setTransferNotes] = useState("");
+    
+    // Sales data state
+    const [salesData, setSalesData] = useState(null);
+    const [salesLoading, setSalesLoading] = useState(false);
+    const [salesAnalytics, setSalesAnalytics] = useState(null);
+    const [analyticsLoading, setAnalyticsLoading] = useState(false);
+    
+    // Warehouse inventory data state
+    const [warehouseInventoryData, setWarehouseInventoryData] = useState(null);
+    const [warehouseInventoryLoading, setWarehouseInventoryLoading] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -132,8 +147,64 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
     const getTotalAmount = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
     const getTotalQuantity = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.batch?.quantity/item.batch?.unit_amount || 0), 0);
 
-    // Check if warehouse tab should be shown
-    const showWarehouseTab = permissions.can_warehouse_transfer;
+    // Fetch sales data
+    const fetchSalesData = async () => {
+        if (salesData) return; // Already loaded
+        
+        setSalesLoading(true);
+        try {
+            const response = await axios.get(`/api/customer-inventory/purchase/${purchase.id}`);
+            setSalesData(response.data);
+        } catch (error) {
+            console.error('Error fetching sales data:', error);
+        } finally {
+            setSalesLoading(false);
+        }
+    };
+
+    // Fetch sales analytics
+    const fetchSalesAnalytics = async () => {
+        if (salesAnalytics) return; // Already loaded
+        
+        setAnalyticsLoading(true);
+        try {
+            const response = await axios.get(`/api/customer-inventory/analytics/${purchase.id}`);
+            setSalesAnalytics(response.data);
+        } catch (error) {
+            console.error('Error fetching sales analytics:', error);
+        } finally {
+            setAnalyticsLoading(false);
+        }
+    };
+
+    // Fetch warehouse inventory data
+    const fetchWarehouseInventoryData = async () => {
+        if (warehouseInventoryData) return; // Already loaded
+        
+        setWarehouseInventoryLoading(true);
+        try {
+            const response = await axios.get(`/api/warehouse-inventory/purchase/${purchase.id}`);
+            setWarehouseInventoryData(response.data);
+        } catch (error) {
+            console.error('Error fetching warehouse inventory data:', error);
+        } finally {
+            setWarehouseInventoryLoading(false);
+        }
+    };
+
+    // Handle tab change to load data when needed
+    const handleTabChange = (value) => {
+        setActiveTab(value);
+        if (value === 'sales') {
+            fetchSalesData();
+            fetchSalesAnalytics();
+        } else if (value === 'warehouse') {
+            fetchWarehouseInventoryData();
+        }
+    };
+
+    // Check if warehouse transfer should be shown (different from warehouse inventory tab)
+    const showWarehouseTransfer = permissions.can_warehouse_transfer;
     
     // Check if purchase is locked (warehouse moved)
     const isPurchaseLocked = purchase.status === 'warehouse_moved';
@@ -226,6 +297,16 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                             </div>
 
                             <div className="flex items-center space-x-3">
+                                <Link href={route('admin.purchases.print', purchase.id)} target="_blank">
+                                    <Button 
+                                        size="sm"
+                                        className="h-10 px-4 bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                                    >
+                                        <FileText className="h-4 w-4 mr-2" />
+                                        {t("Print Report")}
+                                    </Button>
+                                </Link>
+
                                 {permissions.can_update && (
                                     <Link href={route('admin.purchases.edit', purchase.id)}>
                                         <Button 
@@ -432,9 +513,9 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                     </CardContent>
                                 </Card>
 
-                                {/* Tabs for Items, Payments, Additional Costs */}
-                                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                                    <TabsList className={`grid w-full ${showWarehouseTab ? 'grid-cols-5' : 'grid-cols-4'} h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700`}>
+                                {/* Tabs for Items, Payments, Additional Costs, Sales, Warehouse */}
+                                <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
+                                    <TabsList className="grid w-full grid-cols-6 h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700">
                                         <TabsTrigger value="overview" className="h-12 text-sm font-semibold">
                                             {t("Overview")}
                                         </TabsTrigger>
@@ -447,11 +528,12 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                         <TabsTrigger value="costs" className="h-12 text-sm font-semibold">
                                             {t("Additional Costs")}
                                         </TabsTrigger>
-                                        {showWarehouseTab && (
-                                            <TabsTrigger value="warehouse" className="h-12 text-sm font-semibold">
-                                                {t("Warehouse")}
-                                            </TabsTrigger>
-                                        )}
+                                        <TabsTrigger value="sales" className="h-12 text-sm font-semibold">
+                                            {t("Sales")}
+                                        </TabsTrigger>
+                                        <TabsTrigger value="warehouse" className="h-12 text-sm font-semibold">
+                                            {t("Warehouse")}
+                                        </TabsTrigger>
                                     </TabsList>
 
                                     <TabsContent value="overview" className="space-y-6">
@@ -1168,9 +1250,351 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                         </Card>
                                     </TabsContent>
 
-                                    {showWarehouseTab && (
-                                        <TabsContent value="warehouse" className="space-y-6">
-                                            {/* Warehouse Transfer Section */}
+                                    <TabsContent value="sales" className="space-y-6">
+                                        {/* Sales Performance Overview */}
+                                        {salesLoading ? (
+                                            <div className="flex items-center justify-center py-12">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-2 border-green-500 border-t-transparent"></div>
+                                                <span className="ml-3 text-gray-500 dark:text-gray-400">Loading sales data...</span>
+                                            </div>
+                                        ) : salesData ? (
+                                            <>
+                                                {/* Sales Metrics Cards */}
+                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Sales Value")}</p>
+                                                                <p className="text-3xl font-bold text-green-600">{formatCurrency(salesData.sales_metrics?.total_sales_value || 0)}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Revenue Generated")}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-900/50 rounded-2xl">
+                                                                <DollarSign className="h-8 w-8 text-green-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Units Sold")}</p>
+                                                                <p className="text-3xl font-bold text-blue-600">{(salesData.sales_metrics?.total_sold_qty || 0).toLocaleString()}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Out of")} {(salesData.sales_metrics?.total_received_qty || 0).toLocaleString()}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/50 rounded-2xl">
+                                                                <ShoppingBag className="h-8 w-8 text-blue-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Gross Profit")}</p>
+                                                                <p className="text-3xl font-bold text-purple-600">{formatCurrency(salesData.sales_metrics?.total_profit || 0)}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">
+                                                                    {salesData.sales_metrics?.total_sales_value > 0 
+                                                                        ? `${((salesData.sales_metrics.total_profit / salesData.sales_metrics.total_sales_value) * 100).toFixed(1)}% margin`
+                                                                        : '0% margin'
+                                                                    }
+                                                                </p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-900/50 rounded-2xl">
+                                                                <TrendingUp className="h-8 w-8 text-purple-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Customers")}</p>
+                                                                <p className="text-3xl font-bold text-orange-600">{salesData.sales_metrics?.total_customers || 0}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Unique Buyers")}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-900/50 rounded-2xl">
+                                                                <Users className="h-8 w-8 text-orange-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </div>
+
+                                                {/* Batch Sales Summary */}
+                                                <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                    <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                        <CardTitle className="flex items-center gap-3 text-lg">
+                                                            <Package className="h-5 w-5 text-green-600" />
+                                                            {t("Batch Sales Performance")}
+                                                            <Badge variant="secondary" className="ml-auto">
+                                                                {salesData.batch_summary?.length || 0} {t("batches")}
+                                                            </Badge>
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="p-0">
+                                                        <div className="overflow-x-auto">
+                                                            <Table>
+                                                                <TableHeader>
+                                                                    <TableRow>
+                                                                        <TableHead>{t("Product")}</TableHead>
+                                                                        <TableHead>{t("Batch")}</TableHead>
+                                                                        <TableHead>{t("Received")}</TableHead>
+                                                                        <TableHead>{t("Sold")}</TableHead>
+                                                                        <TableHead>{t("Remaining")}</TableHead>
+                                                                        <TableHead>{t("Sell Rate")}</TableHead>
+                                                                        <TableHead>{t("Sales Value")}</TableHead>
+                                                                        <TableHead>{t("Customers")}</TableHead>
+                                                                        <TableHead>{t("Status")}</TableHead>
+                                                                    </TableRow>
+                                                                </TableHeader>
+                                                                <TableBody>
+                                                                    {salesData.batch_summary?.length > 0 ? (
+                                                                        salesData.batch_summary.map((batch) => {
+                                                                            const sellRate = batch.total_received > 0 ? (batch.total_sold / batch.total_received) * 100 : 0;
+                                                                            return (
+                                                                                <TableRow key={batch.batch_id} className="hover:bg-green-50/50 dark:hover:bg-green-900/10">
+                                                                                    <TableCell>
+                                                                                        <div>
+                                                                                            <p className="font-semibold">{batch.product_name}</p>
+                                                                                            <p className="text-xs text-slate-500">{batch.product_barcode}</p>
+                                                                                        </div>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <div>
+                                                                                            <Badge variant="outline" className="font-mono text-xs">
+                                                                                                {batch.batch_reference || `#${batch.batch_id}`}
+                                                                                            </Badge>
+                                                                                            <p className="text-xs text-slate-500 mt-1">{batch.unit_type}</p>
+                                                                                        </div>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <Badge variant="secondary" className="font-mono">
+                                                                                            {parseInt((batch.total_received/batch.unit_amount) || 0).toLocaleString()} {batch.unit_name}
+                                                                                        </Badge>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 font-mono">
+                                                                                            {parseInt((batch.total_sold/batch.unit_amount) || 0).toLocaleString()} {batch.unit_name}
+                                                                                        </Badge>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <Badge variant="secondary" className={`font-mono ${batch.total_remaining > 0 ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'}`}>
+                                                                                            {parseInt((batch.total_remaining/batch.unit_amount) || 0).toLocaleString()} {batch.unit_name}
+                                                                                        </Badge>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <div className="w-full bg-gray-200 rounded-full h-2 max-w-[60px]">
+                                                                                                <div 
+                                                                                                    className="bg-green-600 h-2 rounded-full" 
+                                                                                                    style={{ width: `${Math.min(sellRate, 100)}%` }}
+                                                                                                ></div>
+                                                                                            </div>
+                                                                                            <span className="text-xs font-mono">{sellRate.toFixed(1)}%</span>
+                                                                                        </div>
+                                                                                    </TableCell>
+                                                                                    <TableCell className="font-mono text-green-600 font-bold">
+                                                                                        {formatCurrency(batch.total_outcome_value || 0)}
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        <div>
+                                                                                            <Badge variant="outline">{batch.customers_count || 0}</Badge>
+                                                                                            {batch.customer_names && (
+                                                                                                <p className="text-xs text-slate-500 mt-1 truncate max-w-[100px]" title={batch.customer_names}>
+                                                                                                    {batch.customer_names}
+                                                                                                </p>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </TableCell>
+                                                                                    <TableCell>
+                                                                                        {batch.expiry_status === 'expired' ? (
+                                                                                            <Badge className="bg-red-100 text-red-700">Expired</Badge>
+                                                                                        ) : batch.expiry_status === 'expiring_soon' ? (
+                                                                                            <Badge className="bg-yellow-100 text-yellow-700">Expiring Soon</Badge>
+                                                                                        ) : (
+                                                                                            <Badge className="bg-green-100 text-green-700">Valid</Badge>
+                                                                                        )}
+                                                                                    </TableCell>
+                                                                                </TableRow>
+                                                                            );
+                                                                        })
+                                                                    ) : (
+                                                                        <TableRow>
+                                                                            <TableCell colSpan="9" className="h-48 text-center">
+                                                                                <div className="flex flex-col items-center gap-4">
+                                                                                    <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                                        <ShoppingBag className="h-8 w-8 text-slate-400" />
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <p className="font-medium">{t("No sales data available")}</p>
+                                                                                        <p className="text-sm text-slate-500">{t("No customers have purchased from this purchase yet.")}</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                    )}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+
+                                                {/* Top Customers */}
+                                                {salesData.top_customers?.length > 0 && (
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                            <CardTitle className="flex items-center gap-3 text-lg">
+                                                                <Users className="h-5 w-5 text-orange-600" />
+                                                                {t("Top Customers")}
+                                                                <Badge variant="secondary" className="ml-auto">
+                                                                    {salesData.top_customers.length} {t("customers")}
+                                                                </Badge>
+                                                            </CardTitle>
+                                                        </CardHeader>
+                                                        <CardContent className="p-0">
+                                                            <div className="overflow-x-auto">
+                                                                <Table>
+                                                                    <TableHeader>
+                                                                        <TableRow>
+                                                                            <TableHead>{t("Customer")}</TableHead>
+                                                                            <TableHead>{t("Contact")}</TableHead>
+                                                                            <TableHead>{t("Quantity Purchased")}</TableHead>
+                                                                            <TableHead>{t("Total Value")}</TableHead>
+                                                                            <TableHead>{t("Batches")}</TableHead>
+                                                                        </TableRow>
+                                                                    </TableHeader>
+                                                                    <TableBody>
+                                                                        {salesData.top_customers.map((customer, index) => (
+                                                                            <TableRow key={customer.customer_id} className="hover:bg-orange-50/50 dark:hover:bg-orange-900/10">
+                                                                                <TableCell>
+                                                                                    <div className="flex items-center gap-3">
+                                                                                        <div className="flex items-center justify-center w-8 h-8 bg-orange-100 dark:bg-orange-900/30 rounded-full">
+                                                                                            <span className="text-sm font-bold text-orange-600">#{index + 1}</span>
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <p className="font-semibold">{customer.customer_name}</p>
+                                                                                            <p className="text-xs text-slate-500">ID: {customer.customer_id}</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <div>
+                                                                                        {customer.customer_email && (
+                                                                                            <p className="text-sm">{customer.customer_email}</p>
+                                                                                        )}
+                                                                                        {customer.customer_phone && (
+                                                                                            <p className="text-xs text-slate-500">{customer.customer_phone}</p>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <Badge variant="secondary" className="font-mono">
+                                                                                        {parseInt(customer.total_purchased_qty).toLocaleString()}
+                                                                                    </Badge>
+                                                                                </TableCell>
+                                                                                <TableCell className="font-mono text-green-600 font-bold">
+                                                                                    {formatCurrency(customer.total_purchased_value)}
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <Badge variant="outline">{customer.batches_purchased}</Badge>
+                                                                                </TableCell>
+                                                                            </TableRow>
+                                                                        ))}
+                                                                    </TableBody>
+                                                                </Table>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-12">
+                                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+                                                    <ShoppingBag className="h-8 w-8 text-slate-400" />
+                                                </div>
+                                                <p className="font-medium text-slate-600 dark:text-slate-400">{t("No sales data available")}</p>
+                                                <p className="text-sm text-slate-500">{t("This purchase hasn't generated any sales yet.")}</p>
+                                            </div>
+                                        )}
+                                    </TabsContent>
+
+                                    <TabsContent value="warehouse" className="space-y-6">
+                                        {/* Warehouse Inventory Overview */}
+                                        {warehouseInventoryLoading ? (
+                                            <div className="flex items-center justify-center py-12">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-2 border-indigo-500 border-t-transparent"></div>
+                                                <span className="ml-3 text-gray-500 dark:text-gray-400">Loading warehouse inventory...</span>
+                                            </div>
+                                        ) : warehouseInventoryData?.warehouse_metrics ? (
+                                            <>
+                                                {/* Warehouse Metrics Cards */}
+                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Warehouses")}</p>
+                                                                <p className="text-3xl font-bold text-indigo-600">{warehouseInventoryData.warehouse_metrics?.total_warehouses || 0}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Storage Locations")}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-900/50 rounded-2xl">
+                                                                <Building2 className="h-8 w-8 text-indigo-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Inventory Value")}</p>
+                                                                <p className="text-3xl font-bold text-green-600">{formatCurrency(warehouseInventoryData.warehouse_metrics?.total_inventory_value || 0)}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Current Stock Value")}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-900/50 rounded-2xl">
+                                                                <DollarSign className="h-8 w-8 text-green-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Units in Stock")}</p>
+                                                                <p className="text-3xl font-bold text-blue-600">{(warehouseInventoryData.warehouse_metrics?.total_remaining_qty || 0).toLocaleString()}</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Available Units")}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/50 rounded-2xl">
+                                                                <Package className="h-8 w-8 text-blue-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                        <CardContent className="p-6 flex items-center justify-between">
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Dispatch Rate")}</p>
+                                                                <p className="text-3xl font-bold text-purple-600">{(warehouseInventoryData.warehouse_metrics?.avg_dispatch_rate || 0).toFixed(1)}%</p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("Average Utilization")}</p>
+                                                            </div>
+                                                            <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-900/50 rounded-2xl">
+                                                                <TrendingUp className="h-8 w-8 text-purple-600" />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </div>
+
+                                                {/* Additional warehouse inventory sections would continue here... */}
+                                            </>
+                                        ) : warehouseInventoryData && Object.keys(warehouseInventoryData).length === 0 ? (
+                                            <div className="flex flex-col items-center justify-center py-12">
+                                                <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full mb-4">
+                                                    <Building2 className="h-8 w-8 text-slate-400" />
+                                                </div>
+                                                <p className="font-medium text-slate-600 dark:text-slate-400">{t("No warehouse inventory data")}</p>
+                                                <p className="text-sm text-slate-500">{t("This purchase hasn't been transferred to any warehouse yet.")}</p>
+                                            </div>
+                                        ) : null}
+
+                                        {/* Warehouse Transfer Section - Only shown with permissions */}
+                                        {showWarehouseTransfer && (
                                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
                                                 <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
                                                     <CardTitle className="flex items-center gap-3 text-xl">
@@ -1197,10 +1621,6 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                     <p className="text-sm text-blue-700 dark:text-blue-300">
                                                                         {t("This purchase has arrived and is ready to be transferred to a warehouse. All items will be added to the selected warehouse inventory as incoming stock.")}
                                                                     </p>
-                                                                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                                                                        <strong>{t("Items to transfer:")}</strong> {(purchaseItems || []).length} {t("items")} • 
-                                                                        <strong className="ml-2">{t("Total quantity:")}</strong> {getTotalQuantity().toLocaleString()} {t("individual units")}
-                                                                    </p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1217,19 +1637,21 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                                                                         {t("Warehouse")} <span className="text-red-500">*</span>
                                                                     </label>
-                                                                    <select
+                                                                    <ApiSelect
+                                                                        apiEndpoint="/api/warehouses/select"
+                                                                        placeholder={t("Choose a warehouse...")}
+                                                                        searchPlaceholder={t("Search warehouses...")}
+                                                                        icon={Building2}
+                                                                        direction="ltr"
                                                                         value={selectedWarehouse}
-                                                                        onChange={(e) => setSelectedWarehouse(e.target.value)}
-                                                                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                                                        onChange={(value, option) => {
+                                                                            setSelectedWarehouse(value);
+                                                                        }}
+                                                                        searchParam="search"
+                                                                        requireAuth={false}
                                                                         disabled={warehouseTransferLoading}
-                                                                    >
-                                                                        <option value="">{t("Choose a warehouse...")}</option>
-                                                                        {(warehouses || []).map((warehouse) => (
-                                                                            <option key={warehouse.id} value={warehouse.id}>
-                                                                                {warehouse.name} ({warehouse.code})
-                                                                            </option>
-                                                                        ))}
-                                                                    </select>
+                                                                        className="w-full"
+                                                                    />
                                                                 </div>
 
                                                                 <div className="space-y-3">
@@ -1264,93 +1686,6 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                             <span className="text-slate-600 dark:text-slate-400">{t("Total Items")}</span>
                                                                             <span className="font-semibold">{(purchaseItems || []).length} {t("items")}</span>
                                                                         </div>
-                                                                        
-                                                                        {/* Unit-based Summary */}
-                                                                        <div className="space-y-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                                                                            <h4 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                                                                                <Package className="h-4 w-4" />
-                                                                                {t("Unit Breakdown")}
-                                                                            </h4>
-                                                                            
-                                                                            {/* Wholesale Units Summary */}
-                                                                            {(() => {
-                                                                                const wholesaleItems = (purchaseItems || []).filter(item => item.unit_type === 'wholesale');
-                                                                                const wholesaleQuantity = wholesaleItems.reduce((sum, item) => {
-                                                                                    const unitAmount = item.product?.whole_sale_unit_amount || 1;
-                                                                                    return sum + (parseFloat(item.quantity) / unitAmount);
-                                                                                }, 0);
-                                                                                
-                                                                                if (wholesaleItems.length > 0) {
-                                                                                    // Get unique wholesale unit names
-                                                                                    const wholesaleUnitNames = [...new Set(wholesaleItems.map(item => 
-                                                                                        item.product?.wholesaleUnit?.name || t('Wholesale Unit')
-                                                                                    ))];
-                                                                                    
-                                                                                    return (
-                                                                                        <div className="flex justify-between items-center py-2">
-                                                                                            <span className="text-sm text-blue-700 dark:text-blue-300">
-                                                                                                {t("Wholesale Units")}
-                                                                                            </span>
-                                                                                            <div className="text-right">
-                                                                                                <span className="font-semibold text-blue-900 dark:text-blue-100">
-                                                                                                    {wholesaleQuantity.toLocaleString()}
-                                                                                                </span>
-                                                                                                <div className="text-xs text-blue-600 dark:text-blue-400">
-                                                                                                    {wholesaleUnitNames.join(', ')}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    );
-                                                                                }
-                                                                                return null;
-                                                                            })()}
-                                                                            
-                                                                            {/* Retail Units Summary */}
-                                                                            {(() => {
-                                                                                const retailItems = (purchaseItems || []).filter(item => item.unit_type === 'retail');
-                                                                                const retailQuantity = retailItems.reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
-                                                                                
-                                                                                if (retailItems.length > 0) {
-                                                                                    // Get unique retail unit names
-                                                                                    const retailUnitNames = [...new Set(retailItems.map(item => 
-                                                                                        item.product?.retailUnit?.name || t('Retail Unit')
-                                                                                    ))];
-                                                                                    
-                                                                                    return (
-                                                                                        <div className="flex justify-between items-center py-2">
-                                                                                            <span className="text-sm text-blue-700 dark:text-blue-300">
-                                                                                                {t("Retail Units")}
-                                                                                            </span>
-                                                                                            <div className="text-right">
-                                                                                                <span className="font-semibold text-blue-900 dark:text-blue-100">
-                                                                                                    {retailQuantity.toLocaleString()}
-                                                                                                </span>
-                                                                                                <div className="text-xs text-blue-600 dark:text-blue-400">
-                                                                                                    {retailUnitNames.join(', ')}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    );
-                                                                                }
-                                                                                return null;
-                                                                            })()}
-                                                                            
-                                                                            {/* Total Individual Units */}
-                                                                            <div className="flex justify-between items-center py-2 border-t border-blue-200 dark:border-blue-700">
-                                                                                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                                                                                    {t("Total Individual Units")}
-                                                                                </span>
-                                                                                <div className="text-right">
-                                                                                    <span className="font-bold text-blue-900 dark:text-blue-100">
-                                                                                        {getTotalQuantity().toLocaleString()}
-                                                                                    </span>
-                                                                                    <div className="text-xs text-blue-600 dark:text-blue-400">
-                                                                                        {t("individual units")}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        
                                                                         <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
                                                                             <span className="text-slate-600 dark:text-slate-400">{t("Items Value")}</span>
                                                                             <span className="font-semibold font-mono">{formatCurrency(getTotalAmount())}</span>
@@ -1386,108 +1721,13 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                 )}
                                                             </Button>
                                                         </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
 
-                                            {/* Items Preview */}
-                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
-                                                    <CardTitle className="flex items-center gap-3 text-lg">
-                                                        <Package className="h-5 w-5 text-green-600" />
-                                                        {t("Items to Transfer")}
-                                                    </CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="p-0">
-                                                    <div className="overflow-x-auto">
-                                                        <Table>
-                                                            <TableHeader>
-                                                                <TableRow>
-                                                                    <TableHead>{t("Product")}</TableHead>
-                                                                    <TableHead>{t("Unit Type")}</TableHead>
-                                                                    <TableHead>{t("Quantity")}</TableHead>
-                                                                    <TableHead>{t("Unit Price")}</TableHead>
-                                                                    <TableHead>{t("Total Value")}</TableHead>
-                                                                </TableRow>
-                                                            </TableHeader>
-                                                            <TableBody>
-                                                                {(purchaseItems || []).map((item) => (
-                                                                    <TableRow key={item.id} className="hover:bg-green-50/50 dark:hover:bg-green-900/10">
-                                                                        <TableCell>
-                                                                            <div className="flex items-center gap-3">
-                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                                                                                    <Package className="h-4 w-4 text-slate-500" />
-                                                                                </div>
-                                                                                <div>
-                                                                                    <p className="font-semibold">{item.product?.name || 'N/A'}</p>
-                                                                                    <p className="text-xs text-slate-500">{item.product?.barcode}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {(() => {
-                                                                                if (item.unit_type === 'wholesale') {
-                                                                                    const unitName = item.product?.wholesaleUnit?.name || t('Wholesale Unit');
-                                                                                    const unitSymbol = item.product?.wholesaleUnit?.symbol || '';
-                                                                                    const unitAmount = item.product?.whole_sale_unit_amount || 1;
-                                                                                    const actualQuantity = parseFloat(item.quantity) / unitAmount;
-                                                                                    return (
-                                                                                        <div className="space-y-1">
-                                                                                            <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
-                                                                                                {unitName} {unitSymbol && `(${unitSymbol})`}
-                                                                                            </Badge>
-                                                                                            <div className="text-xs text-slate-500">
-                                                                                                {actualQuantity.toLocaleString()} {unitName} × {unitAmount} = {parseFloat(item.quantity).toLocaleString()} {t("individual units")}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    );
-                                                                                } else {
-                                                                                    const unitName = item.product?.retailUnit?.name || t('Retail Unit');
-                                                                                    const unitSymbol = item.product?.retailUnit?.symbol || '';
-                                                                                    return (
-                                                                                        <div className="space-y-1">
-                                                                                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs">
-                                                                                                {unitName} {unitSymbol && `(${unitSymbol})`}
-                                                                                            </Badge>
-                                                                                            <div className="text-xs text-slate-500">
-                                                                                                {parseFloat(item.quantity).toLocaleString()} {unitName}
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    );
-                                                                                }
-                                                                            })()}
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            {(() => {
-                                                                                const quantity = parseFloat(item.quantity).toLocaleString();
-                                                                                if (item.unit_type === 'wholesale') {
-                                                                                    const unitName = item.product?.wholesaleUnit?.name || t('Wholesale Unit');
-                                                                                    return (
-                                                                                        <Badge variant="secondary" className="font-mono text-xs">
-                                                                                            {quantity} {unitName}
-                                                                                        </Badge>
-                                                                                    );
-                                                                                } else {
-                                                                                    const unitName = item.product?.retailUnit?.name || t('Retail Unit');
-                                                                                    return (
-                                                                                        <Badge variant="secondary" className="font-mono text-xs">
-                                                                                            {quantity} {unitName}
-                                                                                        </Badge>
-                                                                                    );
-                                                                                }
-                                                                            })()}
-                                                                        </TableCell>
-                                                                        <TableCell className="font-mono">{formatCurrency(item.price)}</TableCell>
-                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(item.total_price)}</TableCell>
-                                                                    </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
+
                                                     </div>
                                                 </CardContent>
                                             </Card>
-                                        </TabsContent>
-                                    )}
+                                        )}
+                                    </TabsContent>
                                 </Tabs>
                             </motion.div>
                         </div>

@@ -20,6 +20,7 @@ import { Label } from "@/Components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { Badge } from "@/Components/ui/badge";
+import ApiSelect from "@/Components/ApiSelect";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
@@ -195,27 +196,20 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                                     <Truck className="w-4 h-4 text-green-500" />
                                                     {t("Supplier")} *
                                                 </Label>
-                                                <Select
+                                                <ApiSelect
+                                                    apiEndpoint="/api/suppliers/select"
+                                                    placeholder={t("Select a supplier")}
+                                                    searchPlaceholder={t("Search suppliers...")}
+                                                    icon={Truck}
+                                                    direction="ltr"
                                                     value={data.supplier_id}
-                                                    onValueChange={(value) => setData('supplier_id', value)}
-                                                >
-                                                    <SelectTrigger className={`h-12 border-2 ${errors.supplier_id ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'}`}>
-                                                        <SelectValue placeholder={t("Select a supplier")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {suppliers?.map((supplier) => (
-                                                            <SelectItem key={supplier.id} value={supplier.id.toString()}>
-                                                                {supplier.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.supplier_id && (
-                                                    <p className="text-sm text-red-600 flex items-center gap-1">
-                                                        <AlertCircle className="w-4 h-4" />
-                                                        {errors.supplier_id}
-                                                    </p>
-                                                )}
+                                                    onChange={(value, option) => {
+                                                        setData('supplier_id', value);
+                                                    }}
+                                                    error={errors.supplier_id}
+                                                    searchParam="search"
+                                                    requireAuth={false}
+                                                />
                                             </div>
 
                                             {/* Currency Selection */}
@@ -224,27 +218,20 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                                     <Globe className="w-4 h-4 text-blue-500" />
                                                     {t("Currency")} *
                                                 </Label>
-                                                <Select
+                                                <ApiSelect
+                                                    apiEndpoint="/api/currencies/select"
+                                                    placeholder={t("Select currency")}
+                                                    searchPlaceholder={t("Search currencies...")}
+                                                    icon={Globe}
+                                                    direction="ltr"
                                                     value={data.currency_id}
-                                                    onValueChange={(value) => setData('currency_id', value)}
-                                                >
-                                                    <SelectTrigger className={`h-12 border-2 ${errors.currency_id ? 'border-red-500' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'}`}>
-                                                        <SelectValue placeholder={t("Select currency")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {currencies?.map((currency) => (
-                                                            <SelectItem key={currency.id} value={currency.id.toString()}>
-                                                                {currency.name} ({currency.code})
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.currency_id && (
-                                                    <p className="text-sm text-red-600 flex items-center gap-1">
-                                                        <AlertCircle className="w-4 h-4" />
-                                                        {errors.currency_id}
-                                                    </p>
-                                                )}
+                                                    onChange={(value, option) => {
+                                                        setData('currency_id', value);
+                                                    }}
+                                                    error={errors.currency_id}
+                                                    searchParam="search"
+                                                    requireAuth={false}
+                                                />
                                             </div>
 
                                             {/* Invoice Number */}

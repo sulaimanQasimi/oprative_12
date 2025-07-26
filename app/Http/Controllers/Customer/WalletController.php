@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Repositories\Customer\CustomerRepository;
 use Carbon\Carbon;
+use App\Services\TelegramService;
 
 class WalletController extends Controller
 {
@@ -271,6 +272,32 @@ class WalletController extends Controller
                 'description' => $validated['description'],
             ]);
 
+            // Send Telegram notification for deposit
+            try {
+                $customerUser = Auth::guard('customer_user')->user();
+                if ($customerUser && $customerUser->chat_id) {
+                    $telegramService = app(TelegramService::class);
+                    $message = "💰 *واریز به سیف*
+
+";
+                    $message .= "*مبلغ:* `" . number_format($validated['amount'], 2) . " افغانی`\n";
+                    $message .= "*توضیحات:* `" . ($validated['description'] ?? 'واریز دستی') . "`\n";
+                    $message .= "*موجودی جدید:* `" . number_format($wallet->balance, 2) . " افغانی`\n";
+                    $message .= "\n*اطلاعات کاربر:*\n";
+                    $message .= "👤 *نام:* `" . $customerUser->name . "`\n";
+                    $message .= "🏢 *مغازه:* `" . $customer->name . "`\n";
+                    $message .= "📞 *تلفن:* `" . $customer->phone . "`\n";
+                    $message .= "🕐 *زمان:* " . Carbon::now()->format('Y-m-d H:i:s');
+                    
+                    $telegramService->queueMessage($message, $customerUser->chat_id, 'Markdown');
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send Telegram notification for wallet deposit', [
+                    'error' => $e->getMessage(),
+                    'user_id' => $customerUser->id ?? null,
+                ]);
+            }
+
             DB::commit();
 
             return redirect()->route('customer.wallet')
@@ -384,6 +411,32 @@ class WalletController extends Controller
                 'user_id' => Auth::guard('customer_user')->id(),
                 'description' => $validated['description'],
             ]);
+
+            // Send Telegram notification for withdrawal
+            try {
+                $customerUser = Auth::guard('customer_user')->user();
+                if ($customerUser && $customerUser->chat_id) {
+                    $telegramService = app(TelegramService::class);
+                    $message = "💸 *برداشت از سیف*
+
+";
+                    $message .= "*مبلغ:* `" . number_format($validated['amount'], 2) . " افغانی`\n";
+                    $message .= "*توضیحات:* `" . ($validated['description'] ?? 'برداشت دستی') . "`\n";
+                    $message .= "*موجودی جدید:* `" . number_format($wallet->balance, 2) . " افغانی`\n";
+                    $message .= "\n*اطلاعات کاربر:*\n";
+                    $message .= "👤 *نام:* `" . $customerUser->name . "`\n";
+                    $message .= "🏢 *مغازه:* `" . $customer->name . "`\n";
+                    $message .= "📞 *تلفن:* `" . $customer->phone . "`\n";
+                    $message .= "🕐 *زمان:* " . Carbon::now()->format('Y-m-d H:i:s');
+                    
+                    $telegramService->queueMessage($message, $customerUser->chat_id, 'Markdown');
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to send Telegram notification for wallet withdrawal', [
+                    'error' => $e->getMessage(),
+                    'user_id' => $customerUser->id ?? null,
+                ]);
+            }
 
             DB::commit();
 
