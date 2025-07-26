@@ -17,7 +17,6 @@ class UnitController extends Controller
     {
         $units = Unit::where('name', 'like', '%' . $request->search . '%')
             ->orWhere('code', 'like', '%' . $request->search . '%')
-            ->orWhere('symbol', 'like', '%' . $request->search . '%')
             ->orderBy('name')
             ->get();
 

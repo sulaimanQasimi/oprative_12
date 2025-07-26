@@ -1383,7 +1383,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                                         </div>
                                                                                     </TableCell>
                                                                                     <TableCell className="font-mono text-green-600 font-bold">
-                                                                                        {formatCurrency(batch.total_income_value || 0)}
+                                                                                        {formatCurrency(batch.total_outcome_value || 0)}
                                                                                     </TableCell>
                                                                                     <TableCell>
                                                                                         <div>
