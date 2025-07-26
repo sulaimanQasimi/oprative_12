@@ -170,12 +170,13 @@ class MarketOrderController extends Controller
                 }
 
                 // Determine unit names: retail from product, wholesale from inventory
-                $retailUnitName = DB::table('products')
+                $retailUnitResult = DB::table('products')
                     ->select('units.name as retail_unit_name')
                     ->where('products.id', $item->product_id)
                     ->join('units', 'products.retail_unit_id', '=', 'units.id')
-                    ->first()
-                    ->retail_unit_name;
+                    ->first();
+                
+                $retailUnitName = $retailUnitResult ? $retailUnitResult->retail_unit_name : 'Retail Unit';
 
 
 
