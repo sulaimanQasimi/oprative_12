@@ -105,3 +105,28 @@ Route::get('/test-purchase-observer', function () {
         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 });
+
+// Test Unit Observer
+Route::get('/test-unit-observer', function () {
+    try {
+        // Create a test unit to trigger the observer
+        $unit = \App\Models\Unit::create([
+            'name' => 'Test Unit ' . time(),
+            'code' => 'TU' . time(),
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Test unit created successfully',
+            'unit' => [
+                'id' => $unit->id,
+                'name' => $unit->name,
+                'code' => $unit->code,
+            ],
+            'note' => 'Check your Telegram for the notification (if user has chat_id configured)'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});

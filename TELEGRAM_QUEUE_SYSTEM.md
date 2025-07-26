@@ -101,7 +101,26 @@ An observer that automatically sends Telegram notifications when purchase item e
 - Error handling (doesn't break main operations)
 - Uses authenticated user's chat ID
 
-### 5. Updated TelegramTestNotification
+### 5. UnitObserver (`app/Observers/UnitObserver.php`)
+
+An observer that automatically sends Telegram notifications when unit events occur.
+
+**Events Handled:**
+- `created` - New unit created
+- `updated` - Unit updated
+- `deleted` - Unit deleted
+- `restored` - Unit restored
+- `forceDeleted` - Unit force deleted
+
+**Features:**
+- Automatic notification sending for measurement units
+- Unit details (name, code, ID)
+- Creation and update timestamps
+- Rich message formatting with emojis
+- Error handling (doesn't break main operations)
+- Uses authenticated user's chat ID
+
+### 6. Updated TelegramTestNotification
 
 Enhanced notification class that implements `ShouldQueue` for queue support.
 
@@ -181,6 +200,10 @@ The PurchaseObserver automatically sends notifications when purchases are create
 
 The PurchaseItemObserver automatically sends notifications when purchase items are created, updated, or deleted. This provides detailed information about individual products in purchases.
 
+### 6. Automatic Unit Notifications
+
+The UnitObserver automatically sends notifications when units are created, updated, or deleted. This provides information about measurement unit changes.
+
 ## Test Routes
 
 The following test routes are available:
@@ -188,6 +211,7 @@ The following test routes are available:
 - `/test` - Test basic queue messaging
 - `/test-purchase-observer` - Test purchase observer
 - `/test-purchase-item-observer` - Test purchase item observer
+- `/test-unit-observer` - Test unit observer
 - `/test-queue-telegram` - Test queue-based messaging
 - `/test-queue-all-users` - Test bulk messaging to all users
 - `/test-direct-telegram` - Test direct (synchronous) messaging
