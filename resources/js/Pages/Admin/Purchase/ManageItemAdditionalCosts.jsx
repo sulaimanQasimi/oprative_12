@@ -136,7 +136,11 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
             <Head title={`${t("Manage Additional Costs")} - ${purchase.invoice_number}`} />
             <style>{`
                 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+                @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                @keyframes fadeInScale { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
                 .float-animation { animation: float 6s ease-in-out infinite; }
+                .slide-in-up { animation: slideInUp 0.3s ease-out; }
+                .fade-in-scale { animation: fadeInScale 0.2s ease-out; }
                 .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
                 .dark .glass-effect { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); }
                 .gradient-border {
@@ -145,6 +149,14 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                 }
                 .dark .gradient-border {
                     background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box, linear-gradient(45deg, #f59e0b, #d97706) border-box;
+                }
+                .modal-overlay {
+                    background: rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(4px);
+                }
+                .input-focus:focus {
+                    box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.1);
+                    border-color: #f59e0b;
                 }
             `}</style>
 
@@ -202,13 +214,13 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                             </div>
 
                             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }} className="flex items-center gap-3">
-                                <Button 
-                                    onClick={() => setShowAddDialog(true)}
+                                <Link 
+                                    href={route("admin.purchases.items.pricing", [purchase?.id, item?.id])}
                                     className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700 hover:scale-105 transition-all duration-200 shadow-lg"
                                 >
                                     <Plus className="h-4 w-4" />
-                                    {t("Create Cost")}
-                                </Button>
+                                    {t("Price")}
+                                </Link>
                                 <BackButton link={route("admin.purchases.show", purchase.id)} />
                             </motion.div>
                         </div>
@@ -217,6 +229,48 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-orange-300 dark:scrollbar-thumb-orange-700 scrollbar-track-transparent p-8">
                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
                             
+                            {/* Global Steps Progress */}
+                            <div className="max-w-6xl mx-auto mb-8">
+                                <div className="flex items-center justify-between">
+                                    {/* Step 1: Create Item */}
+                                    <div className="flex items-center opacity-60">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 text-green-600 border-2 border-green-300">
+                                            <Package className="w-7 h-7" />
+                                        </div>
+                                        <div className="ml-4">
+                                            <p className="text-lg font-bold text-green-600 dark:text-green-400">{t("Create Item")}</p>
+                                            <p className="text-sm text-green-500 dark:text-green-400">{t("Step 1 - Completed")}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="w-24 h-1 bg-green-400 rounded"></div>
+                                    
+                                    {/* Step 2: Additional Costs (Current) */}
+                                    <div className="flex items-center">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg ring-4 ring-orange-100 dark:ring-orange-900">
+                                            <Receipt className="w-7 h-7" />
+                                        </div>
+                                        <div className="ml-4">
+                                            <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{t("Additional Costs")}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t("Step 2 - Active")}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="w-24 h-1 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                    
+                                    {/* Step 3: Pricing */}
+                                    <div className="flex items-center opacity-50">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400">
+                                            <DollarSign className="w-7 h-7" />
+                                        </div>
+                                        <div className="ml-4">
+                                            <p className="text-lg font-bold text-gray-400">{t("Pricing")}</p>
+                                            <p className="text-sm text-gray-400">{t("Step 3 - Next")}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Item Summary */}
                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-6xl mx-auto mb-8">
                                 <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
@@ -227,22 +281,22 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                 </CardHeader>
                                 <CardContent className="p-6">
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                        <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                        <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:scale-105 transition-transform duration-200">
                                             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t("Product")}</p>
                                             <p className="text-lg font-bold text-blue-800 dark:text-blue-200">{item.product?.name}</p>
                                             <p className="text-xs text-blue-500">{item.product?.barcode}</p>
                                         </div>
-                                        <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                        <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg hover:scale-105 transition-transform duration-200">
                                             <p className="text-sm text-green-600 dark:text-green-400 font-medium">{t("Quantity")}</p>
                                             <p className="text-lg font-bold text-green-800 dark:text-green-200">
                                                 {(item.quantity / item.unit_amount).toLocaleString()}
                                             </p>
                                         </div>
-                                        <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                                        <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:scale-105 transition-transform duration-200">
                                             <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{t("Unit Price")}</p>
                                             <p className="text-lg font-bold text-purple-800 dark:text-purple-200">{formatCurrency(item.price)}</p>
                                         </div>
-                                        <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                        <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:scale-105 transition-transform duration-200">
                                             <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">{t("Item Total")}</p>
                                             <p className="text-lg font-bold text-orange-800 dark:text-orange-200">{formatCurrency(item.total_price)}</p>
                                         </div>
@@ -258,136 +312,51 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                             <CardTitle className="flex items-center gap-3 text-xl">
                                                 <Receipt className="h-6 w-6 text-orange-600" />
                                                 {t("Additional Costs")}
-                                                <Badge variant="secondary" className="ml-2">
+                                                <Badge variant="secondary" className="ml-2 bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors">
                                                     {additionalCosts.length} {t("costs")}
                                                 </Badge>
                                             </CardTitle>
-                                            <CardDescription className="mt-2">
+                                            <CardDescription className="mt-2 text-slate-600 dark:text-slate-400">
                                                 {t("Manage additional costs specific to this purchase item")}
                                             </CardDescription>
                                         </div>
-                                        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-                                            <DialogTrigger asChild>
-                                                <Button className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700">
-                                                    <Plus className="h-4 w-4" />
-                                                    {t("Add Cost")}
-                                                </Button>
-                                            </DialogTrigger>
-                                            <DialogContent className="sm:max-w-[525px]">
-                                                <form onSubmit={handleAddCost}>
-                                                    <DialogHeader>
-                                                        <DialogTitle className="flex items-center gap-2">
-                                                            <Plus className="h-5 w-5 text-orange-600" />
-                                                            {t("Add Additional Cost")}
-                                                        </DialogTitle>
-                                                        <DialogDescription>
-                                                            {t("Add a new additional cost for this purchase item.")}
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                    <div className="grid gap-4 py-4">
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="name">{t("Cost Name")} *</Label>
-                                                            <Input
-                                                                id="name"
-                                                                placeholder={t("e.g., Shipping, Tax, etc.")}
-                                                                value={addData.name}
-                                                                onChange={(e) => setAddData('name', e.target.value)}
-                                                                className={addErrors.name ? 'border-red-500' : ''}
-                                                            />
-                                                            {addErrors.name && (
-                                                                <p className="text-sm text-red-600 flex items-center gap-1">
-                                                                    <AlertCircle className="w-4 h-4" />
-                                                                    {addErrors.name}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="amount">{t("Amount")} *</Label>
-                                                            <div className="relative">
-                                                                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                                                <Input
-                                                                    id="amount"
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    min="0"
-                                                                    placeholder="0.00"
-                                                                    value={addData.amount}
-                                                                    onChange={(e) => setAddData('amount', e.target.value)}
-                                                                    className={`pl-10 ${addErrors.amount ? 'border-red-500' : ''}`}
-                                                                />
-                                                            </div>
-                                                            {addErrors.amount && (
-                                                                <p className="text-sm text-red-600 flex items-center gap-1">
-                                                                    <AlertCircle className="w-4 h-4" />
-                                                                    {addErrors.amount}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor="description">{t("Description")}</Label>
-                                                            <Textarea
-                                                                id="description"
-                                                                placeholder={t("Optional description")}
-                                                                value={addData.description}
-                                                                onChange={(e) => setAddData('description', e.target.value)}
-                                                                rows={3}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <DialogFooter>
-                                                        <Button
-                                                            type="button"
-                                                            variant="outline"
-                                                            onClick={() => {
-                                                                setShowAddDialog(false);
-                                                                resetAdd();
-                                                            }}
-                                                        >
-                                                            {t("Cancel")}
-                                                        </Button>
-                                                        <Button
-                                                            type="submit"
-                                                            disabled={addProcessing}
-                                                            className="bg-orange-600 hover:bg-orange-700"
-                                                        >
-                                                            {addProcessing ? (
-                                                                <>
-                                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                                                    {t("Adding...")}
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <Save className="h-4 w-4 mr-2" />
-                                                                    {t("Add Cost")}
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                    </DialogFooter>
-                                                </form>
-                                            </DialogContent>
-                                        </Dialog>
+                                        <Button 
+                                            onClick={() => setShowAddDialog(true)}
+                                            className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700 hover:scale-105 transition-all duration-200 shadow-lg"
+                                        >
+                                            <Plus className="h-4 w-4" />
+                                            {t("Add Cost")}
+                                        </Button>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-0">
                                     {additionalCosts.length > 0 ? (
                                         <div className="space-y-0">
                                             {additionalCosts.map((cost, index) => (
-                                                <div key={cost.id} className={`flex items-center justify-between p-6 ${index < additionalCosts.length - 1 ? 'border-b border-slate-200 dark:border-slate-700' : ''} hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors`}>
+                                                <motion.div 
+                                                    key={cost.id} 
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: index * 0.1 }}
+                                                    className={`flex items-center justify-between p-6 ${index < additionalCosts.length - 1 ? 'border-b border-slate-200 dark:border-slate-700' : ''} hover:bg-orange-50 dark:hover:bg-orange-900/10 transition-all duration-200 group`}
+                                                >
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-3 mb-2">
-                                                            <Receipt className="h-5 w-5 text-orange-600" />
-                                                            <h3 className="font-semibold text-lg">{cost.name}</h3>
+                                                            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg group-hover:scale-110 transition-transform duration-200">
+                                                                <Receipt className="h-5 w-5 text-orange-600" />
+                                                            </div>
+                                                            <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-200">{cost.name}</h3>
                                                         </div>
                                                         {cost.description && (
-                                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{cost.description}</p>
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 ml-11">{cost.description}</p>
                                                         )}
-                                                        <p className="text-xs text-gray-500">
+                                                        <p className="text-xs text-slate-500 ml-11">
                                                             {t("Added")}: {new Date(cost.created_at).toLocaleDateString()}
                                                         </p>
                                                     </div>
                                                     <div className="flex items-center gap-4">
                                                         <div className="text-right">
-                                                            <p className="text-2xl font-bold text-orange-600">
+                                                            <p className="text-2xl font-bold text-orange-600 group-hover:text-orange-700 transition-colors">
                                                                 {formatCurrency(cost.amount)}
                                                             </p>
                                                         </div>
@@ -396,7 +365,7 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleEditCost(cost)}
-                                                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:scale-110 transition-all duration-200"
                                                             >
                                                                 <Edit3 className="h-4 w-4" />
                                                             </Button>
@@ -404,26 +373,41 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleDeleteCost(cost)}
-                                                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:scale-110 transition-all duration-200"
                                                             >
                                                                 <Trash2 className="h-4 w-4" />
                                                             </Button>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </motion.div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="text-center py-12">
-                                            <div className="mb-4">
-                                                <Receipt className="h-16 w-16 text-gray-400 mx-auto" />
-                                            </div>
-                                            <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
+                                        <div className="text-center py-16">
+                                            <motion.div 
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                transition={{ delay: 0.2 }}
+                                                className="mb-6"
+                                            >
+                                                <div className="relative inline-block">
+                                                    <div className="absolute -inset-4 bg-orange-200 dark:bg-orange-800 rounded-full opacity-20 animate-pulse"></div>
+                                                    <Receipt className="h-20 w-20 text-orange-400 relative" />
+                                                </div>
+                                            </motion.div>
+                                            <h3 className="text-xl font-semibold text-slate-600 dark:text-slate-400 mb-3">
                                                 {t("No Additional Costs")}
                                             </h3>
-                                            <p className="text-gray-500 dark:text-gray-500 mb-4">
-                                                {t("This item has no additional costs yet.")}
+                                            <p className="text-slate-500 dark:text-slate-500 mb-6 max-w-md mx-auto">
+                                                {t("This item has no additional costs yet. Click the button above to add your first cost.")}
                                             </p>
+                                            <Button 
+                                                onClick={() => setShowAddDialog(true)}
+                                                className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700 hover:scale-105 transition-all duration-200 shadow-lg"
+                                            >
+                                                <Plus className="h-4 w-4" />
+                                                {t("Add First Cost")}
+                                            </Button>
                                         </div>
                                     )}
                                 </CardContent>
@@ -439,122 +423,287 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                 </CardHeader>
                                 <CardContent className="p-6">
                                     <div className="space-y-4">
-                                        <div className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.1 }}
+                                            className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:scale-102 transition-transform duration-200"
+                                        >
                                             <span className="font-medium text-blue-800 dark:text-blue-200">{t("Item Total")}</span>
                                             <span className="text-xl font-bold text-blue-600">{formatCurrency(item.total_price)}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                        </motion.div>
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.2 }}
+                                            className="flex justify-between items-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg hover:scale-102 transition-transform duration-200"
+                                        >
                                             <span className="font-medium text-orange-800 dark:text-orange-200">{t("Additional Costs")}</span>
                                             <span className="text-xl font-bold text-orange-600">{formatCurrency(getTotalAdditionalCosts())}</span>
-                                        </div>
-                                        <div className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-200 dark:border-green-800">
+                                        </motion.div>
+                                        <motion.div 
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-200 dark:border-green-800 hover:scale-102 transition-transform duration-200"
+                                        >
                                             <span className="text-lg font-bold text-green-800 dark:text-green-200">{t("Total Item Cost")}</span>
                                             <span className="text-2xl font-bold text-green-600">{formatCurrency(getTotalItemCost())}</span>
-                                        </div>
+                                        </motion.div>
                                     </div>
                                 </CardContent>
                             </Card>
-
-                            {/* Edit Dialog */}
-                            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-                                <DialogContent className="sm:max-w-[525px]">
-                                    <form onSubmit={handleUpdateCost}>
-                                        <DialogHeader>
-                                            <DialogTitle className="flex items-center gap-2">
-                                                <Edit3 className="h-5 w-5 text-blue-600" />
-                                                {t("Edit Additional Cost")}
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                {t("Update the additional cost information.")}
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="grid gap-4 py-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="edit_name">{t("Cost Name")} *</Label>
-                                                <Input
-                                                    id="edit_name"
-                                                    placeholder={t("e.g., Shipping, Tax, etc.")}
-                                                    value={editData.name}
-                                                    onChange={(e) => setEditData('name', e.target.value)}
-                                                    className={editErrors.name ? 'border-red-500' : ''}
-                                                />
-                                                {editErrors.name && (
-                                                    <p className="text-sm text-red-600 flex items-center gap-1">
-                                                        <AlertCircle className="w-4 h-4" />
-                                                        {editErrors.name}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="edit_amount">{t("Amount")} *</Label>
-                                                <div className="relative">
-                                                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                                    <Input
-                                                        id="edit_amount"
-                                                        type="number"
-                                                        step="0.01"
-                                                        min="0"
-                                                        placeholder="0.00"
-                                                        value={editData.amount}
-                                                        onChange={(e) => setEditData('amount', e.target.value)}
-                                                        className={`pl-10 ${editErrors.amount ? 'border-red-500' : ''}`}
-                                                    />
-                                                </div>
-                                                {editErrors.amount && (
-                                                    <p className="text-sm text-red-600 flex items-center gap-1">
-                                                        <AlertCircle className="w-4 h-4" />
-                                                        {editErrors.amount}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="edit_description">{t("Description")}</Label>
-                                                <Textarea
-                                                    id="edit_description"
-                                                    placeholder={t("Optional description")}
-                                                    value={editData.description}
-                                                    onChange={(e) => setEditData('description', e.target.value)}
-                                                    rows={3}
-                                                />
-                                            </div>
-                                        </div>
-                                        <DialogFooter>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => {
-                                                    setShowEditDialog(false);
-                                                    setEditingCost(null);
-                                                    resetEdit();
-                                                }}
-                                            >
-                                                {t("Cancel")}
-                                            </Button>
-                                            <Button
-                                                type="submit"
-                                                disabled={editProcessing}
-                                                className="bg-blue-600 hover:bg-blue-700"
-                                            >
-                                                {editProcessing ? (
-                                                    <>
-                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                                        {t("Updating...")}
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <Save className="h-4 w-4 mr-2" />
-                                                        {t("Update Cost")}
-                                                    </>
-                                                )}
-                                            </Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
                         </motion.div>
                     </main>
                 </div>
             </motion.div>
+
+            {/* Add Cost Dialog */}
+            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+                <DialogContent className="sm:max-w-[700px] w-full max-h-[95vh] p-0 overflow-hidden bg-white dark:bg-slate-900 border-0 shadow-2xl fade-in-scale fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl">
+                    <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 p-8 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                        <DialogHeader className="relative z-10">
+                            <DialogTitle className="flex items-center gap-4 text-2xl font-bold">
+                                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30">
+                                    <Plus className="h-7 w-7" />
+                                </div>
+                                {t("Add Additional Cost")}
+                            </DialogTitle>
+                            <DialogDescription className="text-orange-50 mt-3 text-lg">
+                                {t("Add a new additional cost for this purchase item to track all expenses.")}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
+                    
+                    <form onSubmit={handleAddCost} className="p-8">
+                        <div className="grid gap-6">
+                            <div className="space-y-3">
+                                <Label htmlFor="name" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    {t("Cost Name")} <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="name"
+                                    placeholder={t("e.g., Shipping, Tax, Insurance, etc.")}
+                                    value={addData.name}
+                                    onChange={(e) => setAddData('name', e.target.value)}
+                                    className={`input-focus transition-all duration-200 ${addErrors.name ? 'border-red-500 ring-red-200' : 'border-slate-300 focus:border-orange-500'}`}
+                                />
+                                {addErrors.name && (
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-sm text-red-600 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 p-2 rounded-md"
+                                    >
+                                        <AlertCircle className="w-4 h-4" />
+                                        {addErrors.name}
+                                    </motion.p>
+                                )}
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <Label htmlFor="amount" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    {t("Amount")} <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400 h-5 w-5" />
+                                    <Input
+                                        id="amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        placeholder="0.00"
+                                        value={addData.amount}
+                                        onChange={(e) => setAddData('amount', e.target.value)}
+                                        className={`pl-12 input-focus transition-all duration-200 ${addErrors.amount ? 'border-red-500 ring-red-200' : 'border-slate-300 focus:border-orange-500'}`}
+                                    />
+                                </div>
+                                {addErrors.amount && (
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-sm text-red-600 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 p-2 rounded-md"
+                                    >
+                                        <AlertCircle className="w-4 h-4" />
+                                        {addErrors.amount}
+                                    </motion.p>
+                                )}
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <Label htmlFor="description" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    {t("Description")} <span className="text-slate-400">(Optional)</span>
+                                </Label>
+                                <Textarea
+                                    id="description"
+                                    placeholder={t("Add more details about this cost...")}
+                                    value={addData.description}
+                                    onChange={(e) => setAddData('description', e.target.value)}
+                                    rows={3}
+                                    className="input-focus transition-all duration-200 resize-none border-slate-300 focus:border-orange-500"
+                                />
+                            </div>
+                        </div>
+                        
+                        <DialogFooter className="flex gap-3 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setShowAddDialog(false);
+                                    resetAdd();
+                                }}
+                                className="flex-1 border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <X className="h-4 w-4 mr-2" />
+                                {t("Cancel")}
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={addProcessing || !addData.name || !addData.amount}
+                                className="flex-1 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                            >
+                                {addProcessing ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        {t("Adding...")}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="h-4 w-4 mr-2" />
+                                        {t("Add Cost")}
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Cost Dialog */}
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent className="sm:max-w-[700px] w-full max-h-[95vh] p-0 overflow-hidden bg-white dark:bg-slate-900 border-0 shadow-2xl fade-in-scale fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-2xl">
+                    <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 p-8 text-white relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                        <DialogHeader className="relative z-10">
+                            <DialogTitle className="flex items-center gap-4 text-2xl font-bold">
+                                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30">
+                                    <Edit3 className="h-7 w-7" />
+                                </div>
+                                {t("Edit Additional Cost")}
+                            </DialogTitle>
+                            <DialogDescription className="text-blue-50 mt-3 text-lg">
+                                {t("Update the additional cost information and details.")}
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
+                    
+                    <form onSubmit={handleUpdateCost} className="p-8">
+                        <div className="grid gap-6">
+                            <div className="space-y-3">
+                                <Label htmlFor="edit_name" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    {t("Cost Name")} <span className="text-red-500">*</span>
+                                </Label>
+                                <Input
+                                    id="edit_name"
+                                    placeholder={t("e.g., Shipping, Tax, Insurance, etc.")}
+                                    value={editData.name}
+                                    onChange={(e) => setEditData('name', e.target.value)}
+                                    className={`input-focus transition-all duration-200 ${editErrors.name ? 'border-red-500 ring-red-200' : 'border-slate-300 focus:border-blue-500'}`}
+                                />
+                                {editErrors.name && (
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-sm text-red-600 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 p-2 rounded-md"
+                                    >
+                                        <AlertCircle className="w-4 h-4" />
+                                        {editErrors.name}
+                                    </motion.p>
+                                )}
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <Label htmlFor="edit_amount" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    {t("Amount")} <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400 h-5 w-5" />
+                                    <Input
+                                        id="edit_amount"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        placeholder="0.00"
+                                        value={editData.amount}
+                                        onChange={(e) => setEditData('amount', e.target.value)}
+                                        className={`pl-12 input-focus transition-all duration-200 ${editErrors.amount ? 'border-red-500 ring-red-200' : 'border-slate-300 focus:border-blue-500'}`}
+                                    />
+                                </div>
+                                {editErrors.amount && (
+                                    <motion.p 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-sm text-red-600 flex items-center gap-2 bg-red-50 dark:bg-red-900/20 p-2 rounded-md"
+                                    >
+                                        <AlertCircle className="w-4 h-4" />
+                                        {editErrors.amount}
+                                    </motion.p>
+                                )}
+                            </div>
+                            
+                            <div className="space-y-3">
+                                <Label htmlFor="edit_description" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    {t("Description")} <span className="text-slate-400">(Optional)</span>
+                                </Label>
+                                <Textarea
+                                    id="edit_description"
+                                    placeholder={t("Add more details about this cost...")}
+                                    value={editData.description}
+                                    onChange={(e) => setEditData('description', e.target.value)}
+                                    rows={3}
+                                    className="input-focus transition-all duration-200 resize-none border-slate-300 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+                        
+                        <DialogFooter className="flex gap-3 mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setShowEditDialog(false);
+                                    setEditingCost(null);
+                                    resetEdit();
+                                }}
+                                className="flex-1 border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <X className="h-4 w-4 mr-2" />
+                                {t("Cancel")}
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={editProcessing || !editData.name || !editData.amount}
+                                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                            >
+                                {editProcessing ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                        {t("Updating...")}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="h-4 w-4 mr-2" />
+                                        {t("Update Cost")}
+                                    </>
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </>
     );
 } 

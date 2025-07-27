@@ -142,6 +142,49 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
 
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-orange-300 dark:scrollbar-thumb-orange-700 scrollbar-track-transparent p-8">
                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
+                            
+                            {/* Global Steps Progress */}
+                            <div className="max-w-6xl mx-auto mb-8">
+                                <div className="flex items-center justify-between">
+                                    {/* Step 1: Create Item */}
+                                    <div className="flex items-center opacity-60">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 text-green-600 border-2 border-green-300">
+                                            <Package className="w-7 h-7" />
+                                        </div>
+                                        <div className="ml-4">
+                                            <p className="text-lg font-bold text-green-600 dark:text-green-400">{t("Create Item")}</p>
+                                            <p className="text-sm text-green-500 dark:text-green-400">{t("Step 1 - Completed")}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="w-24 h-1 bg-green-400 rounded"></div>
+                                    
+                                    {/* Step 2: Additional Costs (Current) */}
+                                    <div className="flex items-center">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg ring-4 ring-orange-100 dark:ring-orange-900">
+                                            <Receipt className="w-7 h-7" />
+                                        </div>
+                                        <div className="ml-4">
+                                            <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{t("Additional Costs")}</p>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t("Step 2 - Active")}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="w-24 h-1 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                                    
+                                    {/* Step 3: Pricing */}
+                                    <div className="flex items-center opacity-50">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400">
+                                            <DollarSign className="w-7 h-7" />
+                                        </div>
+                                        <div className="ml-4">
+                                            <p className="text-lg font-bold text-gray-400">{t("Pricing")}</p>
+                                            <p className="text-sm text-gray-400">{t("Step 3 - Next")}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
                                 <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-600/50">
                                     <CardTitle className="flex items-center gap-3 text-2xl">

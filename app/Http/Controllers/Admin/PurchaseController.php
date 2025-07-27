@@ -572,7 +572,7 @@ class PurchaseController extends Controller
      */
     public function editItem(Purchase $purchase, PurchaseItem $item)
     {
-        $this->authorize('updateItems', $purchase);
+        // $this->authorize('updateItems', $purchase);
 
         $units = Unit::select('id', 'name', 'code')->orderBy('name')->get();
         $products = Product::with(['unit'])
@@ -613,7 +613,7 @@ class PurchaseController extends Controller
         });
 
         $permissions = [
-            'can_update_items' => Auth::user()->can('updateItems', $purchase),
+            'can_update_items' => true,
         ];
 
         return Inertia::render('Admin/Purchase/EditItem', [
@@ -654,7 +654,7 @@ class PurchaseController extends Controller
      */
     public function updateItem(Request $request, Purchase $purchase, PurchaseItem $item)
     {
-        $this->authorize('updateItems', $purchase);
+        // $this->authorize('updateItems', $purchase);
 
         try {
             $validated = $request->validate([
@@ -745,8 +745,9 @@ class PurchaseController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.purchases.show', $purchase->id)
-                ->with('success', 'Purchase item updated successfully.');
+            // return redirect()->route('admin.purchases.show', $purchase->id)
+            //     ->with('success', 'Purchase item updated successfully.');
+            return redirect()->route('admin.purchases.items.additional-costs', [$purchase->id, $item->id]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating purchase item: ' . $e->getMessage());

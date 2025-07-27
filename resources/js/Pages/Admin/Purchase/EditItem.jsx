@@ -52,20 +52,26 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
-export default function CreateItem({ auth, purchase, products, units, permissions = {} }) {
+export default function EditItem({ auth, purchase, item, products, units, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
+
+    // Early return if item is not loaded
+    if (!item || !purchase) {
+        return <PageLoader isVisible={true} icon={Edit} color="purple" />;
+    }
     const [isAnimated, setIsAnimated] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [calculatedQuantity, setCalculatedQuantity] = useState(0);
     const [calculatedTotal, setCalculatedTotal] = useState(0);
     const [manualTotal, setManualTotal] = useState(false);
-    
+
     // Wizard state
     const [currentStep, setCurrentStep] = useState(1);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, put, processing, errors } = useForm({
         product_id: '',
         unit_id: '',
         quantity: '',
@@ -90,25 +96,59 @@ export default function CreateItem({ auth, purchase, products, units, permission
         return () => clearTimeout(timer);
     }, []);
 
+    // Set initial product
+    useEffect(() => {
+        if (item?.product) {
+            setSelectedProduct(item.product);
+        }
+    }, [item]);
+
+    // Set initial form values when item loads
+    useEffect(() => {
+        if (item && Object.keys(item).length > 0 && !data.product_id) {
+            console.log('Setting form data from item:', item);
+            console.log('Item unit_id:', item.unit_id);
+            console.log('Item product_id:', item.product_id);
+            
+            // Small delay to ensure ApiSelect components are ready
+            setTimeout(() => {
+                setData({
+                    product_id: item.product_id?.toString() || '',
+                    unit_id: item.unit_id?.toString() || '',
+                    quantity: item.quantity && item.unit_amount ? (item.quantity / item.unit_amount) : '',
+                    unit_type: item.unit_type || 'wholesale',
+                    price: item.price || '',
+                    notes: item.notes || '',
+                    unit_amount: item.unit_amount || 1,
+                    is_wholesale: item.is_wholesale !== undefined ? item.is_wholesale : true,
+                    // Batch fields
+                    batch: {
+                        issue_date: item.batch?.issue_date ? item.batch.issue_date.split('T')[0] : '',
+                        expire_date: item.batch?.expire_date ? item.batch.expire_date.split('T')[0] : '',
+                        notes: item.batch?.notes || ''
+                    }
+                });
+            }, 100);
+        }
+    }, [item, data.product_id]);
+
     // Permission check
     useEffect(() => {
-        if (!permissions.can_create_items) {
-            router.get(route('admin.purchases.show', purchase.id), {}, {
-                onError: () => {
-                    alert(t('You do not have permission to create items'));
-                }
-            });
+        if (!permissions?.can_update) {
+            // router.get(route('admin.purchases.show', purchase?.id), {}, {
+            //     onError: () => {
+            //         alert(t('You do not have permission to edit items'));
+            //     }
+            // });
         }
     }, [permissions]);
 
     // Reset form fields when product changes
     useEffect(() => {
         if (data.product_id && selectedProduct) {
-            setData(prevData => ({ 
-                ...prevData, 
-                unit_type: 'wholesale', 
-                price: '', 
-                notes: ''
+            setData(prevData => ({
+                ...prevData,
+                unit_type: data.unit_type || 'wholesale'
             }));
         } else if (!data.product_id) {
             setSelectedProduct(null);
@@ -119,7 +159,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
     useEffect(() => {
         const unitAmount = parseInt(data.unit_amount) || 1;
         const shouldBeWholesale = unitAmount > 1;
-        
+
         if (data.is_wholesale !== shouldBeWholesale) {
             setData('is_wholesale', shouldBeWholesale);
         }
@@ -148,7 +188,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: purchase.currency?.code || 'USD',
+            currency: purchase?.currency?.code || 'USD',
             minimumFractionDigits: 0,
         }).format(amount || 0);
     };
@@ -157,8 +197,6 @@ export default function CreateItem({ auth, purchase, products, units, permission
         if (!product) return 0;
         return 0;
     };
-
-
 
     // Step validation
     const validateStep = (step) => {
@@ -189,11 +227,11 @@ export default function CreateItem({ auth, purchase, products, units, permission
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        
+
         let finalQuantity = parseFloat(data.quantity) || 0;
         let unitPrice = parseFloat(data.price) || 0;
         let finalTotal = finalQuantity * unitPrice;
-        
+
         const submissionData = {
             product_id: data.product_id,
             unit_id: data.unit_id,
@@ -211,7 +249,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
             }
         };
 
-        router.post(route('admin.purchases.items.store', purchase.id), submissionData, {
+        router.put(route('admin.purchases.items.update', [purchase?.id, item?.id]), submissionData, {
             onFinish: () => setLoading(false),
             onError: (errors) => {
                 console.log('Submission errors:', errors);
@@ -232,28 +270,28 @@ export default function CreateItem({ auth, purchase, products, units, permission
 
     return (
         <>
-            <Head title={`${t("Add Item")} - ${purchase.invoice_number}`} />
+            <Head title={`${t("Edit Item")} - ${purchase?.invoice_number || ''}`} />
             <style>{`
                 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
                 .float-animation { animation: float 6s ease-in-out infinite; }
                 .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
                 .dark .glass-effect { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); }
                 .gradient-border {
-                    background: linear-gradient(white, white) padding-box, linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                    background: linear-gradient(white, white) padding-box, linear-gradient(45deg, #8b5cf6, #7c3aed) border-box;
                     border: 2px solid transparent;
                 }
                 .dark .gradient-border {
-                    background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box, linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                    background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box, linear-gradient(45deg, #8b5cf6, #7c3aed) border-box;
                 }
             `}</style>
 
-            <PageLoader isVisible={loading} icon={Package} color="green" />
+            <PageLoader isVisible={loading} icon={Edit} color="purple" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 <Navigation auth={auth} currentRoute="admin.purchases" />
 
@@ -272,100 +310,104 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-violet-500 to-purple-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 p-4 rounded-2xl shadow-2xl">
                                         {React.createElement(stepIcons[currentStep - 1], { className: "w-8 h-8 text-white" })}
                                     </div>
                                 </motion.div>
                                 <div>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-2"
                                     >
-                                        <Sparkles className="w-4 h-4" /> 
+                                        <Edit className="w-4 h-4" />
                                         {t("Step")} {currentStep} {t("of")} 2: {stepTitles[currentStep - 1]}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-violet-600 to-purple-700 bg-clip-text text-transparent"
                                     >
-                                        {purchase.invoice_number}
+                                        {purchase?.invoice_number} - {item?.product?.name}
                                     </motion.h1>
                                 </div>
                             </div>
 
                             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }}>
-                                <Link href={route("admin.purchases.show", purchase.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all dark:text-white duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
-                                        <ArrowLeft className="h-4 w-4" /> {t("Back to Purchase")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.purchases.show", purchase?.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
 
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent p-8">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-700 scrollbar-track-transparent p-8">
                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
-                            
+
                             {/* Global Steps Progress */}
                             <div className="max-w-6xl mx-auto mb-8">
                                 <div className="flex items-center justify-between">
-                                    {/* Step 1: Create Item (Current) */}
-                                    <div className="flex items-center">
-                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg ring-4 ring-green-100 dark:ring-green-900">
+                                    {/* Step 1: Create Item */}
+                                    <div className="flex items-center opacity-60">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-green-100 dark:bg-green-900 text-green-600 border-2 border-green-300">
                                             <Package className="w-7 h-7" />
                                         </div>
                                         <div className="ml-4">
                                             <p className="text-lg font-bold text-green-600 dark:text-green-400">{t("Create Item")}</p>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t("Step 1 - Active")}</p>
+                                            <p className="text-sm text-green-500 dark:text-green-400">{t("Step 1 - Completed")}</p>
                                         </div>
                                     </div>
-                                    
-                                    <div className="w-24 h-1 bg-gray-300 dark:bg-gray-600 rounded"></div>
-                                    
+
+                                    <div className="w-24 h-1 bg-green-400 rounded"></div>
+
                                     {/* Step 2: Additional Costs */}
-                                    <div className="flex items-center opacity-50">
-                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400">
+                                    <div className="flex items-center opacity-60">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 border-2 border-orange-300">
                                             <Receipt className="w-7 h-7" />
                                         </div>
                                         <div className="ml-4">
-                                            <p className="text-lg font-bold text-gray-400">{t("Additional Costs")}</p>
-                                            <p className="text-sm text-gray-400">{t("Step 2 - Next")}</p>
+                                            <p className="text-lg font-bold text-orange-600 dark:text-orange-400">{t("Additional Costs")}</p>
+                                            <p className="text-sm text-orange-500 dark:text-orange-400">{t("Step 2 - Available")}</p>
                                         </div>
                                     </div>
-                                    
-                                    <div className="w-24 h-1 bg-gray-300 dark:bg-gray-600 rounded"></div>
-                                    
+
+                                    <div className="w-24 h-1 bg-orange-400 rounded"></div>
+
                                     {/* Step 3: Pricing */}
-                                    <div className="flex items-center opacity-50">
-                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400">
+                                    <div className="flex items-center opacity-60">
+                                        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 border-2 border-blue-300">
                                             <DollarSign className="w-7 h-7" />
                                         </div>
                                         <div className="ml-4">
-                                            <p className="text-lg font-bold text-gray-400">{t("Pricing")}</p>
-                                            <p className="text-sm text-gray-400">{t("Step 3 - Final")}</p>
+                                            <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{t("Pricing")}</p>
+                                            <p className="text-sm text-blue-500 dark:text-blue-400">{t("Step 3 - Available")}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-
+                            {/* Edit Item Badge */}
+                            <div className="max-w-4xl mx-auto mb-8">
+                                <div className="flex justify-center">
+                                    <Badge className="bg-gradient-to-r from-purple-500 to-violet-500 text-white px-6 py-2 text-lg">
+                                        <Edit className="w-5 h-5 mr-2" />
+                                        {t("Editing Item")}
+                                    </Badge>
+                                </div>
+                            </div>
 
                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
                                 <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
                                     <CardTitle className="flex items-center gap-3 text-2xl">
-                                        {React.createElement(stepIcons[currentStep - 1], { className: "h-6 w-6 text-green-600" })}
+                                        {React.createElement(stepIcons[currentStep - 1], { className: "h-6 w-6 text-purple-600" })}
                                         {stepTitles[currentStep - 1]}
                                     </CardTitle>
                                     <CardDescription>
-                                        {currentStep === 1 && t("Enter basic product information, quantities, and dates")}
-                                        {currentStep === 2 && t("Add batch notes and review the item summary")}
+                                        {currentStep === 1 && t("Update product information, quantities, and dates")}
+                                        {currentStep === 2 && t("Update batch notes and review the item summary")}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="p-8">
                                     <form onSubmit={handleSubmit} className="space-y-8">
-                                        
-                                                                                {/* Step 1: Basic Information */}
+
+                                        {/* Step 1: Basic Information */}
                                         {currentStep === 1 && (
                                             <motion.div
                                                 initial={{ x: -20, opacity: 0 }}
@@ -376,7 +418,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                 {/* Product Selection */}
                                                 <div className="space-y-3">
                                                     <Label htmlFor="product_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                        <Package className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                                        <Package className="w-5 h-5 text-purple-500 dark:text-purple-400" />
                                                         {t("Product")} *
                                                     </Label>
                                                     <ApiSelect
@@ -395,6 +437,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                         error={errors.product_id}
                                                         searchParam="search"
                                                         requireAuth={false}
+                                                        key={`product-${data.product_id}`}
                                                     />
                                                 </div>
 
@@ -417,6 +460,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                         error={errors.unit_id}
                                                         searchParam="search"
                                                         requireAuth={false}
+                                                        key={`unit-${data.unit_id}`}
                                                     />
                                                 </div>
 
@@ -557,66 +601,66 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                     </div>
                                                 </div>
 
-                                                                                        {/* Batch Dates */}
-                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                            {/* Issue Date */}
-                                            <div className="space-y-3">
-                                                <Label htmlFor="batch_issue_date" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                    <Calendar className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-                                                    {t("Issue Date")}
-                                                </Label>
-                                                <Input
-                                                    id="batch_issue_date"
-                                                    type="date"
-                                                    value={data.batch.issue_date}
-                                                    onChange={(e) => setData('batch', { ...data.batch, issue_date: e.target.value })}
-                                                    className="h-14 text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
-                                                />
-                                            </div>
+                                                {/* Batch Dates */}
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                    {/* Issue Date */}
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="batch_issue_date" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Calendar className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                                            {t("Issue Date")}
+                                                        </Label>
+                                                        <Input
+                                                            id="batch_issue_date"
+                                                            type="date"
+                                                            value={data.batch.issue_date}
+                                                            onChange={(e) => setData('batch', { ...data.batch, issue_date: e.target.value })}
+                                                            className="h-14 text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                        />
+                                                    </div>
 
-                                            {/* Expire Date */}
-                                            <div className="space-y-3">
-                                                <Label htmlFor="batch_expire_date" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                    <Calendar className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-                                                    {t("Expire Date")}
-                                                </Label>
-                                                <Input
-                                                    id="batch_expire_date"
-                                                    type="date"
-                                                    value={data.batch.expire_date}
-                                                    onChange={(e) => setData('batch', { ...data.batch, expire_date: e.target.value })}
-                                                    className="h-14 text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400"
-                                                />
-                                            </div>
-                                        </div>
+                                                    {/* Expire Date */}
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="batch_expire_date" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Calendar className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                            {t("Expire Date")}
+                                                        </Label>
+                                                        <Input
+                                                            id="batch_expire_date"
+                                                            type="date"
+                                                            value={data.batch.expire_date}
+                                                            onChange={(e) => setData('batch', { ...data.batch, expire_date: e.target.value })}
+                                                            className="h-14 text-lg border-2 border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400"
+                                                        />
+                                                    </div>
+                                                </div>
 
-                                        {/* Notes */}
-                                        <div className="space-y-3">
-                                            <Label htmlFor="notes" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                <FileText className="w-5 h-5 text-slate-500 dark:text-slate-400" />
-                                                {t("Notes")}
-                                            </Label>
-                                            <Textarea
-                                                id="notes"
-                                                placeholder={t("Enter notes (optional)")}
-                                                value={data.notes}
-                                                onChange={(e) => setData('notes', e.target.value)}
-                                                className="min-h-[100px] border-2 border-gray-300 dark:border-gray-600 hover:border-slate-300 dark:hover:border-slate-400 focus:border-slate-500 dark:focus:border-slate-400 resize-none"
-                                                rows={4}
-                                            />
-                                        </div>
+                                                {/* Notes */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="notes" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                        <FileText className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                                                        {t("Notes")}
+                                                    </Label>
+                                                    <Textarea
+                                                        id="notes"
+                                                        placeholder={t("Enter notes (optional)")}
+                                                        value={data.notes}
+                                                        onChange={(e) => setData('notes', e.target.value)}
+                                                        className="min-h-[100px] border-2 border-gray-300 dark:border-gray-600 hover:border-slate-300 dark:hover:border-slate-400 focus:border-slate-500 dark:focus:border-slate-400 resize-none"
+                                                        rows={4}
+                                                    />
+                                                </div>
 
                                                 {/* Calculation Summary */}
                                                 {selectedProduct && data.quantity > 0 && data.price > 0 && (
-                                                    <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
-                                                        <Info className="h-5 w-5 text-green-600" />
-                                                        <AlertDescription className="text-green-700 dark:text-green-400 font-medium">
+                                                    <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+                                                        <Info className="h-5 w-5 text-purple-600" />
+                                                        <AlertDescription className="text-purple-700 dark:text-purple-400 font-medium">
                                                             <div className="flex items-center gap-2 mb-2">
                                                                 <span className="text-sm font-medium">{t("Calculation Summary")}</span>
                                                             </div>
                                                             <div className="space-y-1">
                                                                 <p className="text-xs">
-                                                                    <strong>{t("Input")}:</strong> {data.quantity} × {formatCurrency(data.price)} = {formatCurrency(data.quantity*data.price)}
+                                                                    <strong>{t("Input")}:</strong> {data.quantity} × {formatCurrency(data.price)} = {formatCurrency(data.quantity * data.price)}
                                                                 </p>
                                                                 {data.unit_amount > 1 && (
                                                                     <p className="text-xs">
@@ -641,17 +685,17 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                 transition={{ duration: 0.4 }}
                                                 className="space-y-8"
                                             >
-                                                                                                {/* Batch Notes */}
+                                                {/* Batch Notes */}
                                                 <Card className="border-2 border-blue-200 dark:border-blue-800">
                                                     <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
                                                         <CardTitle className="flex items-center gap-3 text-lg">
                                                             <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                                 <FileText className="h-5 w-5 text-white" />
                                                             </div>
-                                                                {t("Batch Notes")}
+                                                            {t("Batch Notes")}
                                                         </CardTitle>
                                                         <CardDescription>
-                                                                {t("Add any additional notes for this batch")}
+                                                            {t("Update any notes for this batch")}
                                                         </CardDescription>
                                                     </CardHeader>
                                                     <CardContent className="p-6">
@@ -673,10 +717,10 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                 </Card>
 
                                                 {/* Cost Summary */}
-                                                <Card className="border-2 border-green-200 dark:border-green-800">
-                                                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                                                <Card className="border-2 border-purple-200 dark:border-purple-800">
+                                                    <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
                                                         <CardTitle className="flex items-center gap-3 text-lg">
-                                                            <Calculator className="h-6 w-6 text-green-600" />
+                                                            <Calculator className="h-6 w-6 text-purple-600" />
                                                             {t("Total Cost Breakdown")}
                                                         </CardTitle>
                                                     </CardHeader>
@@ -693,15 +737,13 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                                 </span>
                                                             </div>
 
-
-
                                                             {/* Total Cost */}
-                                                            <div className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-200 dark:border-green-800">
+                                                            <div className="flex justify-between items-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border-2 border-purple-200 dark:border-purple-800">
                                                                 <div className="flex items-center gap-2">
-                                                                    <Calculator className="h-6 w-6 text-green-600" />
+                                                                    <Calculator className="h-6 w-6 text-purple-600" />
                                                                     <span className="text-lg font-bold">{t("Total Cost")}</span>
                                                                 </div>
-                                                                <span className="text-2xl font-bold text-green-600">
+                                                                <span className="text-2xl font-bold text-purple-600">
                                                                     {formatCurrency(calculatedTotal)}
                                                                 </span>
                                                             </div>
@@ -737,48 +779,37 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                         onClick={prevStep}
                                                         className="flex items-center gap-2"
                                                     >
-                                                        <ArrowLeft className="h-4 w-4" />
+                                                        <ArrowRight className="h-4 w-4" />
                                                         {t("Previous")}
                                                     </Button>
                                                 )}
                                             </div>
 
                                             <div className="flex items-center gap-4">
-                                                <Link href={route("admin.purchases.show", purchase.id)}>
+                                                <Link href={route("admin.purchases.show", purchase?.id)}>
                                                     <Button type="button" variant="outline" className="px-6">
                                                         {t("Cancel")}
                                                     </Button>
                                                 </Link>
 
-                                                {currentStep < 2 ? (
-                                                    <Button
-                                                        type="button"
-                                                        onClick={nextStep}
-                                                        disabled={!validateStep(currentStep)}
-                                                        className="bg-gradient-to-r from-green-600 to-emerald-600 text-white flex items-center gap-2"
-                                                    >
-                                                        {t("Next")}
-                                                        <ArrowRight className="h-4 w-4" />
-                                                    </Button>
-                                                ) : (
-                                                    <Button 
-                                                        type="submit" 
-                                                        disabled={processing} 
-                                                        className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3"
-                                                    >
-                                                        {processing ? (
-                                                            <>
-                                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                                                {t("Saving...")}
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Save className="h-4 w-4 mr-2" />
-                                                                {t("Add Item")}
-                                                            </>
-                                                        )}
-                                                    </Button>
-                                                )}
+
+                                                <Button
+                                                    type="submit"
+                                                    disabled={processing}
+                                                    className="bg-gradient-to-r from-purple-600 to-violet-600 text-white px-8 py-3"
+                                                >
+                                                    {processing ? (
+                                                        <>
+                                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                                            {t("Updating...")}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Save className="h-4 w-4 mr-2" />
+                                                            {t("Update")}
+                                                        </>
+                                                    )}
+                                                </Button>
                                             </div>
                                         </div>
                                     </form>
@@ -790,4 +821,4 @@ export default function CreateItem({ auth, purchase, products, units, permission
             </motion.div>
         </>
     );
-}
+} 
