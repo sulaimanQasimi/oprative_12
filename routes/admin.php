@@ -367,7 +367,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{purchase:id}/items', [PurchaseController::class, 'items'])->name('admin.purchases.items');
         Route::get('/{purchase:id}/items/create', [PurchaseController::class, 'createItem'])->name('admin.purchases.items.create');
         Route::post('/{purchase:id}/items', [PurchaseController::class, 'storeItem'])->name('admin.purchases.items.store');
+        Route::get('/{purchase:id}/items/{item:id}/edit', [PurchaseController::class, 'editItem'])->name('admin.purchases.items.edit');
+        Route::put('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'updateItem'])->name('admin.purchases.items.update');
         Route::delete('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'destroyItem'])->name('admin.purchases.items.destroy');
+
+        // Purchase Item Additional Costs Management
+        Route::get('/{purchase:id}/items/{item:id}/additional-costs', [PurchaseController::class, 'manageItemAdditionalCosts'])->name('admin.purchases.items.additional-costs');
+        Route::post('/{purchase:id}/items/{item:id}/additional-costs', [PurchaseController::class, 'storeItemAdditionalCost'])->name('admin.purchases.items.additional-costs.store');
+        Route::put('/{purchase:id}/items/{item:id}/additional-costs/{cost:id}', [PurchaseController::class, 'updateItemAdditionalCost'])->name('admin.purchases.items.additional-costs.update');
+        Route::delete('/{purchase:id}/items/{item:id}/additional-costs/{cost:id}', [PurchaseController::class, 'destroyItemAdditionalCost'])->name('admin.purchases.items.additional-costs.destroy');
+
+        // Purchase Item Pricing Management
+        Route::get('/{purchase:id}/items/{item:id}/pricing', [PurchaseController::class, 'manageItemPricing'])->name('admin.purchases.items.pricing');
+        Route::put('/{purchase:id}/items/{item:id}/pricing', [PurchaseController::class, 'updateItemPricing'])->name('admin.purchases.items.pricing.update');
 
         // Purchase Additional Costs Management
         Route::get('/{purchase:id}/additional-costs/create', [PurchaseController::class, 'createAdditionalCost'])->name('admin.purchases.additional-costs.create');

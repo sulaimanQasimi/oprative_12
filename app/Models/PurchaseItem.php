@@ -36,4 +36,9 @@ class PurchaseItem extends Model
     public function batch()  {
         return $this->hasOne(Batch::class);
     }
+
+    public function additionalCosts()
+    {
+        return $this->hasMany(PurchaseHasAddionalCosts::class);
+    }
 }

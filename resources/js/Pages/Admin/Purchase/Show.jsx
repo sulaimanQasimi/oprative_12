@@ -905,13 +905,36 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                         <TableCell className="text-sm text-slate-500">
                                                                             {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                                         </TableCell>
-                                                                        <TableCell>
-                                                                            <div className="flex items-center gap-2">
-                                                                                <Button size="icon" variant="ghost" onClick={() => handleDeleteItem(item.id)} className="h-8 w-8 hover:bg-red-100">
-                                                                                    <Trash2 className="h-4 w-4 text-red-600" />
-                                                                                </Button>
-                                                                            </div>
-                                                                        </TableCell>
+                                                                                                                                <TableCell>
+                                                            <div className="flex items-center gap-2">
+                                                                {permissions.can_update && (
+                                                                    <Link href={route('admin.purchases.items.edit', [purchase.id, item.id])}>
+                                                                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-blue-100">
+                                                                            <Edit className="h-4 w-4 text-blue-600" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
+                                                                {permissions.can_update && (
+                                                                    <Link href={route('admin.purchases.items.additional-costs', [purchase.id, item.id])}>
+                                                                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-orange-100">
+                                                                            <Receipt className="h-4 w-4 text-orange-600" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
+                                                                {permissions.can_update && (
+                                                                    <Link href={route('admin.purchases.items.pricing', [purchase.id, item.id])}>
+                                                                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-blue-100">
+                                                                            <DollarSign className="h-4 w-4 text-blue-600" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
+                                                                {permissions.can_delete && (
+                                                                    <Button size="icon" variant="ghost" onClick={() => handleDeleteItem(item.id)} className="h-8 w-8 hover:bg-red-100">
+                                                                        <Trash2 className="h-4 w-4 text-red-600" />
+                                                                    </Button>
+                                                                )}
+                                                            </div>
+                                                        </TableCell>
                                                                     </TableRow>
                                                                 ))
                                                             ) : (

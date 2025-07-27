@@ -86,7 +86,10 @@ class Purchase extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
-
+    public function items()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
     public function purchaseItems()
     {
         return $this->hasMany(PurchaseItem::class);

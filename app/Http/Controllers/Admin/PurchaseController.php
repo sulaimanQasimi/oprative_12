@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Traits\ManagesItemAdditionalCosts;
+use App\Http\Controllers\Admin\Traits\ManagesItemPricing;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\PurchaseHasAddionalCosts;
@@ -20,6 +22,7 @@ use Inertia\Inertia;
 
 class PurchaseController extends Controller
 {
+    use ManagesItemAdditionalCosts, ManagesItemPricing;
     /**
      * Display a listing of purchases.
      */
@@ -470,9 +473,6 @@ class PurchaseController extends Controller
                 // Batch validation rules
                 'batch.issue_date' => 'nullable|date',
                 'batch.expire_date' => 'nullable|date|after_or_equal:batch.issue_date',
-                'batch.wholesale_price' => 'nullable|numeric|min:0',
-                'batch.retail_price' => 'nullable|numeric|min:0',
-                'batch.purchase_price' => 'nullable|numeric|min:0',
                 'batch.notes' => 'nullable|string|max:1000',
             ]);
 
@@ -508,6 +508,8 @@ class PurchaseController extends Controller
                 'is_wholesale' => $isWholesale,
             ]);
 
+
+
             // Create batch record if batch data is provided or notes are provided
             if ((isset($validated['batch']) && !empty(array_filter($validated['batch']))) || !empty($validated['notes'])) {
                 Batch::create([
@@ -518,9 +520,6 @@ class PurchaseController extends Controller
                     'expire_date' => $validated['batch']['expire_date'] ?? null,
                     'quantity' => $qty,
                     'price' => $validated['price'],
-                    'wholesale_price' => $validated['batch']['wholesale_price'] ?? null,
-                    'retail_price' => $validated['batch']['retail_price'] ?? null,
-                    'purchase_price' => $validated['batch']['purchase_price'] ?? null,
                     'total' => $validated['total_price'],
                     'unit_type' => $validated['unit_type'],
                     'is_wholesale' => $isWholesale,
@@ -565,6 +564,195 @@ class PurchaseController extends Controller
             Log::error('Error deleting purchase item: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error deleting purchase item: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the form for editing a purchase item.
+     */
+    public function editItem(Purchase $purchase, PurchaseItem $item)
+    {
+        $this->authorize('updateItems', $purchase);
+
+        $units = Unit::select('id', 'name', 'code')->orderBy('name')->get();
+        $products = Product::with(['unit'])
+            ->select('id', 'name', 'barcode', 'category_id', 'unit_id', 'type', 'status')
+            ->orderBy('name')
+            ->get()->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'type' => $product->type,
+                    'stock_quantity' => 0,
+                    'purchase_price' => 0,
+                    'wholesale_price' => 0,
+                    'retail_price' => 0,
+                    'whole_sale_unit_amount' => 1,
+                    'retails_sale_unit_amount' => 1,
+                    'available_stock' => 0,
+                    'unit' => [
+                        'id' => $product->unit_id,
+                        'name' => $product->unit->name,
+                        'code' => $product->unit->code,
+                    ],
+                ];
+            });
+
+        // Load item with relationships
+        $item->load(['product.unit', 'batch', 'additionalCosts']);
+
+        // Get additional costs for this item
+        $additionalCosts = $item->additionalCosts->map(function ($cost) {
+            return [
+                'id' => $cost->id,
+                'name' => $cost->name,
+                'amount' => $cost->amount,
+                'description' => $cost->description,
+            ];
+        });
+
+        $permissions = [
+            'can_update_items' => Auth::user()->can('updateItems', $purchase),
+        ];
+
+        return Inertia::render('Admin/Purchase/EditItem', [
+            'purchase' => [
+                'id' => $purchase->id,
+                'invoice_number' => $purchase->invoice_number,
+                'invoice_date' => $purchase->invoice_date,
+                'currency' => $purchase->currency,
+            ],
+            'item' => [
+                'id' => $item->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->price,
+                'total_price' => $item->total_price,
+                'unit_amount' => $item->unit_amount,
+                'is_wholesale' => $item->is_wholesale,
+                'unit_type' => $item->unit_type,
+                'product' => $item->product,
+                'batch' => $item->batch ? [
+                    'issue_date' => $item->batch->issue_date,
+                    'expire_date' => $item->batch->expire_date,
+                    'wholesale_price' => $item->batch->wholesale_price,
+                    'retail_price' => $item->batch->retail_price,
+                    'purchase_price' => $item->batch->purchase_price,
+                    'notes' => $item->batch->notes,
+                ] : null,
+            ],
+            'additionalCosts' => $additionalCosts,
+            'products' => $products,
+            'units' => $units,
+            'permissions' => $permissions,
+        ]);
+    }
+
+    /**
+     * Update purchase item.
+     */
+    public function updateItem(Request $request, Purchase $purchase, PurchaseItem $item)
+    {
+        $this->authorize('updateItems', $purchase);
+
+        try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'unit_id' => 'required|exists:units,id',
+                'quantity' => 'required|numeric|min:0.01',
+                'price' => 'required|numeric|min:0',
+                'total_price' => 'required|numeric|min:0',
+                'unit_amount' => 'required|numeric|min:1',
+                'is_wholesale' => 'required|boolean',
+                'unit_type' => 'nullable|string|in:wholesale,retail',
+                'notes' => 'nullable|string|max:1000',
+                // Batch validation rules
+                'batch.issue_date' => 'nullable|date',
+                'batch.expire_date' => 'nullable|date|after_or_equal:batch.issue_date',
+                'batch.notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Set default unit_type if not provided
+            if (!isset($validated['unit_type'])) {
+                $validated['unit_type'] = 'wholesale';
+            }
+
+            DB::beginTransaction();
+
+            // Get the product and unit information
+            $product = Product::findOrFail($validated['product_id']);
+            $unit = Unit::findOrFail($validated['unit_id']);
+
+            // Calculate unit details
+            $isWholesale = $validated['is_wholesale'];
+            $unitId = $validated['unit_id'];
+            $unitAmount = $validated['unit_amount'];
+            $unitName = $unit->name;
+
+            // Use the quantity as provided by the frontend (already calculated)
+            $qty = $validated['quantity'] * $unitAmount;
+
+            // Update the purchase item record
+            $item->update([
+                'product_id' => $validated['product_id'],
+                'quantity' => $qty,
+                'unit_type' => $validated['unit_type'],
+                'price' => $validated['price'],
+                'total_price' => $validated['total_price'],
+                'unit_amount' => $unitAmount,
+                'is_wholesale' => $isWholesale,
+            ]);
+
+
+
+            // Update or create batch record
+            if ($item->batch) {
+                // Update existing batch
+                $item->batch->update([
+                    'product_id' => $validated['product_id'],
+                    'issue_date' => $validated['batch']['issue_date'] ?? null,
+                    'expire_date' => $validated['batch']['expire_date'] ?? null,
+                    'quantity' => $qty,
+                    'price' => $validated['price'],
+                    'total' => $validated['total_price'],
+                    'unit_type' => $validated['unit_type'],
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $unitId,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName,
+                    'notes' => $validated['batch']['notes'] ?? $validated['notes'] ?? null,
+                ]);
+            } else if ((isset($validated['batch']) && !empty(array_filter($validated['batch']))) || !empty($validated['notes'])) {
+                // Create new batch if needed
+                Batch::create([
+                    'product_id' => $validated['product_id'],
+                    'purchase_id' => $purchase->id,
+                    'purchase_item_id' => $item->id,
+                    'issue_date' => $validated['batch']['issue_date'] ?? null,
+                    'expire_date' => $validated['batch']['expire_date'] ?? null,
+                    'quantity' => $qty,
+                    'price' => $validated['price'],
+                    'total' => $validated['total_price'],
+                    'unit_type' => $validated['unit_type'],
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $unitId,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName,
+                    'notes' => $validated['batch']['notes'] ?? $validated['notes'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('success', 'Purchase item updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating purchase item: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error updating purchase item: ' . $e->getMessage()]);
         }
     }
 
