@@ -26,7 +26,8 @@ import {
     ShoppingCart,
     CreditCard,
     TrendingUp,
-    X
+    X,
+    Lock
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -52,6 +53,7 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import PermissionButton from "@/Components/PermissionButton";
 
 export default function CreateItem({ auth, purchase, products, units, permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -90,16 +92,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
         return () => clearTimeout(timer);
     }, []);
 
-    // Permission check
-    useEffect(() => {
-        if (!permissions.can_create_items) {
-            router.get(route('admin.purchases.show', purchase.id), {}, {
-                onError: () => {
-                    alert(t('You do not have permission to create items'));
-                }
-            });
-        }
-    }, [permissions]);
+    // Permission check removed - now handled in UI
 
     // Reset form fields when product changes
     useEffect(() => {
@@ -258,6 +251,32 @@ export default function CreateItem({ auth, purchase, products, units, permission
                 <Navigation auth={auth} currentRoute="admin.purchases" />
 
                 <div className="flex-1 flex flex-col overflow-hidden">
+                    {!permissions.can_create_items ? (
+                        <div className="flex-1 flex items-center justify-center">
+                            <Card className="max-w-md mx-auto border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+                                <CardContent className="p-8 text-center">
+                                    <div className="mb-6">
+                                        <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                                            <Lock className="h-8 w-8 text-red-500" />
+                                        </div>
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-red-800 dark:text-red-200 mb-3">
+                                        {t("Access Denied")}
+                                    </h3>
+                                    <p className="text-red-600 dark:text-red-300 mb-6">
+                                        {t("You don't have permission to create items for this purchase.")}
+                                    </p>
+                                    <Link href={route("admin.purchases.show", purchase.id)}>
+                                        <Button variant="outline" className="border-red-300 text-red-700 hover:bg-red-50">
+                                            <ArrowLeft className="h-4 w-4 mr-2" />
+                                            {t("Back to Purchase")}
+                                        </Button>
+                                    </Link>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    ) : (
+                        <>
                     <motion.header
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -786,6 +805,8 @@ export default function CreateItem({ auth, purchase, products, units, permission
                             </Card>
                         </motion.div>
                     </main>
+                        </>
+                    )}
                 </div>
             </motion.div>
         </>

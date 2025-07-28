@@ -43,6 +43,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
+import PermissionButton from "@/Components/PermissionButton";
 
 export default function ManageItemAdditionalCosts({ auth, purchase, item, additionalCosts = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -214,12 +215,15 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                             </div>
 
                             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }} className="flex items-center gap-3">
-                                <Link 
+                                <Link
                                     href={route("admin.purchases.items.pricing", [purchase?.id, item?.id])}
-                                    className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700 hover:scale-105 transition-all duration-200 shadow-lg"
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600 text-white font-semibold shadow-md hover:from-orange-600 hover:via-amber-600 hover:to-orange-700 hover:scale-[1.04] focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200"
+                                    style={{
+                                        boxShadow: "0 2px 12px 0 rgba(251, 146, 60, 0.15)",
+                                    }}
                                 >
                                     <Plus className="h-4 w-4" />
-                                    {t("Price")}
+                                    <span className="tracking-wide">{t("Pricing")}</span>
                                 </Link>
                                 <BackButton link={route("admin.purchases.show", purchase.id)} />
                             </motion.div>
@@ -320,13 +324,15 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                                 {t("Manage additional costs specific to this purchase item")}
                                             </CardDescription>
                                         </div>
-                                        <Button 
+                                        <PermissionButton
+                                            hasPermission={permissions.can_create_additional_costs}
+                                            tooltip={t("Add new additional cost for this item")}
                                             onClick={() => setShowAddDialog(true)}
                                             className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700 hover:scale-105 transition-all duration-200 shadow-lg"
                                         >
                                             <Plus className="h-4 w-4" />
                                             {t("Add Cost")}
-                                        </Button>
+                                        </PermissionButton>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-0">
@@ -361,22 +367,26 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                                             </p>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <Button
+                                                            <PermissionButton
+                                                                hasPermission={permissions.can_update_additional_costs}
+                                                                tooltip={t("Edit this cost")}
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleEditCost(cost)}
                                                                 className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:scale-110 transition-all duration-200"
                                                             >
                                                                 <Edit3 className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button
+                                                            </PermissionButton>
+                                                            <PermissionButton
+                                                                hasPermission={permissions.can_delete_additional_costs}
+                                                                tooltip={t("Delete this cost")}
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleDeleteCost(cost)}
                                                                 className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:scale-110 transition-all duration-200"
                                                             >
                                                                 <Trash2 className="h-4 w-4" />
-                                                            </Button>
+                                                            </PermissionButton>
                                                         </div>
                                                     </div>
                                                 </motion.div>
@@ -401,13 +411,15 @@ export default function ManageItemAdditionalCosts({ auth, purchase, item, additi
                                             <p className="text-slate-500 dark:text-slate-500 mb-6 max-w-md mx-auto">
                                                 {t("This item has no additional costs yet. Click the button above to add your first cost.")}
                                             </p>
-                                            <Button 
+                                            <PermissionButton
+                                                hasPermission={permissions.can_create_additional_costs}
+                                                tooltip={t("Add your first additional cost for this item")}
                                                 onClick={() => setShowAddDialog(true)}
                                                 className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:from-orange-700 hover:to-amber-700 hover:scale-105 transition-all duration-200 shadow-lg"
                                             >
                                                 <Plus className="h-4 w-4" />
                                                 {t("Add First Cost")}
-                                            </Button>
+                                            </PermissionButton>
                                         </div>
                                     )}
                                 </CardContent>

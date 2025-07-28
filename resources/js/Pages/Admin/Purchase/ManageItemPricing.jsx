@@ -14,7 +14,8 @@ import {
     Tags,
     Building,
     Package2,
-    Receipt
+    Receipt,
+    Calendar
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -34,7 +35,7 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
 
-export default function ManageItemPricing({ auth, purchase, item, permissions = {} }) {
+export default function ManageItemPricing({ auth, purchase, item, additionalCosts = [], totalAdditionalCosts = 0, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -62,20 +63,49 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
         }).format(amount || 0);
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return t("Not set");
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const getExpiryStatus = (expireDate) => {
+        if (!expireDate) return { status: 'no-expiry', text: t("No expiry"), color: 'gray' };
+        
+        const today = new Date();
+        const expiry = new Date(expireDate);
+        const diffTime = expiry - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return { status: 'expired', text: t("Expired"), color: 'red' };
+        } else if (diffDays <= 30) {
+            return { status: 'expiring', text: `${diffDays} ${t("days left")}`, color: 'orange' };
+        } else {
+            return { status: 'fresh', text: `${diffDays} ${t("days left")}`, color: 'green' };
+        }
+    };
+
     const calculateProfitMargins = () => {
         const purchasePrice = parseFloat(data.purchase_price || item.price || 0);
         const wholesalePrice = parseFloat(data.wholesale_price || 0);
         const retailPrice = parseFloat(data.retail_price || 0);
+        
+        // Include additional costs in the base cost calculation
+        const totalCostPerUnit = purchasePrice + (totalAdditionalCosts / (item.quantity / item.unit_amount));
 
-        const wholesaleMargin = wholesalePrice > 0 && purchasePrice > 0 
-            ? ((wholesalePrice - purchasePrice) / purchasePrice * 100)
+        const wholesaleMargin = wholesalePrice > 0 && totalCostPerUnit > 0 
+            ? ((wholesalePrice - totalCostPerUnit) / totalCostPerUnit * 100)
             : 0;
 
-        const retailMargin = retailPrice > 0 && purchasePrice > 0 
-            ? ((retailPrice - purchasePrice) / purchasePrice * 100)
+        const retailMargin = retailPrice > 0 && totalCostPerUnit > 0 
+            ? ((retailPrice - totalCostPerUnit) / totalCostPerUnit * 100)
             : 0;
 
-        return { wholesaleMargin, retailMargin };
+        return { wholesaleMargin, retailMargin, totalCostPerUnit };
     };
 
     const handleSubmit = (e) => {
@@ -83,7 +113,8 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
         put(route('admin.purchases.items.pricing.update', [purchase.id, item.id]));
     };
 
-    const { wholesaleMargin, retailMargin } = calculateProfitMargins();
+    const { wholesaleMargin, retailMargin, totalCostPerUnit } = calculateProfitMargins();
+    const expiryStatus = getExpiryStatus(item.batch?.expire_date);
 
     return (
         <>
@@ -206,38 +237,125 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
                                 </div>
                             </div>
 
-                            {/* Item Summary */}
-                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-6xl mx-auto mb-8">
-                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
-                                    <CardTitle className="flex items-center gap-3 text-xl">
-                                        <Package className="h-6 w-6 text-green-600" />
-                                        {t("Item Details")}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                        <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                            <p className="text-sm text-green-600 dark:text-green-400 font-medium">{t("Product")}</p>
-                                            <p className="text-lg font-bold text-green-800 dark:text-green-200">{item.product?.name}</p>
-                                            <p className="text-xs text-green-500">{item.product?.barcode}</p>
+                            {/* Enhanced Item Summary */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
+                                {/* Item Details */}
+                                <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                    <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                        <CardTitle className="flex items-center gap-3 text-xl">
+                                            <Package className="h-6 w-6 text-green-600" />
+                                            {t("Item Details")}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        <div className="space-y-4">
+                                            <div className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                                <div>
+                                                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">{t("Product")}</p>
+                                                    <p className="text-lg font-bold text-green-800 dark:text-green-200">{item.product?.name}</p>
+                                                    <p className="text-xs text-green-500">{item.product?.barcode}</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t("Quantity")}</p>
+                                                    <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
+                                                        {(item.quantity / item.unit_amount).toLocaleString()}
+                                                    </p>
+                                                    <p className="text-xs text-blue-500">{item.batch?.unit_name || t("Units")}</p>
+                                                </div>
+                                                <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                                                    <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{t("Unit Price")}</p>
+                                                    <p className="text-lg font-bold text-purple-800 dark:text-purple-200">{formatCurrency(item.price)}</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                                <p className="text-sm text-orange-600 dark:text-orange-400 font-medium text-center">{t("Item Total")}</p>
+                                                <p className="text-xl font-bold text-orange-800 dark:text-orange-200 text-center">{formatCurrency(item.total_price)}</p>
+                                            </div>
                                         </div>
-                                        <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t("Quantity")}</p>
-                                            <p className="text-lg font-bold text-blue-800 dark:text-blue-200">
-                                                {(item.quantity / item.unit_amount).toLocaleString()}
-                                            </p>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Batch & Additional Costs */}
+                                <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                    <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                        <CardTitle className="flex items-center gap-3 text-xl">
+                                            <Receipt className="h-6 w-6 text-blue-600" />
+                                            {t("Batch & Costs")}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        <div className="space-y-4">
+                                            {/* Batch Dates */}
+                                            {item.batch && (
+                                                <div className="space-y-3">
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                            <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">{t("Issue Date")}</p>
+                                                            <p className="text-sm font-bold text-blue-800 dark:text-blue-200">{formatDate(item.batch.issue_date)}</p>
+                                                        </div>
+                                                        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                                            <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">{t("Expire Date")}</p>
+                                                            <p className="text-sm font-bold text-orange-800 dark:text-orange-200">{formatDate(item.batch.expire_date)}</p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Expiry Status */}
+                                                    <div className="flex justify-center">
+                                                        <Badge className={`${
+                                                            expiryStatus.color === 'green' ? 'bg-green-100 text-green-800' :
+                                                            expiryStatus.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+                                                            expiryStatus.color === 'red' ? 'bg-red-100 text-red-800' :
+                                                            'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                            {expiryStatus.text}
+                                                        </Badge>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Additional Costs */}
+                                            <div className="space-y-3">
+                                                <div className="flex justify-between items-center">
+                                                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Additional Costs")}</p>
+                                                    <Link 
+                                                        href={route("admin.purchases.items.additional-costs", [purchase.id, item.id])}
+                                                        className="text-blue-600 hover:text-blue-800 text-xs"
+                                                    >
+                                                        {t("Manage")}
+                                                    </Link>
+                                                </div>
+                                                
+                                                {additionalCosts.length > 0 ? (
+                                                    <div className="space-y-2">
+                                                        {additionalCosts.slice(0, 3).map((cost) => (
+                                                            <div key={cost.id} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                                                                <span className="text-xs text-gray-600 dark:text-gray-400 truncate">{cost.name}</span>
+                                                                <span className="text-xs font-mono text-gray-800 dark:text-gray-200">{formatCurrency(cost.amount)}</span>
+                                                            </div>
+                                                        ))}
+                                                        {additionalCosts.length > 3 && (
+                                                            <p className="text-xs text-gray-500 text-center">+{additionalCosts.length - 3} {t("more")}</p>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-xs text-gray-500 text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">{t("No additional costs")}</p>
+                                                )}
+                                                
+                                                <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border-t">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-sm font-bold text-red-700 dark:text-red-300">{t("Total Additional")}</span>
+                                                        <span className="text-lg font-bold text-red-800 dark:text-red-200">{formatCurrency(totalAdditionalCosts)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                                            <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{t("Unit Price")}</p>
-                                            <p className="text-lg font-bold text-purple-800 dark:text-purple-200">{formatCurrency(item.price)}</p>
-                                        </div>
-                                        <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                                            <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">{t("Item Total")}</p>
-                                            <p className="text-lg font-bold text-orange-800 dark:text-orange-200">{formatCurrency(item.total_price)}</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
+                            </div>
 
                             {/* Pricing Form */}
                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-6xl mx-auto mb-8">
@@ -385,7 +503,7 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
                                 </CardContent>
                             </Card>
 
-                            {/* Profit Analysis */}
+                            {/* Enhanced Profit Analysis */}
                             {(data.purchase_price || data.wholesale_price || data.retail_price) && (
                                 <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-6xl mx-auto">
                                     <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
@@ -393,8 +511,33 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
                                             <TrendingUp className="h-6 w-6 text-green-600" />
                                             {t("Profit Analysis")}
                                         </CardTitle>
+                                        <CardDescription>
+                                            {t("Includes additional costs in profit calculations")}
+                                        </CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-6">
+                                        {/* Cost Breakdown */}
+                                        <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                            <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                                                <Calculator className="h-5 w-5" />
+                                                {t("Total Cost Per Unit")}
+                                            </h3>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm text-slate-600">{t("Base Purchase Price")}:</span>
+                                                    <span className="font-mono">{formatCurrency(data.purchase_price || item.price)}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm text-slate-600">{t("Additional Costs per Unit")}:</span>
+                                                    <span className="font-mono">+ {formatCurrency(totalAdditionalCosts / (item.quantity / item.unit_amount))}</span>
+                                                </div>
+                                                <div className="flex justify-between border-t pt-2 font-bold">
+                                                    <span className="text-slate-800 dark:text-slate-200">{t("Total Cost per Unit")}:</span>
+                                                    <span className="font-mono text-slate-800 dark:text-slate-200">{formatCurrency(totalCostPerUnit)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             {/* Wholesale Analysis */}
                                             {data.wholesale_price && (
@@ -409,13 +552,13 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
                                                             <span className="font-mono">{formatCurrency(data.wholesale_price)}</span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-sm text-blue-600">{t("Cost Price")}:</span>
-                                                            <span className="font-mono">- {formatCurrency(data.purchase_price || item.price)}</span>
+                                                            <span className="text-sm text-blue-600">{t("Total Cost")}:</span>
+                                                            <span className="font-mono">- {formatCurrency(totalCostPerUnit)}</span>
                                                         </div>
                                                         <div className="flex justify-between border-t pt-2">
                                                             <span className="font-semibold text-blue-800">{t("Profit")}:</span>
                                                             <span className="font-bold font-mono text-green-600">
-                                                                {formatCurrency((data.wholesale_price || 0) - (data.purchase_price || item.price || 0))}
+                                                                {formatCurrency((data.wholesale_price || 0) - totalCostPerUnit)}
                                                             </span>
                                                         </div>
                                                         <div className="text-center pt-2">
@@ -440,13 +583,13 @@ export default function ManageItemPricing({ auth, purchase, item, permissions = 
                                                             <span className="font-mono">{formatCurrency(data.retail_price)}</span>
                                                         </div>
                                                         <div className="flex justify-between">
-                                                            <span className="text-sm text-green-600">{t("Cost Price")}:</span>
-                                                            <span className="font-mono">- {formatCurrency(data.purchase_price || item.price)}</span>
+                                                            <span className="text-sm text-green-600">{t("Total Cost")}:</span>
+                                                            <span className="font-mono">- {formatCurrency(totalCostPerUnit)}</span>
                                                         </div>
                                                         <div className="flex justify-between border-t pt-2">
                                                             <span className="font-semibold text-green-800">{t("Profit")}:</span>
                                                             <span className="font-bold font-mono text-green-600">
-                                                                {formatCurrency((data.retail_price || 0) - (data.purchase_price || item.price || 0))}
+                                                                {formatCurrency((data.retail_price || 0) - totalCostPerUnit)}
                                                             </span>
                                                         </div>
                                                         <div className="text-center pt-2">

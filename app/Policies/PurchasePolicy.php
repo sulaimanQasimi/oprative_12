@@ -104,6 +104,85 @@ class PurchasePolicy
     }
 
     /**
+     * Determine whether the user can update purchase items.
+     */
+    public function updateItems(User $user, Purchase $purchase): bool
+    {
+        // Cannot update items if already moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return false;
+        }
+        
+        return $user->can('update_purchase');
+    }
+
+    /**
+     * Determine whether the user can view purchase items.
+     */
+    public function viewItems(User $user, Purchase $purchase): bool
+    {
+        return $user->can('view_purchase');
+    }
+
+    /**
+     * Determine whether the user can manage item-specific additional costs.
+     */
+    public function manageItemAdditionalCosts(User $user, Purchase $purchase): bool
+    {
+        // Cannot manage item costs if already moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return false;
+        }
+        
+        return $user->can('update_purchase');
+    }
+
+    /**
+     * Determine whether the user can create item-specific additional costs.
+     */
+    public function createItemAdditionalCosts(User $user, Purchase $purchase): bool
+    {
+        return $this->manageItemAdditionalCosts($user, $purchase);
+    }
+
+    /**
+     * Determine whether the user can update item-specific additional costs.
+     */
+    public function updateItemAdditionalCosts(User $user, Purchase $purchase): bool
+    {
+        return $this->manageItemAdditionalCosts($user, $purchase);
+    }
+
+    /**
+     * Determine whether the user can delete item-specific additional costs.
+     */
+    public function deleteItemAdditionalCosts(User $user, Purchase $purchase): bool
+    {
+        return $this->manageItemAdditionalCosts($user, $purchase);
+    }
+
+    /**
+     * Determine whether the user can manage item pricing.
+     */
+    public function manageItemPricing(User $user, Purchase $purchase): bool
+    {
+        // Cannot manage pricing if already moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return false;
+        }
+        
+        return $user->can('update_purchase');
+    }
+
+    /**
+     * Determine whether the user can update item pricing.
+     */
+    public function updateItemPricing(User $user, Purchase $purchase): bool
+    {
+        return $this->manageItemPricing($user, $purchase);
+    }
+
+    /**
      * Determine whether the user can manage purchase payments.
      */
     public function managePayments(User $user, Purchase $purchase): bool
@@ -165,10 +244,26 @@ class PurchasePolicy
     }
 
     /**
+     * Determine whether the user can print purchases.
+     */
+    public function print(User $user, Purchase $purchase): bool
+    {
+        return $user->can('view_purchase');
+    }
+
+    /**
      * Determine whether the user can export purchases.
      */
     public function export(User $user): bool
     {
         return $user->can('view_purchase');
+    }
+
+    /**
+     * Determine whether the user can store warehouse transfers.
+     */
+    public function storeWarehouseTransfer(User $user, Purchase $purchase): bool
+    {
+        return $this->warehouseTransfer($user, $purchase);
     }
 }

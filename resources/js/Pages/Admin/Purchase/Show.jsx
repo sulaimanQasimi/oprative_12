@@ -55,6 +55,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
+import PermissionButton from "@/Components/PermissionButton";
 import axios from "axios";
 
 export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments, warehouses, permissions = {} }) {
@@ -307,33 +308,32 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                     </Button>
                                 </Link>
 
-                                {permissions.can_update && (
-                                    <Link href={route('admin.purchases.edit', purchase.id)}>
-                                        <Button 
-                                            size="sm"
-                                            className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
-                                        >
-                                            <Edit className="h-4 w-4 mr-2" />
-                                            {t("Edit")}
-                                        </Button>
-                                    </Link>
-                                )}
+                                <PermissionButton
+                                    hasPermission={permissions.can_update}
+                                    tooltip={t("Edit purchase details")}
+                                    size="sm"
+                                    className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                                    onClick={() => router.get(route('admin.purchases.edit', purchase.id))}
+                                >
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    {t("Edit")}
+                                </PermissionButton>
 
-                                {permissions.can_delete && (
-                                    <Button 
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-10 px-4 border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
-                                        onClick={() => {
-                                            if (confirm(t('Are you sure you want to delete this purchase?'))) {
-                                                router.delete(route('admin.purchases.destroy', purchase.id));
-                                            }
-                                        }}
-                                    >
-                                        <Trash2 className="h-4 w-4 mr-2" />
-                                        {t("Delete")}
-                                    </Button>
-                                )}
+                                <PermissionButton
+                                    hasPermission={permissions.can_delete}
+                                    tooltip={t("Delete this purchase")}
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-10 px-4 border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                                    onClick={() => {
+                                        if (confirm(t('Are you sure you want to delete this purchase?'))) {
+                                            router.delete(route('admin.purchases.destroy', purchase.id));
+                                        }
+                                    }}
+                                >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    {t("Delete")}
+                                </PermissionButton>
 
                                 <Link href={route('admin.purchases.index')}>
                                     <Button 
@@ -750,30 +750,35 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                             </CardHeader>
                                             <CardContent className="p-6">
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                    {permissions.can_create_items && (
-                                                        <Link href={route('admin.purchases.items.create', purchase.id)}>
-                                                            <Button className="w-full gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                                                <Package className="h-4 w-4" />
-                                                                {t("Add Item")}
-                                                            </Button>
-                                                        </Link>
-                                                    )}
-                                                    {permissions.can_create_payments && (
-                                                        <Link href={route('admin.purchases.payments.create', purchase.id)}>
-                                                            <Button className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                                                <CreditCard className="h-4 w-4" />
-                                                                {t("Add Payment")}
-                                                            </Button>
-                                                        </Link>
-                                                    )}
-                                                    {permissions.can_create_additional_costs && (
-                                                        <Link href={route('admin.purchases.additional-costs.create', purchase.id)}>
-                                                            <Button className="w-full gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                                                <Receipt className="h-4 w-4" />
-                                                                {t("Add Cost")}
-                                                            </Button>
-                                                        </Link>
-                                                    )}
+                                                    <PermissionButton
+                                                        hasPermission={permissions.can_create_items}
+                                                        tooltip={t("Add new item to this purchase")}
+                                                        className="w-full gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105 transition-all duration-200 shadow-lg"
+                                                        onClick={() => router.get(route('admin.purchases.items.create', purchase.id))}
+                                                    >
+                                                        <Package className="h-4 w-4" />
+                                                        {t("Add Item")}
+                                                    </PermissionButton>
+                                                    
+                                                    <PermissionButton
+                                                        hasPermission={permissions.can_create_payments}
+                                                        tooltip={t("Add payment to this purchase")}
+                                                        className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 transition-all duration-200 shadow-lg"
+                                                        onClick={() => router.get(route('admin.purchases.payments.create', purchase.id))}
+                                                    >
+                                                        <CreditCard className="h-4 w-4" />
+                                                        {t("Add Payment")}
+                                                    </PermissionButton>
+                                                    
+                                                    <PermissionButton
+                                                        hasPermission={permissions.can_create_additional_costs}
+                                                        tooltip={t("Add additional cost to this purchase")}
+                                                        className="w-full gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:scale-105 transition-all duration-200 shadow-lg"
+                                                        onClick={() => router.get(route('admin.purchases.additional-costs.create', purchase.id))}
+                                                    >
+                                                        <Receipt className="h-4 w-4" />
+                                                        {t("Add Cost")}
+                                                    </PermissionButton>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -907,32 +912,49 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                         </TableCell>
                                                                                                                                 <TableCell>
                                                             <div className="flex items-center gap-2">
-                                                                {permissions.can_update && (
-                                                                    <Link href={route('admin.purchases.items.edit', [purchase.id, item.id])}>
-                                                                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-blue-100">
-                                                                            <Edit className="h-4 w-4 text-blue-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                )}
-                                                                {permissions.can_update && (
-                                                                    <Link href={route('admin.purchases.items.additional-costs', [purchase.id, item.id])}>
-                                                                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-orange-100">
-                                                                            <Receipt className="h-4 w-4 text-orange-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                )}
-                                                                {permissions.can_update && (
-                                                                    <Link href={route('admin.purchases.items.pricing', [purchase.id, item.id])}>
-                                                                        <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-blue-100">
-                                                                            <DollarSign className="h-4 w-4 text-blue-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                )}
-                                                                {permissions.can_delete && (
-                                                                    <Button size="icon" variant="ghost" onClick={() => handleDeleteItem(item.id)} className="h-8 w-8 hover:bg-red-100">
-                                                                        <Trash2 className="h-4 w-4 text-red-600" />
-                                                                    </Button>
-                                                                )}
+                                                                <PermissionButton
+                                                                    hasPermission={permissions.can_update}
+                                                                    tooltip={t("Edit item")}
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="h-8 w-8 hover:bg-blue-100"
+                                                                    onClick={() => router.get(route('admin.purchases.items.edit', [purchase.id, item.id]))}
+                                                                >
+                                                                    <Edit className="h-4 w-4 text-blue-600" />
+                                                                </PermissionButton>
+                                                                
+                                                                <PermissionButton
+                                                                    hasPermission={permissions.can_update}
+                                                                    tooltip={t("Manage additional costs")}
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="h-8 w-8 hover:bg-orange-100"
+                                                                    onClick={() => router.get(route('admin.purchases.items.additional-costs', [purchase.id, item.id]))}
+                                                                >
+                                                                    <Receipt className="h-4 w-4 text-orange-600" />
+                                                                </PermissionButton>
+                                                                
+                                                                <PermissionButton
+                                                                    hasPermission={permissions.can_update}
+                                                                    tooltip={t("Manage pricing")}
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="h-8 w-8 hover:bg-blue-100"
+                                                                    onClick={() => router.get(route('admin.purchases.items.pricing', [purchase.id, item.id]))}
+                                                                >
+                                                                    <DollarSign className="h-4 w-4 text-blue-600" />
+                                                                </PermissionButton>
+                                                                
+                                                                <PermissionButton
+                                                                    hasPermission={permissions.can_delete}
+                                                                    tooltip={t("Delete item")}
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    className="h-8 w-8 hover:bg-red-100"
+                                                                    onClick={() => handleDeleteItem(item.id)}
+                                                                >
+                                                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                                                </PermissionButton>
                                                             </div>
                                                         </TableCell>
                                                                     </TableRow>

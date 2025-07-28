@@ -18,13 +18,30 @@ trait ManagesItemPricing
      */
     public function manageItemPricing(Purchase $purchase, PurchaseItem $item)
     {
-        // $this->authorize('updateItems', $purchase);
+        $this->authorize('manageItemPricing', $purchase);
 
         // Load item with relationships
-        $item->load(['product.unit', 'batch']);
+        $item->load(['product.unit', 'batch', 'additionalCosts']);
+
+        // Get additional costs for this item
+        $additionalCosts = $item->additionalCosts->map(function ($cost) {
+            return [
+                'id' => $cost->id,
+                'name' => $cost->name,
+                'amount' => $cost->amount,
+                'description' => $cost->description,
+                'created_at' => $cost->created_at,
+                'updated_at' => $cost->updated_at,
+            ];
+        });
+
+        // Calculate total additional costs
+        $totalAdditionalCosts = $item->additionalCosts->sum('amount');
 
         $permissions = [
             'can_update_items' => Auth::user()->can('updateItems', $purchase),
+            'can_manage_pricing' => Auth::user()->can('manageItemPricing', $purchase),
+            'can_update_pricing' => Auth::user()->can('updateItemPricing', $purchase),
         ];
 
         return Inertia::render('Admin/Purchase/ManageItemPricing', [
@@ -52,8 +69,14 @@ trait ManagesItemPricing
                     'retail_price' => $item->batch->retail_price,
                     'purchase_price' => $item->batch->purchase_price,
                     'notes' => $item->batch->notes,
+                    'unit_id' => $item->batch->unit_id,
+                    'unit_name' => $item->batch->unit_name,
+                    'quantity' => $item->batch->quantity,
+                    'total' => $item->batch->total,
                 ] : null,
             ],
+            'additionalCosts' => $additionalCosts,
+            'totalAdditionalCosts' => $totalAdditionalCosts,
             'permissions' => $permissions,
         ]);
     }
@@ -63,7 +86,7 @@ trait ManagesItemPricing
      */
     public function updateItemPricing(Request $request, Purchase $purchase, PurchaseItem $item)
     {
-        // $this->authorize('updateItems', $purchase);
+        $this->authorize('updateItemPricing', $purchase);
 
         try {
             $validated = $request->validate([

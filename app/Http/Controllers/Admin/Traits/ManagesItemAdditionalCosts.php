@@ -18,7 +18,7 @@ trait ManagesItemAdditionalCosts
      */
     public function manageItemAdditionalCosts(Purchase $purchase,PurchaseItem $item)
     {
-        // $this->authorize('updateItems', $purchase);
+        $this->authorize('manageItemAdditionalCosts', $purchase);
 
         // Load item with relationships
         $item->load(['product.unit', 'additionalCosts']);
@@ -36,7 +36,11 @@ trait ManagesItemAdditionalCosts
         });
 
         $permissions = [
-            'can_update_items' => true       
+            'can_update_items' => Auth::user()->can('updateItems', $purchase),
+            'can_manage_additional_costs' => Auth::user()->can('manageItemAdditionalCosts', $purchase),
+            'can_create_additional_costs' => Auth::user()->can('createItemAdditionalCosts', $purchase),
+            'can_update_additional_costs' => Auth::user()->can('updateItemAdditionalCosts', $purchase),
+            'can_delete_additional_costs' => Auth::user()->can('deleteItemAdditionalCosts', $purchase),
         ];
 
         return Inertia::render('Admin/Purchase/ManageItemAdditionalCosts', [
@@ -67,7 +71,7 @@ trait ManagesItemAdditionalCosts
      */
     public function storeItemAdditionalCost(Request $request, Purchase $purchase, PurchaseItem $item)
     {
-        // $this->authorize('updateItems', $purchase);
+        $this->authorize('createItemAdditionalCosts', $purchase);
 
         try {
             $validated = $request->validate([
@@ -105,7 +109,7 @@ trait ManagesItemAdditionalCosts
      */
     public function updateItemAdditionalCost(Request $request, Purchase $purchase, PurchaseItem $item, PurchaseHasAddionalCosts $cost)
     {
-        // $this->authorize('updateItems', $purchase);
+        $this->authorize('updateItemAdditionalCosts', $purchase);
 
         try {
             $validated = $request->validate([
@@ -141,7 +145,7 @@ trait ManagesItemAdditionalCosts
      */
     public function destroyItemAdditionalCost(Purchase $purchase, PurchaseItem $item, PurchaseHasAddionalCosts $cost)
     {   
-        // $this->authorize('updateItems', $purchase);
+        $this->authorize('deleteItemAdditionalCosts', $purchase);
 
         try {
             DB::beginTransaction();
