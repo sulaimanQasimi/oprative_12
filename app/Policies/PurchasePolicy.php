@@ -134,7 +134,7 @@ class PurchasePolicy
             return false;
         }
         
-        return $user->can('update_purchase');
+        return $user->can('manage_item_additional_costs');
     }
 
     /**
@@ -171,7 +171,7 @@ class PurchasePolicy
             return false;
         }
         
-        return $user->can('update_purchase');
+        return $user->can('manage_item_pricing');
     }
 
     /**

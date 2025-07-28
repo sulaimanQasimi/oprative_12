@@ -879,20 +879,18 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                         <TableCell>
                                                                             <div className="space-y-1">
                                                                                 <Badge variant="secondary" className="font-mono text-xs">
-                                                                                    {/* {(() => {
+                                                                                    {(() => {
                                                                                         const product = item.product;
-                                                                                        if (item.unit_type === 'wholesale' && product?.whole_sale_unit_amount > 0) {
-                                                                                            return (parseFloat(item.quantity) / product.whole_sale_unit_amount).toFixed(2);
-                                                                                        } else if (item.unit_type === 'retail' && product?.retails_sale_unit_amount > 0) {
-                                                                                            return (parseFloat(item.quantity) / product.retails_sale_unit_amount).toFixed(2);
+                                                                                        if (item.unit_type === 'wholesale') {
+                                                                                            return parseInt(parseInt(item.quantity) / item.batch?.unit_amount);
+                                                                                        } else if (item.unit_type === 'retail' ) {
+                                                                                            return (parseInt(item.quantity));
                                                                                         }
-                                                                                        return parseFloat(item.quantity).toLocaleString();
-                                                                                    })()} */}
-                                                                                    {item.batch?.quantity/item.batch?.unit_amount} {item.batch?.unit_name}
+                                                                                    })()} {item.batch?.unit_name}
                                                                                 </Badge>
                                                                                 <div className="text-xs text-slate-500">
-                                                                                    {item.unit_type ? `${item.unit_type} units` : 'units'}
-                                                                                </div>
+                                                                                    {item.unit_type ? `${t(item.unit_type+' units')}` : 'units'}  <span className="text-xs text-slate-500">{item.batch?.unit_amount} {item.product?.unit?.name}</span>
+                                                                                </div>  
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell>

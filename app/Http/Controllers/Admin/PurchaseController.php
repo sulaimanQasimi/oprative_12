@@ -231,17 +231,7 @@ class PurchaseController extends Controller
                     'created_at' => $purchase->created_at,
                     'updated_at' => $purchase->updated_at,
                 ],
-                'purchaseItems' => $purchase->purchaseItems()->with('batch')
-                    ->get()->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'product_id' => $item->product_id,
-                            'batch_id' => $item->batch_id,
-                            'quantity' => $item->quantity,
-                            'total_price' => $item->total_price,
-                            'actual_amount' => $item->actual_amount,
-                        ];
-                    }),
+                'purchaseItems' => $purchase->purchaseItems()->with('batch', 'product.unit')->get()->append('actual_amount')->toArray(),
                 'payments' => $purchase->payments,
                 'additionalCosts' => $purchase->additional_costs,
                 'warehouses' => $warehouses,
@@ -563,7 +553,7 @@ class PurchaseController extends Controller
                     'batch_id' => $batch ? $batch->id : null,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
-                    'total' => $item->total_price,
+                    'total' => $item->actual_amount,
                     'model_type' => 'App\\Models\\Purchase',
                     'model_id' => $purchase->id,
                     'unit_type' => $item->unit_type,

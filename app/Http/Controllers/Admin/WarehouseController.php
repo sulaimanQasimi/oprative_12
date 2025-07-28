@@ -28,9 +28,7 @@ class WarehouseController extends Controller
     }
     public function index()
     {
-        $warehouses = Warehouse::with('users')->latest()->get();
-
-        // Pass permissions to the frontend
+        $warehouses = Warehouse::withCount(['users', 'items'])->latest()->get()->toArray();
         $permissions = [
             'can_create' => Gate::allows('create_warehouse'),
             'can_update' => Gate::allows('update_warehouse', Warehouse::class),
@@ -291,7 +289,7 @@ class WarehouseController extends Controller
                 ->map(function ($batch) {
                     // Get product details from database
                     $product = Product::find($batch->product_id);
-                    
+
                     return [
                         'batch_id' => $batch->batch_id,
                         'batch_reference' => $batch->batch_reference,

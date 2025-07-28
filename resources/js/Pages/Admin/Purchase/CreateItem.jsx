@@ -446,13 +446,13 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                         <AlertDescription className="text-blue-700 dark:text-blue-400 font-medium">
                                                             <div className="flex items-center justify-between">
                                                                 <span>
-                                                                    Product unit: <strong>{selectedProduct.unit ? selectedProduct.unit.name : t("No Unit")}</strong>
+                                                                    {t('Product unit')}: <strong>{selectedProduct.unit ? selectedProduct.unit.name : t("No Unit")}</strong>
                                                                     {data.unit_amount > 1 && (
                                                                         <span> (1 unit = {data.unit_amount} pieces)</span>
                                                                     )}
                                                                 </span>
                                                                 <Badge variant="outline" className="text-blue-700">
-                                                                    {formatCurrency(getUnitPrice(selectedProduct))} per unit
+                                                                    {formatCurrency(getUnitPrice(selectedProduct))} {t("per unit")}
                                                                 </Badge>
                                                             </div>
                                                         </AlertDescription>

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class WarehouseProduct extends Model
 {
     // use SoftDeletes;
-    protected $table = 'warehouse_product_movements';
+    protected $table = 'warehouse_batch_inventory';
 
     /**
      * The attributes that are mass assignable.

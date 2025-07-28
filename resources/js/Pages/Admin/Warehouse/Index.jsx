@@ -52,6 +52,7 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
 export default function Index({ auth, warehouses = [], permissions = {} }) {
+    console.log(warehouses);
     const { t } = useLaravelReactI18n();
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
@@ -586,7 +587,7 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                                         </div>
                                                                         <div>
                                                                             <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                                                                                {warehouse.products_count || 0}
+                                                                                {warehouse.items_count || 0}
                                                                             </div>
                                                                             <div className="text-xs text-slate-600 dark:text-slate-400">
                                                                                 {t("Products")}
