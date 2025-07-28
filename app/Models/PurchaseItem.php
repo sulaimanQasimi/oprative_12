@@ -41,4 +41,8 @@ class PurchaseItem extends Model
     {
         return $this->hasMany(PurchaseHasAddionalCosts::class);
     }
+    public function getActualAmountAttribute()
+    {
+        return $this->total_price + $this->additionalCosts->sum('amount');
+    }
 }

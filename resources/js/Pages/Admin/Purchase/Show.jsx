@@ -856,7 +856,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                 <TableHead>{t("Unit Type")}</TableHead>
                                                                 <TableHead>{t("Unit Price")}</TableHead>
                                                                 <TableHead>{t("Total Price")}</TableHead>
-                                                                <TableHead>{t("Actual Qty (DB)")}</TableHead>
+                                                                <TableHead>{t("Actual Amount")}</TableHead>
                                                                 <TableHead>{t("Date Added")}</TableHead>
                                                                 <TableHead>{t("Actions")}</TableHead>
                                                             </TableRow>
@@ -902,11 +902,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                         </TableCell>
                                                                         <TableCell className="font-mono">{formatCurrency(item.price)}</TableCell>
                                                                         <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(item.total_price)}</TableCell>
-                                                                        <TableCell>
-                                                                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-mono">
-                                                                                {parseFloat(item.quantity).toLocaleString()}
-                                                                            </Badge>
-                                                                        </TableCell>
+                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(item.actual_amount)}</TableCell>
                                                                         <TableCell className="text-sm text-slate-500">
                                                                             {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                                         </TableCell>

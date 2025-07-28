@@ -104,7 +104,12 @@ class PermissionSeeder extends Seeder
                     'label' => $persianLabel,
                 ]);
             }
-
+            if ($model === 'purchase') {
+                $specialActions = [
+                    'manage_item_additional_costs' => 'مدیریت هزینه اضافی',
+                    'manage_item_pricing' => 'مدیریت قیمت گذاری',
+                ];
+            }
             // Create special permissions for specific models
             if ($model === 'warehouse') {
                 $specialActions = [

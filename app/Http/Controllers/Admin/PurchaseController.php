@@ -146,7 +146,7 @@ class PurchaseController extends Controller
                 'currency_rate' => $validated['currency_rate'],
                 'status' => $validated['status'],
             ]);
-            
+
             DB::commit();
 
             return redirect()->route('admin.purchases.show', $purchase->id)
@@ -231,7 +231,17 @@ class PurchaseController extends Controller
                     'created_at' => $purchase->created_at,
                     'updated_at' => $purchase->updated_at,
                 ],
-                'purchaseItems' => $purchase->purchaseItems()->with('batch')->get()->toArray(),
+                'purchaseItems' => $purchase->purchaseItems()->with('batch')
+                    ->get()->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product_id' => $item->product_id,
+                            'batch_id' => $item->batch_id,
+                            'quantity' => $item->quantity,
+                            'total_price' => $item->total_price,
+                            'actual_amount' => $item->actual_amount,
+                        ];
+                    }),
                 'payments' => $purchase->payments,
                 'additionalCosts' => $purchase->additional_costs,
                 'warehouses' => $warehouses,
