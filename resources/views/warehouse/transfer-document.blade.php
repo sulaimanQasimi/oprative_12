@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سند انتقال انبار - {{ $transfer->reference_number }}</title>
+    <title>سند انتقال گدام - {{ $transfer->reference_number }}</title>
     <style>
         @media print {
             @page {
@@ -117,7 +117,6 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 14px;
-            flex-direction: row-reverse;
         }
 
         .info-label {
@@ -185,7 +184,6 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 14px;
-            flex-direction: row-reverse;
         }
 
         .warehouse-detail .label {
@@ -425,7 +423,6 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 14px;
-            flex-direction: row-reverse;
         }
 
         .total-row:last-child {
@@ -455,62 +452,70 @@
         }
     </style>
 </head>
-<body>
+<body dir="rtl">
     <button onclick="window.print()" class="print-button no-print">
-        🖨️ Print Document
+        🖨️ چاپ سند
     </button>
 
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>WAREHOUSE TRANSFER DOCUMENT</h1>
-            <div class="subtitle">Inventory Transfer Authorization</div>
+            <h1>سند انتقال گدام</h1>
+            <div class="subtitle">مجوز انتقال موجودی گدام</div>
         </div>
 
         <!-- Document Information -->
         <div class="document-info">
             <div class="info-grid">
                 <div class="info-section">
-                    <h3>Transfer Details</h3>
+                    <h3>جزئیات انتقال</h3>
                     <div class="info-row">
-                        <span class="info-label">Reference Number:</span>
+                        <span class="info-label">شماره مرجع:</span>
                         <span class="info-value">{{ $transfer->reference_number }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Transfer Date:</span>
-                        <span class="info-value">{{ $transfer->transfer_date->format('F j, Y') }}</span>
+                        <span class="info-label">تاریخ انتقال:</span>
+                        <span class="info-value">{{ \Carbon\Carbon::parse($transfer->transfer_date)->format('Y/m/d') }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Status:</span>
+                        <span class="info-label">وضعیت:</span>
                         <span class="info-value">
                             <span class="status-badge status-{{ $transfer->status }}">
-                                {{ ucfirst($transfer->status) }}
+                                @if($transfer->status == 'pending')
+                                    در انتظار
+                                @elseif($transfer->status == 'completed')
+                                    تکمیل شده
+                                @elseif($transfer->status == 'cancelled')
+                                    لغو شده
+                                @else
+                                    {{ ucfirst($transfer->status) }}
+                                @endif
                             </span>
                         </span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Created By:</span>
-                        <span class="info-value">{{ $transfer->creator->name ?? 'System' }}</span>
+                        <span class="info-label">ایجاد شده توسط:</span>
+                        <span class="info-value">{{ $transfer->creator->name ?? 'سیستم' }}</span>
                     </div>
                 </div>
 
                 <div class="info-section">
-                    <h3>Document Information</h3>
+                    <h3>اطلاعات سند</h3>
                     <div class="info-row">
-                        <span class="info-label">Document Type:</span>
-                        <span class="info-value">Warehouse Transfer</span>
+                        <span class="info-label">نوع سند:</span>
+                        <span class="info-value">انتقال گدام</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Generated On:</span>
-                        <span class="info-value">{{ now()->format('F j, Y \a\t g:i A') }}</span>
+                        <span class="info-label">تاریخ ایجاد:</span>
+                        <span class="info-value">{{ \Carbon\Carbon::now()->format('Y/m/d H:i') }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Total Items:</span>
+                        <span class="info-label">تعداد اقلام:</span>
                         <span class="info-value">{{ $transfer->transferItems->count() }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">Total Quantity:</span>
-                        <span class="info-value">{{ number_format($transfer->total_quantity) }} units</span>
+                        <span class="info-label">مجموع مقدار:</span>
+                        <span class="info-value">{{ number_format($transfer->transferItems->sum(function($item) { return $item->quantity / ($item->batch->unit_amount ?? 1); })) }} عدد</span>
                     </div>
                 </div>
             </div>
@@ -521,46 +526,46 @@
             <div class="warehouse-grid">
                 <!-- Source Warehouse -->
                 <div class="warehouse-card from">
-                    <h3>📤 Source Warehouse</h3>
+                    <h3>📤 گدام مبدا</h3>
                     <div class="warehouse-details">
                         <div class="warehouse-detail">
-                            <span class="label">Name:</span>
+                            <span class="label">نام:</span>
                             <span class="value">{{ $transfer->fromWarehouse->name }}</span>
                         </div>
                         <div class="warehouse-detail">
-                            <span class="label">Code:</span>
+                            <span class="label">کد:</span>
                             <span class="value">{{ $transfer->fromWarehouse->code }}</span>
                         </div>
                         <div class="warehouse-detail">
-                            <span class="label">Address:</span>
-                            <span class="value">{{ $transfer->fromWarehouse->address ?? 'Not specified' }}</span>
+                            <span class="label">آدرس:</span>
+                            <span class="value">{{ $transfer->fromWarehouse->address ?? 'مشخص نشده' }}</span>
                         </div>
                         <div class="warehouse-detail">
-                            <span class="label">Status:</span>
-                            <span class="value">{{ $transfer->fromWarehouse->is_active ? 'Active' : 'Inactive' }}</span>
+                            <span class="label">وضعیت:</span>
+                            <span class="value">{{ $transfer->fromWarehouse->is_active ? 'فعال' : 'غیرفعال' }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Destination Warehouse -->
                 <div class="warehouse-card to">
-                    <h3>📥 Destination Warehouse</h3>
+                    <h3>📥 گدام مقصد</h3>
                     <div class="warehouse-details">
                         <div class="warehouse-detail">
-                            <span class="label">Name:</span>
+                            <span class="label">نام:</span>
                             <span class="value">{{ $transfer->toWarehouse->name }}</span>
                         </div>
                         <div class="warehouse-detail">
-                            <span class="label">Code:</span>
+                            <span class="label">کد:</span>
                             <span class="value">{{ $transfer->toWarehouse->code }}</span>
                         </div>
                         <div class="warehouse-detail">
-                            <span class="label">Address:</span>
-                            <span class="value">{{ $transfer->toWarehouse->address ?? 'Not specified' }}</span>
+                            <span class="label">آدرس:</span>
+                            <span class="value">{{ $transfer->toWarehouse->address ?? 'مشخص نشده' }}</span>
                         </div>
                         <div class="warehouse-detail">
-                            <span class="label">Status:</span>
-                            <span class="value">{{ $transfer->toWarehouse->is_active ? 'Active' : 'Inactive' }}</span>
+                            <span class="label">وضعیت:</span>
+                            <span class="value">{{ $transfer->toWarehouse->is_active ? 'فعال' : 'غیرفعال' }}</span>
                         </div>
                     </div>
                 </div>
@@ -569,15 +574,15 @@
 
         <!-- Transfer Items -->
         <div class="items-section">
-            <h3>📦 Transfer Items</h3>
+            <h3>📦 اقلام انتقال</h3>
             <table class="items-table">
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Product Information</th>
-                        <th>Batch Details</th>
-                        <th>Quantity</th>
-                        <th>Unit Information</th>
+                        <th>اطلاعات محصول</th>
+                        <th>جزئیات دسته</th>
+                        <th>مقدار</th>
+                        <th>اطلاعات واحد</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -586,42 +591,42 @@
                         <td>{{ $index + 1 }}</td>
                         <td>
                             <div class="product-name">{{ $item->product->name }}</div>
-                            <div class="product-barcode">Barcode: {{ $item->product->barcode }}</div>
-                            <div class="product-barcode">Type: {{ ucfirst($item->product->type) }}</div>
+                            <div class="product-barcode">بارکد: {{ $item->product->barcode }}</div>
+                            <div class="product-barcode">نوع: {{ ucfirst($item->product->type) }}</div>
                         </td>
                         <td>
                             @if($item->batch)
                                 <div class="batch-info">
-                                    <div class="batch-number">Batch: {{ $item->batch->reference_number }}</div>
+                                    <div class="batch-number">دسته: {{ $item->batch->reference_number }}</div>
                                     @if($item->batch->expire_date)
                                         <div class="expiry-info {{ \Carbon\Carbon::parse($item->batch->expire_date)->isPast() ? 'expiry-warning' : '' }}">
-                                            Expires: {{ \Carbon\Carbon::parse($item->batch->expire_date)->format('M j, Y') }}
+                                            تاریخ انقضا: {{ \Carbon\Carbon::parse($item->batch->expire_date)->format('Y/m/d') }}
                                             @if(\Carbon\Carbon::parse($item->batch->expire_date)->isPast())
-                                                (EXPIRED)
+                                                (منقضی شده)
                                             @elseif(\Carbon\Carbon::parse($item->batch->expire_date)->diffInDays(now()) <= 30)
-                                                (Expiring Soon)
+                                                (به زودی منقضی می‌شود)
                                             @endif
                                         </div>
                                     @endif
                                 </div>
                             @else
-                                <span style="color: #64748b; font-style: italic;">No batch specified</span>
+                                <span style="color: #64748b; font-style: italic;">دسته مشخص نشده</span>
                             @endif
                         </td>
                         <td>
                             <div class="quantity-info">
-                                <div class="quantity-amount">{{ number_format($item->quantity) }}</div>
-                                <div class="quantity-unit">pieces</div>
+                                <div class="quantity-amount">{{ number_format($item->quantity/$item->batch->unit_amount) }}</div>
+                                <div class="quantity-unit">{{ $item->batch->unit_name }}</div>
                             </div>
                         </td>
                         <td>
                             <div style="font-size: 11px; color: #64748b;">
-                                <div><strong>Type:</strong> {{ ucfirst($item->unit_type) }}</div>
+                                <div><strong>نوع:</strong> {{ ucfirst($item->unit_type) }}</div>
                                 @if($item->unit_name)
-                                    <div><strong>Unit:</strong> {{ $item->unit_name }}</div>
+                                    <div><strong>واحد:</strong> {{ $item->unit_name }}</div>
                                 @endif
                                 @if($item->unit_amount)
-                                    <div><strong>Amount:</strong> {{ $item->unit_amount }}</div>
+                                    <div><strong>مقدار:</strong> {{ $item->unit_amount }}</div>
                                 @endif
                             </div>
                         </td>
@@ -633,12 +638,12 @@
             <!-- Total Summary -->
             <div class="total-summary">
                 <div class="total-row">
-                    <span>Total Items:</span>
+                    <span>مجموع اقلام:</span>
                     <span>{{ $transfer->transferItems->count() }}</span>
                 </div>
                 <div class="total-row">
-                    <span>Total Quantity:</span>
-                    <span>{{ number_format($transfer->total_quantity) }} pieces</span>
+                    <span>مجموع مقدار:</span>
+                    <span>{{ number_format($transfer->transferItems->sum(function($item) { return $item->quantity / ($item->batch->unit_amount ?? 1); })) }} عدد</span>
                 </div>
             </div>
         </div>
@@ -646,7 +651,7 @@
         <!-- Notes Section -->
         @if($transfer->notes)
         <div class="notes-section">
-            <h3>📝 Additional Notes</h3>
+            <h3>📝 یادداشت‌های اضافی</h3>
             <div class="notes-content">
                 {{ $transfer->notes }}
             </div>
@@ -658,23 +663,23 @@
             <div class="signatures-grid">
                 <!-- Source Warehouse Signature -->
                 <div class="signature-box">
-                    <h4>Source Warehouse Authorization</h4>
+                    <h4>تایید گدام مبدا</h4>
                     <div class="signature-line"></div>
                     <div class="signature-info">
-                        <div>Warehouse Manager</div>
+                        <div>مدیر گدام</div>
                         <div>{{ $transfer->fromWarehouse->name }}</div>
-                        <div>Date: _________________</div>
+                        <div>تاریخ: _________________</div>
                     </div>
                 </div>
 
                 <!-- Destination Warehouse Signature -->
                 <div class="signature-box">
-                    <h4>Destination Warehouse Authorization</h4>
+                    <h4>تایید گدام مقصد</h4>
                     <div class="signature-line"></div>
                     <div class="signature-info">
-                        <div>Warehouse Manager</div>
+                        <div>مدیر گدام</div>
                         <div>{{ $transfer->toWarehouse->name }}</div>
-                        <div>Date: _________________</div>
+                        <div>تاریخ: _________________</div>
                     </div>
                 </div>
             </div>
@@ -682,9 +687,9 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p><strong>Warehouse Transfer Document</strong></p>
-            <p>This document serves as official authorization for the transfer of inventory between warehouses.</p>
-            <p>Reference: {{ $transfer->reference_number }} | Generated: {{ now()->format('Y-m-d H:i:s') }}</p>
+            <p><strong>سند انتقال گدام</strong></p>
+            <p>این سند به عنوان مجوز رسمی برای انتقال موجودی بین گدامها عمل می‌کند.</p>
+            <p>مرجع: {{ $transfer->reference_number }} | ایجاد شده: {{ \Carbon\Carbon::now()->format('Y/m/d H:i') }}</p>
         </div>
     </div>
 
