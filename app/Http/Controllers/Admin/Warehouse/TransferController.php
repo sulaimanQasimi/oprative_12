@@ -272,7 +272,7 @@ trait TransferController
                 'transfer_items.*.product_id' => 'required|exists:products,id',
                 'transfer_items.*.batch_id' => 'nullable|exists:batches,id',
                 'transfer_items.*.quantity' => 'required|numeric|min:0.01',
-                'transfer_items.*.unit_price' => 'required|numeric|min:0',
+                // 'transfer_items.*.unit_price' => 'required|numeric|min:0',
                 'transfer_items.*.unit_id' => 'nullable|exists:units,id',
                 'transfer_items.*.unit_amount' => 'nullable|numeric|min:1',
                 'transfer_items.*.unit_name' => 'nullable|string',

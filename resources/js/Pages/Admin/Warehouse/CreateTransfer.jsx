@@ -58,7 +58,6 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         product_id: '',
         batch_id: '',
         quantity: '',
-        price: '',
         unit_type: ''
     });
 
@@ -178,12 +177,11 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         const product = getSelectedProduct(currentItem.product_id);
         const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
 
-        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_id) {
+        if (!product || !currentItem.quantity || !currentItem.batch_id) {
             return;
         }
 
         const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity, batch);
-        const totalPrice = actualQuantity * parseFloat(currentItem.price);
 
         const newItem = {
             id: Date.now(),
@@ -193,9 +191,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
             batch: batch,
             unit_type: currentItem.unit_type,
             entered_quantity: parseFloat(currentItem.quantity),
-            actual_quantity: actualQuantity,
-            unit_price: parseFloat(currentItem.price),
-            total_price: currentItem.price * currentItem.quantity
+            actual_quantity: actualQuantity
         };
 
         setTransferItems([...transferItems, newItem]);
@@ -204,7 +200,6 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
             product_id: '',
             batch_id: '',
             quantity: '',
-            price: '',
             unit_type: 'batch_unit'
         });
     };
@@ -213,9 +208,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         setTransferItems(transferItems.filter(item => item.id !== itemId));
     };
 
-    const getTotalTransferAmount = () => {
-        return transferItems.reduce((sum, item) => sum + item.total_price, 0);
-    };
+
 
     const getTotalItems = () => {
         return transferItems.reduce((sum, item) => sum + item.entered_quantity, 0);
@@ -234,9 +227,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
             transfer_items: transferItems.map(item => ({
                 product_id: item.product_id,
                 batch_id: item.batch_id,
-                quantity: item.actual_quantity,
-                unit_price: item.unit_price,
-                total_price: item.total_price
+                quantity: item.actual_quantity
             })),
             notes: data.notes
         };
@@ -506,13 +497,8 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                             onValueChange={(value) => {
                                                                 const batch = getSelectedBatch(currentItem.product_id, value);
                                                                 let unitType = 'batch_unit';
-                                                                let unitPrice = '';
 
-                                                                if (batch && batch.unit_name && batch.unit_amount) {
-                                                                    unitPrice = (batch.wholesale_price || batch.retail_price || 0).toString();
-                                                                }
-
-                                                                setCurrentItem({ ...currentItem, batch_id: value, unit_type: unitType, price: unitPrice });
+                                                                setCurrentItem({ ...currentItem, batch_id: value, unit_type: unitType });
                                                             }}
                                                             disabled={!currentItem.product_id}
                                                         >
@@ -585,7 +571,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                                     {/* Quantity */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
@@ -609,23 +595,6 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         )}
                                                     </div>
 
-                                                    {/* Price */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <DollarSign className="w-5 h-5 text-purple-500" />
-                                                            {t("Unit Price")} *
-                                                        </Label>
-                                                        <Input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min="0"
-                                                            placeholder={t("Enter price")}
-                                                            value={currentItem.price}
-                                                            onChange={(e) => setCurrentItem({ ...currentItem, price: e.target.value })}
-                                                            className="h-12 dark:border-white text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
-                                                        />
-                                                    </div>
-
                                                     {/* Add Button */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg opacity-0">
@@ -634,7 +603,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         <Button
                                                             type="button"
                                                             onClick={addItemToTransfer}
-                                                            disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.quantity || !currentItem.price || currentStockWarning}
+                                                            disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.quantity || currentStockWarning}
                                                             className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2"
                                                         >
                                                             <Plus className="h-4 w-4" />
@@ -758,8 +727,6 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Batch")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Total")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Actions")}</th>
                                                                     </tr>
                                                                 </thead>
@@ -813,12 +780,6 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                                     <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
                                                                                 </div>
                                                                             </td>
-                                                                            <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
-                                                                                {formatCurrency(item.unit_price)}
-                                                                            </td>
-                                                                            <td className="px-6 py-4 font-bold text-green-600 dark:text-green-400">
-                                                                                {formatCurrency(item.total_price)}
-                                                                            </td>
                                                                             <td className="px-6 py-4">
                                                                                 <Button
                                                                                     type="button"
@@ -864,7 +825,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         </CardTitle>
                                                     </CardHeader>
                                                     <CardContent className="p-8 space-y-6">
-                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                             <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
                                                                     <Package className="w-4 h-4" />
@@ -884,15 +845,6 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                     {getTotalItems().toLocaleString()}
                                                                 </p>
                                                                 <p className="text-xs text-slate-500 mt-1">{t("pieces")}</p>
-                                                            </div>
-                                                            <div className="text-center p-6 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg border-2 border-blue-300 dark:border-blue-700">
-                                                                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <DollarSign className="w-4 h-4" />
-                                                                    {t("Total Value")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                                                                    {formatCurrency(getTotalTransferAmount())}
-                                                                </p>
                                                             </div>
                                                         </div>
 
