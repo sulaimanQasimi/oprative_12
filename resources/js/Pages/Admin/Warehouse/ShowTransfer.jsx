@@ -495,12 +495,6 @@ export default function ShowTransfer({ auth, warehouse, transfer }) {
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Quantity")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Unit Price")}
-                                                            </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Total")}
-                                                            </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -545,12 +539,6 @@ export default function ShowTransfer({ auth, warehouse, transfer }) {
                                                                         <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                                             {item.quantity?.toLocaleString() || 0}
                                                                         </Badge>
-                                                                    </TableCell>
-                                                                    <TableCell className="font-medium">
-                                                                        {formatCurrency(item.unit_price)}
-                                                                    </TableCell>
-                                                                    <TableCell className="font-bold text-blue-600">
-                                                                        {formatCurrency(item.total_price)}
                                                                     </TableCell>
                                                                 </TableRow>
                                                             ))

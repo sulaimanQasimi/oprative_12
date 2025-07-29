@@ -630,61 +630,6 @@ export default function Charts({ auth, warehouse, chartData }) {
                                 transition={{ delay: 0.6, duration: 0.5 }}
                                 className="space-y-6"
                             >
-                                {/* Top Products Table */}
-                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
-                                            <TrendingUp className="w-5 h-5 text-green-600" />
-                                            {t("Top Products by Value")}
-                                        </CardTitle>
-                                        <CardDescription className="text-slate-600 dark:text-slate-400">
-                                            {t("Detailed breakdown of highest value products")}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {filteredBatches.length === 0 ? (
-                                            <div className="text-center py-8">
-                                                <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                                                <p className="text-slate-600 dark:text-slate-400">{t("No batches found with the selected filter")}</p>
-                                            </div>
-                                        ) : (
-                                            <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-                                                <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                    {t("Showing")} <span className="font-semibold">{filteredBatches.length}</span> {t("batches")}
-                                                    {batchFilter !== "all" && (
-                                                        <span> ({t("filtered by")} <span className="font-semibold">{t(batchFilter.replace('_', ' '))}</span>)</span>
-                                                    )}
-                                                </p>
-                                            </div>
-                                        )}
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full">
-                                                <thead>
-                                                    <tr className="border-b border-slate-200 dark:border-slate-600">
-                                                        <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Product")}</th>
-                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Remaining Qty")}</th>
-                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Total Value")}</th>
-                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Remaining Value")}</th>
-                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Profit")}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {chartData.top_products_by_value.map((product, index) => (
-                                                        <tr key={index} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600/50">
-                                                            <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">{product.product}</td>
-                                                            <td className="py-3 px-4 text-right font-semibold text-orange-600 dark:text-orange-400">
-                                                                {product.total_remaining_formatted || formatNumber(product.total_remaining) + ' Units'}
-                                                            </td>
-                                                            <td className="py-3 px-4 text-right font-semibold text-green-600 dark:text-green-400">{formatCurrency(product.total_value)}</td>
-                                                            <td className="py-3 px-4 text-right font-semibold text-blue-600 dark:text-blue-400">{formatCurrency(product.remaining_value)}</td>
-                                                            <td className="py-3 px-4 text-right font-semibold text-purple-600 dark:text-purple-400">{formatCurrency(product.profit)}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </CardContent>
-                                </Card>
 
                                 {/* All Batches with Expiry Dates Table */}
                                 <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl">
@@ -739,7 +684,6 @@ export default function Charts({ auth, warehouse, chartData }) {
                                                         <th className="text-center py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Expiry Date")}</th>
                                                         <th className="text-center py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Days Left")}</th>
                                                         <th className="text-center py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Status")}</th>
-                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Value")}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -809,9 +753,6 @@ export default function Charts({ auth, warehouse, chartData }) {
                                                                 </td>
                                                                 <td className="py-3 px-4 text-center">
                                                                     {getStatusBadge(batch.expiry_status)}
-                                                                </td>
-                                                                <td className="py-3 px-4 text-right font-semibold text-green-600 dark:text-green-400">
-                                                                    {formatCurrency(batch.total_income_value)}
                                                                 </td>
                                                             </tr>
                                                         );

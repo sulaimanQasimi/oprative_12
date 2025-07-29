@@ -28,7 +28,8 @@ import {
     Sparkles,
     ChevronDown,
     Wallet,
-    BarChart3
+    BarChart3,
+    ChevronUp
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -710,7 +711,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage incoming inventory and stock")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-green-600 dark:text-green-400 font-semibold">
                                                             {t("Manage Imports")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -730,7 +731,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage outgoing inventory and exports")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-red-600 dark:text-red-400 font-semibold">
                                                             {t("Manage Exports")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -750,7 +751,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Move inventory between warehouses")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-purple-600 dark:text-purple-400 font-semibold">
                                                             {t("Manage Transfers")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -770,7 +771,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Track products moved to shop for sales")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-blue-600 dark:text-blue-400 font-semibold">
                                                             {t("Manage Shop Moves")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -790,7 +791,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("View and manage warehouse products")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-indigo-600 dark:text-indigo-400 font-semibold">
                                                             {t("Manage Products")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -810,7 +811,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Add and manage warehouse users")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
                                                             {t("Manage Users")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -830,7 +831,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage warehouse financial transactions")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-yellow-600 dark:text-yellow-400 font-semibold">
                                                             {t("Manage Wallet")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -850,7 +851,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("View comprehensive warehouse analytics and insights")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-pink-600 dark:text-pink-400 font-semibold">
                                                             {t("View Analytics")}
-                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                            <ChevronUp className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>

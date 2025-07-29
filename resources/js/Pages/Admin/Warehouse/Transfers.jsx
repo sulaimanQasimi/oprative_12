@@ -622,12 +622,6 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                 {t("Items")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Total Quantity")}
-                                                            </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Total Value")}
-                                                            </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Status")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
@@ -677,14 +671,6 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                                 {transfer.transfer_items?.length > 2 && ` +${transfer.transfer_items.length - 2} more`}
                                                                             </div>
                                                                         </div>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                            {transfer.total_quantity?.toLocaleString() || 0}
-                                                                        </Badge>
-                                                                    </TableCell>
-                                                                    <TableCell className="font-bold text-blue-600">
-                                                                        {formatCurrency(transfer.total_amount)}
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         {getStatusBadge(transfer.status, transfer.direction)}
