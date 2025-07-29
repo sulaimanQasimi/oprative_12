@@ -41,6 +41,11 @@ class WarehouseProduct extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(Batch::class);
+    }
+
     public function warehouseIncome(): HasMany
     {
         return $this->hasMany(WarehouseIncome::class, 'product_id', 'product_id')

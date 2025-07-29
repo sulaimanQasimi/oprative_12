@@ -25,7 +25,8 @@ import {
     ChevronDown,
     X,
     Info,
-    Truck
+    Truck,
+    Users
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -56,6 +57,7 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Transfers({ auth, warehouse, transfers }) {
     const { t } = useLaravelReactI18n();
@@ -85,11 +87,12 @@ export default function Transfers({ auth, warehouse, transfers }) {
         if (searchTerm) {
             filtered = filtered.filter(transfer =>
                 transfer.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transfer.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transfer.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transfer.product.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                transfer.from_warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 transfer.to_warehouse.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                transfer.from_warehouse.name.toLowerCase().includes(searchTerm.toLowerCase())
+                transfer.transfer_items?.some(item => 
+                    item.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
+                )
             );
         }
 
@@ -107,9 +110,12 @@ export default function Transfers({ auth, warehouse, transfers }) {
             let aValue = a[sortBy];
             let bValue = b[sortBy];
 
-            if (sortBy === 'product.name') {
-                aValue = a.product.name;
-                bValue = b.product.name;
+            if (sortBy === 'total_amount') {
+                aValue = a.total_amount || 0;
+                bValue = b.total_amount || 0;
+            } else if (sortBy === 'total_quantity') {
+                aValue = a.total_quantity || 0;
+                bValue = b.total_quantity || 0;
             }
 
             if (typeof aValue === 'string') {
@@ -129,8 +135,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
 
     // Calculate totals
     const totalTransfers = filteredTransfers.length;
-    const totalQuantity = filteredTransfers.reduce((sum, transfer) => sum + (transfer.quantity || 0), 0);
-    const totalValue = filteredTransfers.reduce((sum, transfer) => sum + (transfer.total || 0), 0);
+    const totalQuantity = filteredTransfers.reduce((sum, transfer) => sum + (transfer.total_quantity || 0), 0);
+    const totalValue = filteredTransfers.reduce((sum, transfer) => sum + (transfer.total_amount || 0), 0);
     const avgTransferValue = totalTransfers > 0 ? totalValue / totalTransfers : 0;
 
     const formatCurrency = (amount) => {
@@ -156,6 +162,48 @@ export default function Transfers({ auth, warehouse, transfers }) {
         setDateFilter("");
         setSortBy("created_at");
         setSortOrder("desc");
+    };
+
+    const getStatusBadge = (status, direction) => {
+        const baseClasses = "text-xs font-medium px-2 py-1 rounded-full";
+        
+        switch (status) {
+            case 'completed':
+                return <Badge className={`${baseClasses} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`}>
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    {t("Completed")}
+                </Badge>;
+            case 'pending':
+                return <Badge className={`${baseClasses} bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300`}>
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    {t("Pending")}
+                </Badge>;
+            case 'cancelled':
+                return <Badge className={`${baseClasses} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`}>
+                    <X className="w-3 h-3 mr-1" />
+                    {t("Cancelled")}
+                </Badge>;
+            default:
+                return <Badge className={`${baseClasses} bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300`}>
+                    {status}
+                </Badge>;
+        }
+    };
+
+    const getDirectionBadge = (direction) => {
+        const baseClasses = "text-xs font-medium px-2 py-1 rounded-full";
+        
+        if (direction === 'outgoing') {
+            return <Badge className={`${baseClasses} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`}>
+                <ArrowRightLeft className="w-3 h-3 mr-1" />
+                {t("Outgoing")}
+            </Badge>;
+        } else {
+            return <Badge className={`${baseClasses} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`}>
+                <Truck className="w-3 h-3 mr-1" />
+                {t("Incoming")}
+            </Badge>;
+        }
     };
 
     return (
@@ -286,22 +334,13 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Warehouse")}
-                                    </Button>
-                                </Link>
                                 <Link href={route("admin.warehouses.transfers.create", warehouse.id)}>
                                     <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Plus className="h-4 w-4" />
                                         {t("New Transfer")}
                                     </Button>
                                 </Link>
+                                <BackButton link={route("admin.warehouses.show", warehouse.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -427,9 +466,9 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                 </div>
 
                                 {/* Advanced Filters */}
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
@@ -452,15 +491,15 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                 </Button>
                                             </div>
                                         </CardHeader>
-                                    <CardContent className="p-6">
+                                        <CardContent className="p-6">
                                             {/* Search Bar */}
                                             <div className="mb-4">
                                                 <div className="relative">
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                            <Input
-                                                        placeholder={t("Search by reference, product name, barcode, type, or warehouse...")}
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                    <Input
+                                                        placeholder={t("Search by reference, warehouse, product name, or barcode...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
                                                         className="pl-12 h-12 text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl"
                                                     />
                                                     {searchTerm && (
@@ -496,8 +535,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     value={dateFilter}
                                                                     onChange={(e) => setDateFilter(e.target.value)}
                                                                     className="h-10"
-                                            />
-                                        </div>
+                                                                />
+                                                            </div>
 
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -510,9 +549,9 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     <SelectContent>
                                                                         <SelectItem value="created_at">{t("Date Created")}</SelectItem>
                                                                         <SelectItem value="reference_number">{t("Reference")}</SelectItem>
-                                                                        <SelectItem value="product.name">{t("Product Name")}</SelectItem>
-                                                                        <SelectItem value="quantity">{t("Quantity")}</SelectItem>
-                                                                        <SelectItem value="total">{t("Total Value")}</SelectItem>
+                                                                        <SelectItem value="total_amount">{t("Total Value")}</SelectItem>
+                                                                        <SelectItem value="total_quantity">{t("Total Quantity")}</SelectItem>
+                                                                        <SelectItem value="status">{t("Status")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -546,14 +585,14 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
 
                                 {/* Transfer Table */}
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
@@ -561,14 +600,14 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                             <CardTitle className="flex items-center gap-3">
                                                 <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
-                                            </div>
-                                            {t("Transfer Records")}
+                                                </div>
+                                                {t("Transfer Records")}
                                                 <Badge variant="secondary" className="ml-auto">
                                                     {filteredTransfers.length} {t("of")} {transfers.length}
                                                 </Badge>
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-0">
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
@@ -577,22 +616,25 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                 {t("Reference")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Product")}
-                                                            </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Transfer Route")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Quantity")}
+                                                                {t("Items")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Unit Price")}
+                                                                {t("Total Quantity")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Total Value")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Status")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Transfer Date")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Actions")}
                                                             </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
@@ -604,26 +646,11 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     className="hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
                                                                 >
                                                                     <TableCell>
-                                                                        <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
-                                                                        {transfer.reference_number || '-'}
-                                                                        </span>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
-                                                                                <Package className="h-4 w-4 text-blue-600" />
-                                                                            </div>
-                                                                            <div>
-                                                                                <p className="font-semibold text-slate-800 dark:text-white">{transfer.product.name}</p>
-                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
-                                                                                    {transfer.product.barcode && (
-                                                                                        <Badge variant="outline" className="text-xs">
-                                                                                            {transfer.product.barcode}
-                                                                                        </Badge>
-                                                                                    )}
-                                                                                    <span className="text-xs">{transfer.product.type}</span>
-                                                                                </p>
-                                                                            </div>
+                                                                        <div className="flex flex-col">
+                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                                {transfer.reference_number || '-'}
+                                                                            </span>
+                                                                            {getDirectionBadge(transfer.direction)}
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
@@ -641,27 +668,47 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
+                                                                        <div className="flex flex-col">
+                                                                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 w-fit">
+                                                                                {transfer.items_count} {t("items")}
+                                                                            </Badge>
+                                                                            <div className="text-xs text-slate-500 mt-1">
+                                                                                {transfer.transfer_items?.slice(0, 2).map(item => item.product.name).join(', ')}
+                                                                                {transfer.transfer_items?.length > 2 && ` +${transfer.transfer_items.length - 2} more`}
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
                                                                         <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                        {transfer.quantity?.toLocaleString() || 0}
+                                                                            {transfer.total_quantity?.toLocaleString() || 0}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell className="font-medium">
-                                                                        {formatCurrency(transfer.price)}
-                                                                    </TableCell>
                                                                     <TableCell className="font-bold text-blue-600">
-                                                                        {formatCurrency(transfer.total)}
+                                                                        {formatCurrency(transfer.total_amount)}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        {getStatusBadge(transfer.status, transfer.direction)}
                                                                     </TableCell>
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
-                                                                        {formatDate(transfer.created_at)}
+                                                                            {formatDate(transfer.created_at)}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Link href={route("admin.warehouses.transfers.show", [warehouse.id, transfer.id])}>
+                                                                                <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                                                                                    <Eye className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </Link>
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
                                                             ))
                                                         ) : (
                                                             <TableRow>
-                                                                <TableCell colSpan="7" className="h-32 text-center">
+                                                                <TableCell colSpan="8" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                                                                             <ArrowRightLeft className="h-8 w-8 text-slate-400" />
@@ -670,15 +717,12 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                                 {t("No transfer records found")}
                                                                             </p>
-                                                                            <p className="text-sm text-slate-500">
-                                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first transfer record")}
-                                                                            </p>
                                                                         </div>
                                                                         {!searchTerm && !dateFilter && (
                                                                             <Link href={route("admin.warehouses.transfers.create", warehouse.id)}>
                                                                                 <Button className="gap-2">
                                                                                     <Plus className="h-4 w-4" />
-                                                                                    {t("Create Transfer")}
+                                                                                    {t("New Transfer")}
                                                                                 </Button>
                                                                             </Link>
                                                                         )}
@@ -689,8 +733,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                     </TableBody>
                                                 </Table>
                                             </div>
-                                    </CardContent>
-                                </Card>
+                                        </CardContent>
+                                    </Card>
                                 </motion.div>
                             </motion.div>
                         </div>

@@ -26,6 +26,9 @@ class WarehouseController extends Controller
                   ->orWhere('phone', 'like', '%' . $search . '%');
             });
         }
+        $query->when($request->has('except'), function($q) use ($request) {
+            $q->whereNot('id', $request->except);
+        });
 
         $warehouses = $query->orderBy('name')->get();
 

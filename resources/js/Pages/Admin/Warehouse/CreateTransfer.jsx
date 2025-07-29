@@ -9,15 +9,18 @@ import {
     DollarSign,
     Hash,
     Calculator,
-    ShoppingCart,
+    Truck,
     Save,
     AlertCircle,
-    Barcode,
+    AlertTriangle,
     Weight,
     Package2,
     CheckCircle,
-    Info,
-    Sparkles
+    Sparkles,
+    Plus,
+    Trash2,
+    Edit,
+    X
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -42,21 +45,26 @@ import { Badge } from "@/Components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
+import ApiSelect from "@/Components/ApiSelect";
 
 export default function CreateTransfer({ auth, warehouse, warehouses, warehouseProducts }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [calculatedQuantity, setCalculatedQuantity] = useState(0);
-    const [calculatedTotal, setCalculatedTotal] = useState(0);
-
-    const { data, setData, post, processing, errors } = useForm({
+    const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+    const [transferItems, setTransferItems] = useState([]);
+    const [currentItem, setCurrentItem] = useState({
         product_id: '',
-        to_warehouse_id: '',
-        unit_type: '',
+        batch_id: '',
         quantity: '',
         price: '',
+        unit_type: ''
+    });
+
+    const { data, setData, post, processing, errors } = useForm({
+        to_warehouse_id: '',
+        transfer_items: [],
         notes: '',
     });
 
@@ -69,70 +77,177 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         return () => clearTimeout(timer);
     }, []);
 
-    // Update selected product when product_id changes
+    // Update selected warehouse when to_warehouse_id changes
     useEffect(() => {
-        if (data.product_id) {
-            const product = warehouseProducts.find(p => p.id === parseInt(data.product_id));
-            setSelectedProduct(product);
+        if (data.to_warehouse_id && warehouses) {
+            const warehouse = warehouses.find(w => w.id === parseInt(data.to_warehouse_id));
+            setSelectedWarehouse(warehouse || null);
         } else {
-            setSelectedProduct(null);
+            setSelectedWarehouse(null);
         }
-    }, [data.product_id, warehouseProducts]);
+    }, [data.to_warehouse_id, warehouses]);
 
-    // Calculate actual quantity and total
+    // Update form data when transfer items change
     useEffect(() => {
-        if (selectedProduct && data.unit_type && data.quantity && data.price) {
-            let actualQuantity = parseFloat(data.quantity) || 0;
+        setData('transfer_items', transferItems);
+    }, [transferItems]);
 
-            if (data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount) {
-                actualQuantity = (parseFloat(data.quantity) || 0) * selectedProduct.whole_sale_unit_amount;
+    const getSelectedProduct = (productId) => {
+        const products = Array.isArray(warehouseProducts) ? warehouseProducts : [];
+        return products.find(p => p.id === parseInt(productId)) || null;
+    };
+
+    const getSelectedBatch = (productId, batchId) => {
+        const product = getSelectedProduct(productId);
+        return product?.available_batches?.find(b => b.id === parseInt(batchId)) || null;
+    };
+
+    const getAvailableUnits = (product, batch) => {
+        const units = [];
+
+        if (batch) {
+            if (batch.unit_name && batch.unit_amount) {
+                units.push({
+                    type: 'batch_unit',
+                    label: `${batch.unit_name} (${batch.remaining_quantity}/${batch.unit_amount} ${batch.unit_name})`,
+                    amount: batch.unit_amount,
+                    price: batch.wholesale_price || batch.retail_price || 0,
+                    unit_name: batch.unit_name
+                });
+            }
+        } else if (product) {
+            if (product.unit && product.whole_sale_unit_amount) {
+                units.push({
+                    type: 'wholesale',
+                    label: `${product.unit.name} (${product.unit.code})`,
+                    amount: product.whole_sale_unit_amount,
+                    price: product.wholesale_price
+                });
             }
 
-            const total = actualQuantity * (parseFloat(data.price) || 0);
-
-            setCalculatedQuantity(actualQuantity);
-            setCalculatedTotal(total);
-        } else {
-            setCalculatedQuantity(0);
-            setCalculatedTotal(0);
+            if (product.unit) {
+                units.push({
+                    type: 'retail',
+                    label: `${product.unit.name} (${product.unit.code})`,
+                    amount: 1,
+                    price: product.retail_price
+                });
+            }
         }
-    }, [selectedProduct, data.unit_type, data.quantity, data.price]);
+
+        return units;
+    };
+
+    const getAvailableStock = (product, unitType, batchId = null) => {
+        if (!product) return 0;
+
+        if (batchId) {
+            const batch = getSelectedBatch(product.id, batchId);
+            if (batch) {
+                let stock = batch.remaining_quantity || 0;
+                if (unitType === 'batch_unit' && batch.unit_amount) {
+                    stock = Math.floor(stock / batch.unit_amount);
+                } else if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
+                    stock = Math.floor(stock / product.whole_sale_unit_amount);
+                }
+                return stock;
+            }
+            return 0;
+        }
+
+        let stock = product.stock_quantity || 0;
+        if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
+            stock = Math.floor(stock / product.whole_sale_unit_amount);
+        }
+        return stock;
+    };
+
+    const calculateActualQuantity = (product, unitType, quantity, batch = null) => {
+        let actualQuantity = parseFloat(quantity) || 0;
+
+        if (unitType === 'batch_unit' && batch?.unit_amount) {
+            actualQuantity = actualQuantity * batch.unit_amount;
+        } else if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
+            actualQuantity = actualQuantity * product.whole_sale_unit_amount;
+        }
+
+        return actualQuantity;
+    };
+
+    const addItemToTransfer = () => {
+        const product = getSelectedProduct(currentItem.product_id);
+        const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
+
+        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_id) {
+            return;
+        }
+
+        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity, batch);
+        const totalPrice = actualQuantity * parseFloat(currentItem.price);
+
+        const newItem = {
+            id: Date.now(),
+            product_id: parseInt(currentItem.product_id),
+            batch_id: parseInt(currentItem.batch_id),
+            product: product,
+            batch: batch,
+            unit_type: currentItem.unit_type,
+            entered_quantity: parseFloat(currentItem.quantity),
+            actual_quantity: actualQuantity,
+            unit_price: parseFloat(currentItem.price),
+            total_price: currentItem.price * currentItem.quantity
+        };
+
+        setTransferItems([...transferItems, newItem]);
+
+        setCurrentItem({
+            product_id: '',
+            batch_id: '',
+            quantity: '',
+            price: '',
+            unit_type: 'batch_unit'
+        });
+    };
+
+    const removeItemFromTransfer = (itemId) => {
+        setTransferItems(transferItems.filter(item => item.id !== itemId));
+    };
+
+    const getTotalTransferAmount = () => {
+        return transferItems.reduce((sum, item) => sum + item.total_price, 0);
+    };
+
+    const getTotalItems = () => {
+        return transferItems.reduce((sum, item) => sum + item.entered_quantity, 0);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
-
-        // Calculate final quantity based on unit type before submission
-        let finalQuantity = parseFloat(data.quantity) || 0;
-        let finalTotal = parseFloat(data.price) || 0;
-
-        if (data.unit_type === 'wholesale' && selectedProduct?.whole_sale_unit_amount) {
-            // For wholesale: multiply entered quantity by wholesale unit amount
-            finalQuantity = finalQuantity * selectedProduct.whole_sale_unit_amount;
+        if (transferItems.length === 0) {
+            return;
         }
 
-        // Calculate total based on final quantity and price
-        finalTotal = finalQuantity * (parseFloat(data.price) || 0);
-        console.log('Original data:', data);
+        setLoading(true);
 
-        console.log('Final quantity to submit:', finalQuantity);
-        console.log('Final total to submit:', finalTotal);
-
-        // Create submission data with calculated values
         const submissionData = {
-            product_id: data.product_id,
             to_warehouse_id: data.to_warehouse_id,
-            unit_type: data.unit_type,
-            quantity: finalQuantity,
-            price: data.price,
-            total: finalTotal,
+            transfer_items: transferItems.map(item => ({
+                product_id: item.product_id,
+                batch_id: item.batch_id,
+                quantity: item.actual_quantity,
+                unit_price: item.unit_price,
+                total_price: item.total_price
+            })),
             notes: data.notes
         };
-        // Use router.post directly with calculated data
+
         router.post(route('admin.warehouses.transfers.store', warehouse.id), submissionData, {
             onFinish: () => setLoading(false),
             onError: (errors) => {
                 console.log('Submission errors:', errors);
+                setLoading(false);
+            },
+            onSuccess: () => {
                 setLoading(false);
             }
         });
@@ -146,52 +261,10 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         }).format(amount || 0);
     };
 
-    const getUnitPrice = (product, unitType) => {
-        if (!product) return 0;
-
-        switch (unitType) {
-            case 'wholesale':
-                return product.wholesale_price || 0;
-            case 'retail':
-                return product.retail_price || 0;
-            default:
-                return 0;
-        }
-    };
-
-    const handleUnitTypeChange = (unitType) => {
-        setData('unit_type', unitType);
-
-        // Auto-fill price based on unit type
-        if (selectedProduct) {
-            const price = getUnitPrice(selectedProduct, unitType);
-            setData('price', price.toString());
-        }
-    };
-
-    const getAvailableUnits = (product) => {
-        const units = [];
-
-        if (product?.wholesaleUnit && product.whole_sale_unit_amount) {
-            units.push({
-                type: 'wholesale',
-                label: `${product.wholesaleUnit.name} (${product.wholesaleUnit.symbol})`,
-                amount: product.whole_sale_unit_amount,
-                price: product.wholesale_price
-            });
-        }
-
-        if (product?.retailUnit) {
-            units.push({
-                type: 'retail',
-                label: `${product.retailUnit.name} (${product.retailUnit.symbol})`,
-                amount: 1,
-                price: product.retail_price
-            });
-        }
-
-        return units;
-    };
+    const currentProduct = getSelectedProduct(currentItem.product_id);
+    const currentBatch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
+    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type, currentItem.batch_id);
+    const currentStockWarning = currentItem.quantity && parseFloat(currentItem.quantity) > currentAvailableStock;
 
     return (
         <>
@@ -208,8 +281,8 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                     }
 
                     @keyframes pulse-glow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(147, 51, 234, 0.6); }
+                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
                     }
 
                     .shimmer {
@@ -218,7 +291,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                         animation: shimmer 2s infinite;
                     }
 
-                    .float-animation {
+                    .float-anima                                             tion {
                         animation: float 6s ease-in-out infinite;
                     }
 
@@ -240,18 +313,18 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #9333ea, #7c3aed) border-box;
+                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
                         border: 2px solid transparent;
                     }
 
                     .dark .gradient-border {
                         background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #9333ea, #7c3aed) border-box;
+                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
                     }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={ArrowRightLeft} color="purple" />
+            <PageLoader isVisible={loading} icon={ArrowRightLeft} color="blue" />
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -281,7 +354,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <ArrowRightLeft className="w-8 h-8 text-white" />
+                                        <Truck className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -301,7 +374,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {t("New Transfer Record")}
+                                        {t("Create Transfer")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -310,7 +383,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <Package className="w-4 h-4" />
-                                        {t("Create a new transfer transaction between warehouses")}
+                                        {t("Transfer products to another warehouse")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -321,468 +394,585 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Transfers")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.warehouses.transfers", warehouse.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                         <div className="p-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
-                                className="max-w-5xl mx-auto"
+                                className="max-w-6xl mx-auto"
                             >
                                 <form onSubmit={handleSubmit} className="space-y-8">
-                                    {/* Form Card */}
+                                    {/* Add Product Item */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.5 }}
+                                        transition={{ delay: 1.0, duration: 0.5 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
-                                                        <ArrowRightLeft className="h-6 w-6 text-white" />
-                                            </div>
-                                            {t("Transfer Details")}
-                                                    <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                                                        {t("Required")}
-                                                    </Badge>
-                                        </CardTitle>
-                                        <CardDescription className="text-slate-600 dark:text-slate-400">
-                                                    {t("Fill in the details for the new transfer record with proper unit calculations")}
-                                        </CardDescription>
-                                    </CardHeader>
-                                            <CardContent className="p-8 space-y-8">
-                                                {/* Error Alert */}
-                                                <AnimatePresence>
-                                                    {Object.keys(errors).length > 0 && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: -10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: -10 }}
+                                                    <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                                        <Plus className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    {t("Add Product to Transfer")}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-8 space-y-6">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                    {/* Product Selection */}
+                                                    
+                                                <div className="space-y-3 col-span-2">
+                                                    <Label htmlFor="to_warehouse_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Building2 className="w-5 h-5 text-indigo-500" />
+                                                        {t("Destination Warehouse")} *
+                                                    </Label>
+                                                    <ApiSelect
+                                                        apiEndpoint={`/api/warehouses/select?except=${warehouse.id}`} 
+                                                        placeholder={t("Choose a warehouse...")}
+                                                        searchPlaceholder={t("Search warehouses...")}
+                                                        icon={Building2}
+                                                        direction="ltr"
+                                                        value={data.to_warehouse_id}
+                                                        onChange={(value, option) => {
+                                                            setData('to_warehouse_id', value);
+                                                        }}
+                                                        searchParam="search"
+                                                        requireAuth={false}
+                                                        disabled={false}
+                                                        className="w-full"
+                                                    />
+
+
+                                                    {errors.to_warehouse_id && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
                                                         >
-                                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 pulse-glow">
-                                                                <AlertCircle className="h-5 w-5 text-red-600" />
-                                                                <AlertDescription className="text-red-700 dark:text-red-400 font-medium">
-                                                                    {t("Please correct the errors below and try again.")}
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {errors.to_warehouse_id}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Package className="w-5 h-5 text-blue-500" />
+                                                            {t("Product")} *
+                                                        </Label>
+                                                        <Select
+                                                            value={currentItem.product_id}
+                                                            onValueChange={(value) => setCurrentItem({ ...currentItem, product_id: value, batch_id: '', unit_type: 'batch_unit', price: '' })}
+                                                        >
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
+                                                                <SelectValue placeholder={t("Select a product")} />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                {Array.isArray(warehouseProducts) ? warehouseProducts.filter(p => !transferItems.some(item => item.product_id === p.id)).map((product) => (
+                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <Package className="h-4 w-4 text-blue-600" />
+                                                                            <div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                                    Stock: {product.stock_quantity} | Batches: {product.available_batches?.length || 0}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                )) : (
+                                                                    <SelectItem value="" disabled>
+                                                                        No products available
+                                                                    </SelectItem>
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+
+                                                    {/* Batch Selection */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Package2 className="w-5 h-5 text-indigo-500" />
+                                                            {t("Batch")} *
+                                                        </Label>
+                                                        <Select
+                                                            value={currentItem.batch_id}
+                                                            onValueChange={(value) => {
+                                                                const batch = getSelectedBatch(currentItem.product_id, value);
+                                                                let unitType = 'batch_unit';
+                                                                let unitPrice = '';
+
+                                                                if (batch && batch.unit_name && batch.unit_amount) {
+                                                                    unitPrice = (batch.wholesale_price || batch.retail_price || 0).toString();
+                                                                }
+
+                                                                setCurrentItem({ ...currentItem, batch_id: value, unit_type: unitType, price: unitPrice });
+                                                            }}
+                                                            disabled={!currentItem.product_id}
+                                                        >
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
+                                                                <SelectValue placeholder={currentItem.product_id ? t("Select a batch") : t("Select product first")} />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                {currentProduct?.available_batches?.filter(batch => batch.remaining_quantity > 0).sort((a, b) => {
+                                                                    if (a.expiry_status === 'valid' && b.expiry_status !== 'valid') return -1;
+                                                                    if (b.expiry_status === 'valid' && a.expiry_status !== 'valid') return 1;
+                                                                    if (a.expiry_status === 'expiring_soon' && b.expiry_status === 'expired') return -1;
+                                                                    if (b.expiry_status === 'expiring_soon' && a.expiry_status === 'expired') return 1;
+                                                                    return 0;
+                                                                }).map((batch) => (
+                                                                    <SelectItem key={batch.id} value={batch.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <Package2 className={`h-4 w-4 ${batch.expiry_status === 'expired' ? 'text-red-600' :
+                                                                                    batch.expiry_status === 'expiring_soon' ? 'text-orange-600' :
+                                                                                        'text-indigo-600'
+                                                                                }`} />
+                                                                            <div className="flex-1">
+                                                                                <div className="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                                                                                    {batch.reference_number}
+                                                                                    {batch.expiry_status === 'expired' && (
+                                                                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Expired</span>
+                                                                                    )}
+                                                                                    {batch.expiry_status === 'expiring_soon' && (
+                                                                                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                                                                                            {batch.days_to_expiry} days left
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400 space-y-1">
+                                                                                    <div>{t('Remaining')}: <span className="font-medium text-green-600">{batch.remaining_quantity / batch.unit_amount} {batch.unit_name}</span></div>
+                                                                                    {batch.expire_date && (
+                                                                                        <div>{t('Expires')}: {new Date(batch.expire_date).toLocaleDateString()}</div>
+                                                                                    )}
+                                                                                    {batch.notes && (
+                                                                                        <div className="italic">{batch.notes}</div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                )) || (
+                                                                        <SelectItem value="" disabled>
+                                                                            {currentItem.product_id ? t("No available batches") : t("Select product first")}
+                                                                        </SelectItem>
+                                                                    )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                    {/* Unit Type - Auto-determined from batch */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Weight className="w-5 h-5 text-orange-500" />
+                                                            {t("Unit Type")}
+                                                        </Label>
+                                                        <div className="h-12 flex items-center px-3 border-2 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 rounded-md">
+                                                            <span className="text-slate-600 dark:text-slate-400">
+                                                                {currentBatch && currentBatch.unit_name ?
+                                                                    `${currentBatch.remaining_quantity / currentBatch.unit_amount} ${currentBatch.unit_name}` :
+                                                                    t("Select batch to see unit")
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                                    {/* Quantity */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Hash className="w-5 h-5 text-green-500" />
+                                                            {t("Quantity")} *
+                                                        </Label>
+                                                        <Input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0.01"
+                                                            max={currentAvailableStock || undefined}
+                                                            placeholder={t("Enter quantity")}
+                                                            value={currentItem.quantity}
+                                                            onChange={(e) => setCurrentItem({ ...currentItem, quantity: e.target.value })}
+                                                            className={`dark:border-white h-12 text-base border-2 ${currentStockWarning ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
+                                                        />
+                                                        {currentProduct && currentItem.unit_type && currentItem.batch_id && (
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                                {t('Available from this batch:')} {currentBatch?.remaining_quantity / currentBatch?.unit_amount} {currentBatch?.unit_name}
+                                                            </p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Price */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <DollarSign className="w-5 h-5 text-purple-500" />
+                                                            {t("Unit Price")} *
+                                                        </Label>
+                                                        <Input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            placeholder={t("Enter price")}
+                                                            value={currentItem.price}
+                                                            onChange={(e) => setCurrentItem({ ...currentItem, price: e.target.value })}
+                                                            className="h-12 dark:border-white text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                        />
+                                                    </div>
+
+                                                    {/* Add Button */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg opacity-0">
+                                                            {t("Add")}
+                                                        </Label>
+                                                        <Button
+                                                            type="button"
+                                                            onClick={addItemToTransfer}
+                                                            disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.quantity || !currentItem.price || currentStockWarning}
+                                                            className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2"
+                                                        >
+                                                            <Plus className="h-4 w-4" />
+                                                            {t("Add Item")}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+
+                                                {currentStockWarning && (
+                                                    <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                                                        <AlertCircle className="h-4 w-4 text-red-600" />
+                                                        <AlertDescription className="text-red-700 dark:text-red-400">
+                                                            {t('Insufficient stock in this batch! Maximum available:')} {currentBatch?.remaining_quantity / currentBatch?.unit_amount} {currentBatch?.unit_name}
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                )}
+
+                                                {/* Batch Information Display */}
+                                                <AnimatePresence>
+                                                    {currentBatch && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: "auto" }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            transition={{ duration: 0.3 }}
+                                                        >
+                                                            <Alert className={`border-2 ${currentBatch.expiry_status === 'expired' ? 'border-red-200 bg-red-50 dark:bg-red-900/20' :
+                                                                    currentBatch.expiry_status === 'expiring_soon' ? 'border-orange-200 bg-orange-50 dark:bg-orange-900/20' :
+                                                                        'border-blue-200 bg-blue-50 dark:bg-blue-900/20'
+                                                                }`}>
+                                                                <Package2 className={`h-5 w-5 ${currentBatch.expiry_status === 'expired' ? 'text-red-600' :
+                                                                        currentBatch.expiry_status === 'expiring_soon' ? 'text-orange-600' :
+                                                                            'text-blue-600'
+                                                                    }`} />
+                                                                <AlertDescription className={`${currentBatch.expiry_status === 'expired' ? 'text-red-700 dark:text-red-400' :
+                                                                        currentBatch.expiry_status === 'expiring_soon' ? 'text-orange-700 dark:text-orange-400' :
+                                                                            'text-blue-700 dark:text-blue-400'
+                                                                    }`}>
+                                                                    <div className="space-y-2">
+                                                                        <div className="font-medium flex items-center gap-2">
+                                                                            {t('Selected Batch')}: {currentBatch.reference_number}
+                                                                            {currentBatch.expiry_status === 'expired' && (
+                                                                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">{t('Expired')}</span>
+                                                                            )}
+                                                                            {currentBatch.expiry_status === 'expiring_soon' && (
+                                                                                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-bold">
+                                                                                    {t('Expires in')} {currentBatch.days_to_expiry} {t('days')}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="text-sm">
+                                                                            {t('Remaining')}: <span className="font-medium">{currentBatch.remaining_quantity / currentBatch.unit_amount} {currentBatch.unit_name}</span>
+                                                                            {currentBatch.expire_date && (
+                                                                                <span> | {t('Expires')}: {new Date(currentBatch.expire_date).toLocaleDateString()}</span>
+                                                                            )}
+                                                                        </div>
+                                                                        {currentBatch.notes && (
+                                                                            <div className="text-sm italic">Notes: {currentBatch.notes}</div>
+                                                                        )}
+                                                                    </div>
                                                                 </AlertDescription>
                                                             </Alert>
                                                         </motion.div>
                                                     )}
                                                 </AnimatePresence>
 
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                {/* Product Selection */}
-                                                    <motion.div
-                                                        initial={{ x: -20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.0, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="product_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Package className="w-5 h-5 text-purple-500" />
-                                                            {t("Product")} *
-                                                    </Label>
-                                                        <Select
-                                                            value={data.product_id}
-                                                            onValueChange={(value) => setData('product_id', value)}
+                                                {/* Expired Batch Warning */}
+                                                <AnimatePresence>
+                                                    {currentBatch && currentBatch.expiry_status === 'expired' && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: "auto" }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            transition={{ duration: 0.3 }}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}>
-                                                                <SelectValue placeholder={t("Select a product to transfer")} />
-                                                        </SelectTrigger>
-                                                            <SelectContent className="max-w-md">
-                                                            {warehouseProducts.map((product) => (
-                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-4">
-                                                                        <div className="flex items-center space-x-4">
-                                                                            <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-                                                                                <Package className="h-5 w-5 text-purple-600" />
-                                                                            </div>
-                                                                            <div className="flex-1">
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
-                                                                                <div className="text-sm text-slate-500 flex items-center gap-2">
-                                                                                    <Barcode className="w-3 h-3" />
-                                                                                    {product.barcode || product.type}
-                                                                                    <Badge variant="outline" className="ml-2">
-                                                                                        Stock: {product.stock_quantity}
-                                                                                    </Badge>
-                                                                                </div>
-                                                                            </div>
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.product_id && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                            {errors.product_id}
-                                                            </motion.p>
-                                                    )}
-                                                    </motion.div>
-
-                                                {/* Destination Warehouse */}
-                                                    <motion.div
-                                                        initial={{ x: 20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.1, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="to_warehouse_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Building2 className="w-5 h-5 text-pink-500" />
-                                                            {t("Destination Warehouse")} *
-                                                    </Label>
-                                                        <Select
-                                                            value={data.to_warehouse_id}
-                                                            onValueChange={(value) => setData('to_warehouse_id', value)}
-                                                        >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.to_warehouse_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-pink-300 focus:border-pink-500'} bg-white dark:bg-slate-800`}>
-                                                            <SelectValue placeholder={t("Select destination warehouse")} />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {warehouses.filter(w => w.id !== warehouse.id).map((w) => (
-                                                                    <SelectItem key={w.id} value={w.id.toString()} className="p-4">
-                                                                        <div className="flex items-center space-x-4">
-                                                                            <div className="p-2 bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                <Building2 className="h-5 w-5 text-pink-600" />
-                                                                            </div>
-                                                                        <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{w.name}</div>
-                                                                                <div className="text-sm text-slate-500 flex items-center gap-2">
-                                                                                    <Hash className="w-3 h-3" />
-                                                                                    Code: {w.code}
-                                                                                </div>
-                                                                            </div>
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.to_warehouse_id && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                            {errors.to_warehouse_id}
-                                                            </motion.p>
-                                                    )}
-                                                    </motion.div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                    {/* Unit Type Selection */}
-                                                    <motion.div
-                                                        initial={{ x: -20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.2, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="unit_type" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Weight className="w-5 h-5 text-emerald-500" />
-                                                            {t("Unit Type")} *
-                                                        </Label>
-                                                        <Select
-                                                            value={data.unit_type}
-                                                            onValueChange={handleUnitTypeChange}
-                                                            disabled={!selectedProduct}
-                                                        >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-emerald-300 focus:border-emerald-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-800'}`}>
-                                                                <SelectValue placeholder={selectedProduct ? t("Select unit type") : t("Select product first")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {selectedProduct && getAvailableUnits(selectedProduct).map((unit) => (
-                                                                    <SelectItem key={unit.type} value={unit.type} className="p-4">
-                                                                        <div className="flex items-center space-x-4">
-                                                                            <div className="p-2 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-lg">
-                                                                                <Weight className="h-5 w-5 text-emerald-600" />
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
-                                                                                <div className="text-sm text-slate-500 flex items-center gap-2">
-                                                                                    <DollarSign className="w-3 h-3" />
-                                                                                    {formatCurrency(unit.price)} per unit
-                                                                                    {unit.amount > 1 && (
-                                                                                        <Badge variant="secondary" className="text-xs">
-                                                                                            {unit.amount} pieces
-                                                                                        </Badge>
-                                                                                    )}
-                                                                                </div>
-                                                                            </div>
+                                                            <Alert className="border-red-300 bg-red-100 dark:bg-red-900/30">
+                                                                <AlertTriangle className="h-5 w-5 text-red-600" />
+                                                                <AlertDescription className="text-red-800 dark:text-red-300">
+                                                                    <div className="space-y-1">
+                                                                        <div className="font-bold">⚠️ {t('WARNING: This batch has expired!')}</div>
+                                                                        <div className="text-sm">
+                                                                            {t('Transferring expired products may violate health and safety regulations. Please verify if this is appropriate for your business requirements.')}
                                                                         </div>
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors.unit_type && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {errors.unit_type}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-
-                                                {/* Quantity */}
-                                                    <motion.div
-                                                        initial={{ x: 20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.3, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="quantity" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-blue-500" />
-                                                            {t("Quantity")} *
-                                                    </Label>
-                                                        <div className="relative">
-                                                            <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                    <Input
-                                                        id="quantity"
-                                                        type="number"
-                                                                step="0.01"
-                                                                min="0.01"
-                                                                placeholder={t("Enter quantity")}
-                                                        value={data.quantity}
-                                                                onChange={(e) => setData('quantity', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
-                                                    />
-                                                        </div>
-                                                    {selectedProduct && (
-                                                        <div className="flex items-center space-x-2">
-                                                            <Badge variant="outline">
-                                                                    {t("Available:")} {
-                                                                    (data.unit_type === 'wholesale')?
-                                                                        parseInt(selectedProduct.stock_quantity/selectedProduct.whole_sale_unit_amount)+ " " + selectedProduct.wholesaleUnit.name + " " + selectedProduct.stock_quantity%selectedProduct.whole_sale_unit_amount+" "+ selectedProduct.retailUnit.name
-                                                                    :
-                                                                        selectedProduct.stock_quantity + " " + t("units")
-                                                                    } 
-                                                                </Badge>
-                                                        </div>
+                                                                    </div>
+                                                                </AlertDescription>
+                                                            </Alert>
+                                                        </motion.div>
                                                     )}
-                                                    {errors.quantity && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                            {errors.quantity}
-                                                            </motion.p>
-                                                    )}
-                                                    </motion.div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 gap-8">
-                                                    {/* Price */}
-                                                    <motion.div
-                                                        initial={{ y: 20, opacity: 0 }}
-                                                        animate={{ y: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.4, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="price" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <DollarSign className="w-5 h-5 text-green-500" />
-                                                            {t("Price per Unit")} *
-                                                    </Label>
-                                                        <div className="relative">
-                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                    <Input
-                                                        id="price"
-                                                        type="number"
-                                                                step="0.01"
-                                                        min="0"
-                                                                placeholder={t("Enter price")}
-                                                        value={data.price}
-                                                        onChange={(e) => setData('price', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
-                                                    />
-                                                        </div>
-                                                    {errors.price && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                            {errors.price}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-
-                                                    {/* Notes */}
-                                                    <motion.div
-                                                        initial={{ y: 20, opacity: 0 }}
-                                                        animate={{ y: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.5, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Package2 className="w-5 h-5 text-purple-500" />
-                                                            {t("Notes")}
-                                                            <Badge variant="secondary" className="text-xs">
-                                                                {t("Optional")}
-                                                            </Badge>
-                                                        </Label>
-                                                        <Textarea
-                                                            id="notes"
-                                                            placeholder={t("Enter any additional notes about this transfer...")}
-                                                            value={data.notes}
-                                                            onChange={(e) => setData('notes', e.target.value)}
-                                                            rows={4}
-                                                            className={`resize-none text-lg border-2 transition-all duration-200 ${errors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}
-                                                        />
-                                                        {errors.notes && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {errors.notes}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-                                                </div>
+                                                </AnimatePresence>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
 
-                                    {/* Calculation Summary */}
+                                    {/* Transfer Items List */}
                                     <AnimatePresence>
-                                        {selectedProduct && data.unit_type && data.quantity && data.price && (
-                                                <motion.div
-                                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+                                        {transferItems.length > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 20 }}
+                                                transition={{ duration: 0.4 }}
                                             >
-                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-purple-900/30 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-200/50 dark:border-purple-700/50">
+                                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
                                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
-                                                                <Calculator className="h-6 w-6 text-white" />
+                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                                <Truck className="h-6 w-6 text-white" />
                                                             </div>
-                                                            {t("Transfer Summary")}
-                                                            <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                                                                <CheckCircle className="w-3 h-3 mr-1" />
-                                                                {t("Valid")}
+                                                            {t("Transfer Items")}
+                                                            <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                {transferItems.length} {t("items")}
                                                             </Badge>
                                                         </CardTitle>
                                                     </CardHeader>
-                                                    <CardContent className="p-8 space-y-6">
-                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-purple-200/50 dark:border-purple-700/50"
-                                                            >
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <Hash className="w-4 h-4" />
-                                                                    {t("Actual Quantity")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {calculatedQuantity.toLocaleString()}
-                                                                </p>
-                                                                <p className="text-xs text-slate-500 mt-1">{t("units")}</p>
-                                                            </motion.div>
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-purple-200/50 dark:border-purple-700/50"
-                                                            >
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <DollarSign className="w-4 h-4" />
-                                                                    {t("Price per Unit")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {formatCurrency(parseFloat(data.price) || 0)}
-                                                                </p>
-                                                            </motion.div>
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl shadow-lg border-2 border-purple-300 dark:border-purple-700"
-                                                            >
-                                                                <p className="text-sm text-purple-700 dark:text-purple-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <Calculator className="w-4 h-4" />
-                                                                    {t("Total Value")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                                                    {formatCurrency(calculatedTotal)}
-                                                                </p>
-                                                            </motion.div>
+                                                    <CardContent className="p-0">
+                                                        <div className="overflow-x-auto">
+                                                            <table className="w-full">
+                                                                <thead className="bg-slate-50 dark:bg-slate-800">
+                                                                    <tr>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Product")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Batch")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Total")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Actions")}</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                                                    {transferItems.map((item, index) => (
+                                                                        <motion.tr
+                                                                            key={item.id}
+                                                                            initial={{ opacity: 0, y: 20 }}
+                                                                            animate={{ opacity: 1, y: 0 }}
+                                                                            exit={{ opacity: 0, y: -20 }}
+                                                                            transition={{ delay: index * 0.1 }}
+                                                                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                                                        >
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <Package className="h-5 w-5 text-blue-600" />
+                                                                                    <div>
+                                                                                        <div className="font-semibold text-slate-800 dark:text-white">{item.product.name}</div>
+                                                                                        <div className="text-sm text-slate-500 dark:text-slate-400">{item.product.barcode}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Package2 className="h-4 w-4 text-indigo-600" />
+                                                                                    <div>
+                                                                                        <div className="font-semibold text-slate-800 dark:text-white">
+                                                                                            {item.batch?.reference_number || 'N/A'}
+                                                                                        </div>
+                                                                                        {item.batch?.expire_date && (
+                                                                                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                                Exp: {new Date(item.batch.expire_date).toLocaleDateString()}
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <Badge variant="outline" className="capitalize">
+                                                                                    {item.unit_type === 'batch_unit' && item.batch?.unit_name ? `${item.batch.unit_name}` : item.unit_type}
+                                                                                </Badge>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="font-semibold text-slate-800 dark:text-white">
+                                                                                        {item.unit_type === 'batch_unit' && item.batch?.unit_name ?
+                                                                                            `${item.entered_quantity} ${item.batch.unit_name}` :
+                                                                                            `${item.entered_quantity} units`
+                                                                                        }
+                                                                                    </span>
+                                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
+                                                                                {formatCurrency(item.unit_price)}
+                                                                            </td>
+                                                                            <td className="px-6 py-4 font-bold text-green-600 dark:text-green-400">
+                                                                                {formatCurrency(item.total_price)}
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    onClick={() => removeItemFromTransfer(item.id)}
+                                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </td>
+                                                                        </motion.tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
                                                         </div>
-                                                        <AnimatePresence>
-                                                            {data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount > 1 && (
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, height: 0 }}
-                                                                    animate={{ opacity: 1, height: "auto" }}
-                                                                    exit={{ opacity: 0, height: 0 }}
-                                                                >
-                                                                    <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
-                                                                        <Package2 className="h-5 w-5 text-purple-600" />
-                                                                        <AlertDescription className="text-purple-700 dark:text-purple-400 font-medium">
-                                                                            <strong>{t("Wholesale unit multiplier applied")}:</strong> {data.quantity} × {selectedProduct.whole_sale_unit_amount} = {calculatedQuantity} {t("units")}
-                                                        </AlertDescription>
-                                                    </Alert>
-                                                </motion.div>
-                                            )}
-                                                        </AnimatePresence>
                                                     </CardContent>
                                                 </Card>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
 
+                                    {/* Transfer Summary */}
+                                    <AnimatePresence>
+                                        {transferItems.length > 0 && selectedWarehouse && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                                                transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+                                            >
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-200/50 dark:border-blue-700/50">
+                                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                                <Calculator className="h-6 w-6 text-white" />
+                                                            </div>
+                                                            {t("Transfer Summary")}
+                                                            <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                <CheckCircle className="w-3 h-3 mr-1" />
+                                                                {t("Ready")}
+                                                            </Badge>
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="p-8 space-y-6">
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
+                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
+                                                                    <Package className="w-4 h-4" />
+                                                                    {t("Total Items")}
+                                                                </p>
+                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                                                                    {transferItems.length}
+                                                                </p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("products")}</p>
+                                                            </div>
+                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
+                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
+                                                                    <Hash className="w-4 h-4" />
+                                                                    {t("Total Quantity")}
+                                                                </p>
+                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                                                                    {getTotalItems().toLocaleString()}
+                                                                </p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("pieces")}</p>
+                                                            </div>
+                                                            <div className="text-center p-6 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg border-2 border-blue-300 dark:border-blue-700">
+                                                                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2 flex items-center justify-center gap-2">
+                                                                    <DollarSign className="w-4 h-4" />
+                                                                    {t("Total Value")}
+                                                                </p>
+                                                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                                                    {formatCurrency(getTotalTransferAmount())}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl">
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t("Destination Warehouse")}:</p>
+                                                            <p className="font-semibold text-slate-800 dark:text-white">{selectedWarehouse.name}</p>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">{selectedWarehouse.code}</p>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Notes */}
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.4, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardHeader>
+                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <Package2 className="w-6 h-6 text-purple-500" />
+                                                    {t("Additional Notes")}
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        {t("Optional")}
+                                                    </Badge>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <Textarea
+                                                    placeholder={t("Enter any additional notes about this transfer...")}
+                                                    value={data.notes}
+                                                    onChange={(e) => setData('notes', e.target.value)}
+                                                    rows={4}
+                                                    className="resize-none text-lg border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
                                     {/* Submit Button */}
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.6, duration: 0.4 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
                                         className="flex justify-end space-x-6 pt-6"
                                     >
-                                                <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
-                                                    >
-                                                        {t("Cancel")}
-                                                    </Button>
-                                                </Link>
-                                                <Button
-                                                    type="submit"
-                                            disabled={processing}
-                                            className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:via-pink-700 hover:to-purple-800 hover:scale-105 hover:shadow-3xl text-white`}
-                                                >
-                                                    {processing ? (
-                                                        <>
+                                        <Link href={route("admin.warehouses.transfers", warehouse.id)}>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+                                            >
+                                                {t("Cancel")}
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing || !data.to_warehouse_id || transferItems.length === 0}
+                                            className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 ${!data.to_warehouse_id || transferItems.length === 0
+                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                    : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 hover:scale-105 hover:shadow-3xl'
+                                                } text-white`}
+                                        >
+                                            {processing ? (
+                                                <>
                                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                                                            {t("Creating...")}
-                                                        </>
-                                                    ) : (
-                                                        <>
+                                                    {t("Creating...")}
+                                                </>
+                                            ) : (
+                                                <>
                                                     <Save className="h-5 w-5 mr-3" />
-                                                            {t("Create Transfer")}
-                                                        </>
-                                                    )}
-                                                </Button>
+                                                    {t("Create Transfer")}
+                                                </>
+                                            )}
+                                        </Button>
                                     </motion.div>
-                                        </form>
+                                </form>
                             </motion.div>
                         </div>
                     </main>

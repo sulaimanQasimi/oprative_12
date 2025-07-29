@@ -23,7 +23,6 @@ class WarehouseIncome extends Model
         'unit_id',
         'unit_amount',
         'unit_name',
-        'notes',
     ];
 
     /**

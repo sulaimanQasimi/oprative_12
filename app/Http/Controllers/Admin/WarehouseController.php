@@ -8,14 +8,15 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\{Auth, Gate, Hash, Log, DB};
 use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Admin\Warehouse\{OutcomeController, IncomeController, SaleController};
+use App\Http\Controllers\Admin\Warehouse\{OutcomeController, IncomeController, SaleController, TransferController};
 
 class WarehouseController extends Controller
 {
     use IncomeController;
     use OutcomeController;
-
     use SaleController;
+    use TransferController;
+
     public function __construct()
     {
         $this->middleware('permission:view_any_warehouse')->only(['index']);
@@ -26,6 +27,7 @@ class WarehouseController extends Controller
         $this->middleware('permission:restore_warehouse')->only(['restore']);
         $this->middleware('permission:force_delete_warehouse')->only(['forceDelete']);
     }
+
     public function index()
     {
         $warehouses = Warehouse::withCount(['users', 'items'])->latest()->get()->toArray();
@@ -344,214 +346,6 @@ class WarehouseController extends Controller
                 ->with('error', 'Error loading warehouse products: ' . $e->getMessage());
         }
     }
-
-
-
-    public function transfers(Warehouse $warehouse)
-    {
-        try {
-            $warehouse->load([
-                'warehouseTransfers.product',
-                'warehouseTransfers.fromWarehouse',
-                'warehouseTransfers.toWarehouse'
-            ]);
-
-            // Get available warehouses (excluding current warehouse)
-            $availableWarehouses = Warehouse::where('id', '!=', $warehouse->id)
-                ->where('is_active', true)
-                ->get(['id', 'name', 'code']);
-
-            // Get all products
-            $products = Product::select('id', 'name', 'barcode', 'type')->get();
-
-            $transfers = $warehouse->warehouseTransfers->map(function ($transfer) {
-                return [
-                    'id' => $transfer->id,
-                    'reference_number' => $transfer->reference_number,
-                    'product' => [
-                        'id' => $transfer->product->id,
-                        'name' => $transfer->product->name,
-                        'barcode' => $transfer->product->barcode,
-                        'type' => $transfer->product->type,
-                    ],
-                    'from_warehouse' => [
-                        'id' => $transfer->fromWarehouse->id,
-                        'name' => $transfer->fromWarehouse->name,
-                        'code' => $transfer->fromWarehouse->code,
-                    ],
-                    'to_warehouse' => [
-                        'id' => $transfer->toWarehouse->id,
-                        'name' => $transfer->toWarehouse->name,
-                        'code' => $transfer->toWarehouse->code,
-                    ],
-                    'quantity' => $transfer->quantity,
-                    'price' => $transfer->price,
-                    'total' => $transfer->total,
-                    'status' => $transfer->status,
-                    'notes' => $transfer->notes,
-                    'created_at' => $transfer->created_at,
-                    'updated_at' => $transfer->updated_at,
-                ];
-            });
-
-            return Inertia::render('Admin/Warehouse/Transfers', [
-                'warehouse' => $warehouse,
-                'transfers' => $transfers,
-                'availableWarehouses' => $availableWarehouses,
-                'products' => $products,
-
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading warehouse transfers: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading warehouse transfers');
-        }
-    }
-
-    public function createTransfer(Warehouse $warehouse)
-    {
-        try {
-            // Get available warehouses (excluding current warehouse)
-            $availableWarehouses = Warehouse::where('id', '!=', $warehouse->id)
-                ->where('is_active', true)
-                ->get(['id', 'name', 'code']);
-
-            // Get warehouse products with stock quantities
-            $warehouseProducts = $warehouse->items()->with('product')->get()->map(function ($item) {
-                return [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'barcode' => $item->product->barcode,
-                    'type' => $item->product->type,
-                    'stock_quantity' => $item->net_quantity ?? 0, // Available stock in warehouse
-                    'purchase_price' => $item->product->purchase_price,
-                    'wholesale_price' => $item->product->wholesale_price,
-                    'retail_price' => $item->product->retail_price,
-                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
-                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
-                    'available_stock' => $item->net_quantity ?? 0,
-                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
-                        'id' => $item->product->wholesaleUnit->id,
-                        'name' => $item->product->wholesaleUnit->name,
-                        'code' => $item->product->wholesaleUnit->code,
-                        'symbol' => $item->product->wholesaleUnit->symbol,
-                    ] : null,
-                    'retailUnit' => $item->product->retailUnit ? [
-                        'id' => $item->product->retailUnit->id,
-                        'name' => $item->product->retailUnit->name,
-                        'code' => $item->product->retailUnit->code,
-                        'symbol' => $item->product->retailUnit->symbol,
-                    ] : null,
-                ];
-            })->filter(function ($product) {
-                return $product['stock_quantity'] > 0; // Only show products with stock
-            });
-
-            return Inertia::render('Admin/Warehouse/CreateTransfer', [
-                'warehouse' => [
-                    'id' => $warehouse->id,
-                    'name' => $warehouse->name,
-                    'code' => $warehouse->code,
-                    'description' => $warehouse->description,
-                    'address' => $warehouse->address,
-                    'is_active' => $warehouse->is_active,
-                ],
-                'warehouses' => $availableWarehouses,
-                'warehouseProducts' => $warehouseProducts,
-
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading create transfer page: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading create transfer page');
-        }
-    }
-
-    public function storeTransfer(Request $request, Warehouse $warehouse)
-    {
-        try {
-            $validated = $request->validate([
-                'product_id' => 'required|exists:products,id',
-                'to_warehouse_id' => 'required|exists:warehouses,id|different:from_warehouse_id',
-                'quantity' => 'required|numeric|min:1',
-                'price' => 'required|numeric|min:0',
-                'notes' => 'nullable|string|max:1000',
-            ]);
-
-            // Check if product exists in warehouse and has sufficient stock
-            $warehouseProduct = $warehouse->items()->where('product_id', $validated['product_id'])->first();
-
-            if (!$warehouseProduct) {
-                return redirect()->back()
-                    ->with('error', 'Product not found in this warehouse')
-                    ->withInput();
-            }
-
-            $availableStock = $warehouseProduct->net_quantity ?? 0;
-
-            if ($validated['quantity'] > $availableStock) {
-                return redirect()->back()
-                    ->with('error', "Insufficient stock. Available: {$availableStock} units")
-                    ->withInput();
-            }
-
-            DB::beginTransaction();
-
-            // Generate reference number
-            $referenceNumber = 'TRF-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-
-            // Calculate total
-            $total = $validated['quantity'] * $validated['price'];
-
-            // Create transfer record
-            $transfer = \App\Models\WarehouseTransfer::create([
-                'reference_number' => $referenceNumber,
-                'from_warehouse_id' => $warehouse->id,
-                'to_warehouse_id' => $validated['to_warehouse_id'],
-                'product_id' => $validated['product_id'],
-                'quantity' => $validated['quantity'],
-                'price' => $validated['price'],
-                'total' => $total,
-                'status' => 'completed',
-                'notes' => $validated['notes'],
-                'created_by' => Auth::id(),
-                'transfer_date' => now(),
-            ]);
-
-            // Create outcome record for source warehouse
-            \App\Models\WarehouseOutcome::create([
-                'warehouse_id' => $warehouse->id,
-                'product_id' => $validated['product_id'],
-                'reference_number' => $referenceNumber,
-                'quantity' => $validated['quantity'],
-                'price' => $validated['price'],
-                'total' => $total,
-                'model_type' => 'transfer',
-                'model_id' => $transfer->id,
-            ]);
-
-            // Create income record for destination warehouse
-            \App\Models\WarehouseIncome::create([
-                'warehouse_id' => $validated['to_warehouse_id'],
-                'product_id' => $validated['product_id'],
-                'reference_number' => $referenceNumber,
-                'quantity' => $validated['quantity'],
-                'price' => $validated['price'],
-                'total' => $total,
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('admin.warehouses.transfers', $warehouse->id)
-                ->with('success', 'Transfer created successfully');
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error('Error creating warehouse transfer: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Error creating transfer: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
-
-
 
     // Wallet functionality methods
     public function wallet(Warehouse $warehouse)
