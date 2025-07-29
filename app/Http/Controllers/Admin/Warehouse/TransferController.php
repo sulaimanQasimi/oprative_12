@@ -470,4 +470,25 @@ trait TransferController
             return redirect()->back()->with('error', 'Error loading transfer details');
         }
     }
+
+    public function printTransferDocument(Warehouse $warehouse, WarehouseTransfer $transfer)
+    {
+        try {
+            $transfer->load([
+                'transferItems.product',
+                'transferItems.batch',
+                'fromWarehouse',
+                'toWarehouse',
+                'creator'
+            ]);
+
+            return view('warehouse.transfer-document', [
+                'transfer' => $transfer,
+                'warehouse' => $warehouse,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error generating transfer document: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error generating transfer document');
+        }
+    }
 }

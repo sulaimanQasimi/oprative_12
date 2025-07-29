@@ -255,6 +255,15 @@ export default function ShowTransfer({ auth, warehouse, transfer }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
+                                <Link href={route("admin.warehouses.transfers.print", [warehouse.id, transfer.id])} target="_blank">
+                                    <Button
+                                        variant="outline"
+                                        className="bg-white dark:bg-slate-800 border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 gap-2"
+                                    >
+                                        <Printer className="h-4 w-4" />
+                                        {t("Print Document")}
+                                    </Button>
+                                </Link>
                                 <BackButton link={route("admin.warehouses.transfers", warehouse.id)} />
                             </motion.div>
                         </div>

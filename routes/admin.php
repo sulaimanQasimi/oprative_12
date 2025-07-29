@@ -314,6 +314,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/transfers/create', [WarehouseController::class, 'createTransfer'])->name('admin.warehouses.transfers.create');
         Route::post('/{warehouse:id}/transfers', [WarehouseController::class, 'storeTransfer'])->name('admin.warehouses.transfers.store');
         Route::get('/{warehouse:id}/transfers/{transfer}', [WarehouseController::class, 'showTransfer'])->name('admin.warehouses.transfers.show');
+        Route::get('/{warehouse:id}/transfers/{transfer}/print', [WarehouseController::class, 'printTransferDocument'])->name('admin.warehouses.transfers.print');
 
         // Warehouse sales management
         Route::get('/{warehouse:id}/sales', [WarehouseController::class, 'sales'])->name('admin.warehouses.sales');
