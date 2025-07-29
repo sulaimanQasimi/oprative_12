@@ -437,6 +437,7 @@ class WarehouseController extends Controller
             // Get batch inventory data for charts
             $batchInventory = DB::table('warehouse_batch_inventory')
                 ->where('warehouse_id', $warehouse->id)
+                ->where('remaining_qty', '>', 0)
                 ->get();
 
             // Prepare chart data
@@ -534,6 +535,30 @@ class WarehouseController extends Controller
                     })
                     ->sortByDesc('total_quantity')
                     ->values(),
+
+                // All batches with detailed information
+                'all_batches' => $batchInventory->map(function ($item) {
+                    return [
+                        'batch_id' => $item->batch_id,
+                        'product_id' => $item->product_id,
+                        'product_name' => $item->product_name,
+                        'product_barcode' => $item->product_barcode,
+                        'batch_reference' => $item->batch_reference,
+                        'issue_date' => $item->issue_date,
+                        'expire_date' => $item->expire_date,
+                        'batch_notes' => $item->batch_notes,
+                        'remaining_qty' => $item->remaining_qty,
+                        'remaining_qty_converted' => round($item->remaining_qty / ($item->unit_amount ?: 1), 2),
+                        'total_income_value' => $item->total_income_value,
+                        'total_outcome_value' => $item->total_outcome_value,
+                        'unit_type' => $item->unit_type,
+                        'unit_id' => $item->unit_id,
+                        'unit_amount' => $item->unit_amount,
+                        'unit_name' => $item->unit_name ?: 'Units',
+                        'expiry_status' => $item->expiry_status,
+                        'days_to_expiry' => $item->days_to_expiry,
+                    ];
+                })->sortBy('expire_date')->values(),
 
                 // Summary statistics
                 'summary' => [

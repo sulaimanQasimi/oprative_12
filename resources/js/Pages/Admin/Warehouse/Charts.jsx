@@ -67,6 +67,7 @@ export default function Charts({ auth, warehouse, chartData }) {
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
+    const [batchFilter, setBatchFilter] = useState("all"); // all, expired, expiring_soon, valid
 
     // Animation effect
     useEffect(() => {
@@ -87,6 +88,12 @@ export default function Charts({ auth, warehouse, chartData }) {
     const formatNumber = (number) => {
         return new Intl.NumberFormat('en-US').format(number);
     };
+
+    // Filter batches based on status
+    const filteredBatches = chartData.all_batches?.filter(batch => {
+        if (batchFilter === "all") return true;
+        return batch.expiry_status === batchFilter;
+    }) || [];
 
     // Chart configurations
     const productDistributionChart = {
@@ -635,6 +642,21 @@ export default function Charts({ auth, warehouse, chartData }) {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent>
+                                        {filteredBatches.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                                                <p className="text-slate-600 dark:text-slate-400">{t("No batches found with the selected filter")}</p>
+                                            </div>
+                                        ) : (
+                                            <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {t("Showing")} <span className="font-semibold">{filteredBatches.length}</span> {t("batches")}
+                                                    {batchFilter !== "all" && (
+                                                        <span> ({t("filtered by")} <span className="font-semibold">{t(batchFilter.replace('_', ' '))}</span>)</span>
+                                                    )}
+                                                </p>
+                                            </div>
+                                        )}
                                         <div className="overflow-x-auto">
                                             <table className="w-full">
                                                 <thead>
@@ -661,6 +683,144 @@ export default function Charts({ auth, warehouse, chartData }) {
                                                 </tbody>
                                             </table>
                                         </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* All Batches with Expiry Dates Table */}
+                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl">
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                                                    <Calendar className="w-5 h-5 text-red-600" />
+                                                    {t("All Batches with Expiry Dates")}
+                                                </CardTitle>
+                                                <CardDescription className="text-slate-600 dark:text-slate-400">
+                                                    {t("Complete list of all batches including expired products")}
+                                                </CardDescription>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <select
+                                                    value={batchFilter}
+                                                    onChange={(e) => setBatchFilter(e.target.value)}
+                                                    className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                >
+                                                    <option value="all">{t("All Batches")} ({chartData.all_batches?.length || 0})</option>
+                                                    <option value="valid">{t("Valid")} ({chartData.summary.valid_items})</option>
+                                                    <option value="expiring_soon">{t("Expiring Soon")} ({chartData.summary.expiring_soon_items})</option>
+                                                    <option value="expired">{t("Expired")} ({chartData.summary.expired_items})</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        {filteredBatches.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <Calendar className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                                                <p className="text-slate-600 dark:text-slate-400">{t("No batches found with the selected filter")}</p>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="mb-4 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Showing")} <span className="font-semibold">{filteredBatches.length}</span> {t("batches")}
+                                                        {batchFilter !== "all" && (
+                                                            <span> ({t("filtered by")} <span className="font-semibold">{t(batchFilter.replace('_', ' '))}</span>)</span>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="border-b border-slate-200 dark:border-slate-600">
+                                                        <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Product")}</th>
+                                                        <th className="text-left py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Batch Ref")}</th>
+                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Remaining Qty")}</th>
+                                                        <th className="text-center py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Expiry Date")}</th>
+                                                        <th className="text-center py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Days Left")}</th>
+                                                        <th className="text-center py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Status")}</th>
+                                                        <th className="text-right py-3 px-4 font-semibold text-slate-700 dark:text-slate-300">{t("Value")}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {filteredBatches.map((batch, index) => {
+                                                        const getStatusBadge = (status) => {
+                                                            switch (status) {
+                                                                case 'expired':
+                                                                    return (
+                                                                        <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-700">
+                                                                            {t("Expired")}
+                                                                        </Badge>
+                                                                    );
+                                                                case 'expiring_soon':
+                                                                    return (
+                                                                        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-yellow-200 dark:border-yellow-700">
+                                                                            {t("Expiring Soon")}
+                                                                        </Badge>
+                                                                    );
+                                                                case 'valid':
+                                                                    return (
+                                                                        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-700">
+                                                                            {t("Valid")}
+                                                                        </Badge>
+                                                                    );
+                                                                default:
+                                                                    return (
+                                                                        <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300 border-gray-200 dark:border-gray-700">
+                                                                            {status}
+                                                                        </Badge>
+                                                                    );
+                                                            }
+                                                        };
+
+                                                        const getDaysLeftColor = (daysLeft) => {
+                                                            if (daysLeft < 0) return 'text-red-600 dark:text-red-400';
+                                                            if (daysLeft <= 30) return 'text-yellow-600 dark:text-yellow-400';
+                                                            return 'text-green-600 dark:text-green-400';
+                                                        };
+
+                                                        const getDaysLeftText = (daysLeft) => {
+                                                            if (daysLeft < 0) return `${Math.abs(daysLeft)} ${t("days expired")}`;
+                                                            if (daysLeft === 0) return t("Expires today");
+                                                            return `${daysLeft} ${t("days left")}`;
+                                                        };
+
+                                                        return (
+                                                            <tr key={index} className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600/50">
+                                                                <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
+                                                                    <div>
+                                                                        <div className="font-semibold">{batch.product_name}</div>
+                                                                        <div className="text-xs text-slate-500 dark:text-slate-400">{batch.product_barcode}</div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="py-3 px-4 text-slate-600 dark:text-slate-400 font-mono text-sm">
+                                                                    {batch.batch_reference}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-right font-semibold text-orange-600 dark:text-orange-400">
+                                                                    {formatNumber(batch.remaining_qty_converted)} {batch.unit_name}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-center text-slate-600 dark:text-slate-400">
+                                                                    {batch.expire_date ? new Date(batch.expire_date).toLocaleDateString() : t("No expiry")}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-center">
+                                                                    <span className={`font-semibold ${getDaysLeftColor(batch.days_to_expiry)}`}>
+                                                                        {getDaysLeftText(batch.days_to_expiry)}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="py-3 px-4 text-center">
+                                                                    {getStatusBadge(batch.expiry_status)}
+                                                                </td>
+                                                                <td className="py-3 px-4 text-right font-semibold text-green-600 dark:text-green-400">
+                                                                    {formatCurrency(batch.total_income_value)}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                            </>
+                                        )}
                                     </CardContent>
                                 </Card>
                             </motion.div>
