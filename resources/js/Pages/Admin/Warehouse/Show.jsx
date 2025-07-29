@@ -27,7 +27,8 @@ import {
     Store,
     Sparkles,
     ChevronDown,
-    Wallet
+    Wallet,
+    BarChart3
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -829,6 +830,26 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage warehouse financial transactions")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-yellow-600 dark:text-yellow-400 font-semibold">
                                                             {t("Manage Wallet")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.charts", warehouse.id)}>
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 dark:from-pink-900/20 dark:via-rose-900/20 dark:to-pink-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <BarChart3 className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
+                                                        </div>
+                                                        <h3 className="text-xl font-bold text-pink-700 dark:text-pink-300 mb-3">{t("Analytics & Charts")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("View comprehensive warehouse analytics and insights")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-pink-600 dark:text-pink-400 font-semibold">
+                                                            {t("View Analytics")}
                                                             <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>

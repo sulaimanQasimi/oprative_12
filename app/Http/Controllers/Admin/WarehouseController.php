@@ -427,4 +427,142 @@ class WarehouseController extends Controller
                 ->with('error', 'Error loading warehouse wallet: ' . $e->getMessage());
         }
     }
+
+    public function charts(Warehouse $warehouse)
+    {
+        try {
+            // Get warehouse basic info
+            $warehouse = Warehouse::findOrFail($warehouse->id);
+
+            // Get batch inventory data for charts
+            $batchInventory = DB::table('warehouse_batch_inventory')
+                ->where('warehouse_id', $warehouse->id)
+                ->get();
+
+            // Prepare chart data
+            $chartData = [
+                // Product distribution by remaining quantity
+                'product_distribution' => $batchInventory
+                    ->groupBy('product_name')
+                    ->map(function ($products, $productName) {
+                        $totalRemaining = $products->sum(function ($product) {
+                            return $product->remaining_qty / ($product->unit_amount ?: 1);
+                        });
+                        $unitName = $products->first()->unit_name ?: 'Units';
+                        
+                        return [
+                            'product' => $productName,
+                            'total_remaining' => round($totalRemaining, 2),
+                            'total_remaining_formatted' => round($totalRemaining, 2) . ' ' . $unitName,
+                            'total_value' => $products->sum('total_income_value'),
+                            'unit_name' => $unitName,
+                        ];
+                    })
+                    ->sortByDesc('total_remaining')
+                    ->take(10)
+                    ->values(),
+
+                // Expiry status distribution
+                'expiry_status' => $batchInventory
+                    ->groupBy('expiry_status')
+                    ->map(function ($items, $status) {
+                        $totalQuantity = $items->sum(function ($item) {
+                            return $item->remaining_qty / ($item->unit_amount ?: 1);
+                        });
+                        
+                        return [
+                            'status' => $status,
+                            'count' => $items->count(),
+                            'total_quantity' => round($totalQuantity, 2),
+                            'total_value' => $items->sum('total_income_value'),
+                        ];
+                    })
+                    ->values(),
+
+                // Monthly income vs outcome
+                'monthly_comparison' => $batchInventory
+                    ->groupBy(function ($item) {
+                        return \Carbon\Carbon::parse($item->issue_date)->format('Y-m');
+                    })
+                    ->map(function ($items, $month) {
+                        $incomeQuantity = $items->sum(function ($item) {
+                            return $item->income_qty / ($item->unit_amount ?: 1);
+                        });
+                        $outcomeQuantity = $items->sum(function ($item) {
+                            return $item->outcome_qty / ($item->unit_amount ?: 1);
+                        });
+                        
+                        return [
+                            'month' => $month,
+                            'income_quantity' => round($incomeQuantity, 2),
+                            'outcome_quantity' => round($outcomeQuantity, 2),
+                            'income_value' => $items->sum('total_income_value'),
+                            'outcome_value' => $items->sum('total_outcome_value'),
+                        ];
+                    })
+                    ->sortBy('month')
+                    ->values(),
+
+                // Top products by value
+                'top_products_by_value' => $batchInventory
+                    ->groupBy('product_name')
+                    ->map(function ($products, $productName) {
+                        return [
+                            'product' => $productName,
+                            'total_value' => $products->sum('total_income_value'),
+                            'remaining_value' => $products->sum('total_income_value') - $products->sum('total_outcome_value'),
+                            'profit' => $products->sum('total_outcome_value') - $products->sum('total_income_value'),
+                        ];
+                    })
+                    ->sortByDesc('total_value')
+                    ->take(10)
+                    ->values(),
+
+                // Unit type distribution
+                'unit_distribution' => $batchInventory
+                    ->groupBy('unit_name')
+                    ->map(function ($items, $unitName) {
+                        $totalQuantity = $items->sum(function ($item) {
+                            return $item->remaining_qty / ($item->unit_amount ?: 1);
+                        });
+                        
+                        return [
+                            'unit' => $unitName ?: 'Unknown',
+                            'count' => $items->count(),
+                            'total_quantity' => round($totalQuantity, 2),
+                        ];
+                    })
+                    ->sortByDesc('total_quantity')
+                    ->values(),
+
+                // Summary statistics
+                'summary' => [
+                    'total_products' => $batchInventory->unique('product_id')->count(),
+                    'total_batches' => $batchInventory->count(),
+                    'total_remaining_quantity' => round($batchInventory->sum(function ($item) {
+                        return $item->remaining_qty / ($item->unit_amount ?: 1);
+                    }), 2),
+                    'total_inventory_value' => $batchInventory->sum('total_income_value'),
+                    'expired_items' => $batchInventory->where('expiry_status', 'expired')->count(),
+                    'expiring_soon_items' => $batchInventory->where('expiry_status', 'expiring_soon')->count(),
+                    'valid_items' => $batchInventory->where('expiry_status', 'valid')->count(),
+                ],
+            ];
+
+            return Inertia::render('Admin/Warehouse/Charts', [
+                'warehouse' => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'description' => $warehouse->description,
+                    'is_active' => $warehouse->is_active,
+                ],
+                'chartData' => $chartData,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading warehouse charts: ' . $e->getMessage());
+            return redirect()->route('admin.warehouses.show', $warehouse->id)
+                ->with('error', 'Error loading warehouse charts: ' . $e->getMessage());
+        }
+    }
 }

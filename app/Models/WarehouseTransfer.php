@@ -74,60 +74,7 @@ class WarehouseTransfer extends Model
 
     public function complete()
     {
-        if ($this->status !== 'pending') {
-            return false;
-        }
-
-        \DB::beginTransaction();
-        try {
-            foreach ($this->transferItems as $item) {
-                // Create outcome record for source warehouse
-                WarehouseOutcome::create([
-                    'reference_number' => $this->reference_number,
-                    'warehouse_id' => $this->from_warehouse_id,
-                    'product_id' => $item->product_id,
-                    'batch_id' => $item->batch_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->unit_price,
-                    'total' => $item->total_price,
-                    'model_type' => 'App\\Models\\WarehouseTransfer',
-                    'model_id' => $this->id,
-                    'unit_type' => $item->unit_type,
-                    'unit_id' => $item->unit_id,
-                    'unit_amount' => $item->unit_amount,
-                    'unit_name' => $item->unit_name,
-                    'notes' => "Transfer to {$this->toWarehouse->name}"
-                ]);
-
-                // Create income record for destination warehouse
-                WarehouseIncome::create([
-                    'reference_number' => $this->reference_number,
-                    'warehouse_id' => $this->to_warehouse_id,
-                    'product_id' => $item->product_id,
-                    'batch_id' => $item->batch_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->unit_price,
-                    'total' => $item->total_price,
-                    'model_type' => 'App\\Models\\WarehouseTransfer',
-                    'model_id' => $this->id,
-                    'unit_type' => $item->unit_type,
-                    'unit_id' => $item->unit_id,
-                    'unit_amount' => $item->unit_amount,
-                    'unit_name' => $item->unit_name,
-                    'notes' => "Transfer from {$this->fromWarehouse->name}"
-                ]);
-            }
-
-            $this->status = 'completed';
-            $this->completed_at = now();
-            $this->save();
-
-            \DB::commit();
-            return true;
-        } catch (\Exception $e) {
-            \DB::rollback();
-            throw $e;
-        }
+        
     }
 
     public function cancel()

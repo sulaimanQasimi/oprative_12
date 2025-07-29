@@ -329,6 +329,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Warehouse wallet management
         Route::get('/{warehouse:id}/wallet', [WarehouseController::class, 'wallet'])->name('admin.warehouses.wallet');
+        
+        // Warehouse charts management
+        Route::get('/{warehouse:id}/charts', [WarehouseController::class, 'charts'])->name('admin.warehouses.charts');
     });
 
     // Accounts Management

@@ -304,12 +304,6 @@ trait TransferController
                 $batchInventory = null;
 
                 if ($itemData['batch_id']) {
-                    // Check batch-specific stock
-                    // $batchInventory = DB::table('warehouse_batch_inventory')
-                    //     ->where('warehouse_id', $warehouse->id)
-                    //     ->where('batch_id', $itemData['batch_id'])
-                    //     ->where('product_id', $itemData['product_id'])
-                    //     ->first();
                     $batchInventory = WarehouseProduct::with('product')
                         ->with(['product','batch'])
                         ->where('batch_id', $itemData['batch_id'])
@@ -317,11 +311,6 @@ trait TransferController
                         ->where('product_id', $itemData['product_id'])
                         ->first();
                 } else {
-                    // Check general product stock
-                    // $batchInventory = DB::table('warehouse_batch_inventory')
-                    //     ->where('warehouse_id', $warehouse->id)
-                    //     ->where('product_id', $itemData['product_id'])
-                    //     ->first();
                     $batchInventory = WarehouseProduct::with('product')
                         ->with(['product','batch'])
                         ->where('warehouse_id', $warehouse->id)
