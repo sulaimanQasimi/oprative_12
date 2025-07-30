@@ -60,13 +60,12 @@ import PageLoader from "@/Components/Admin/PageLoader";
 
 export default function TransferIndex({ 
     auth, 
-    transfers, 
-    warehouses = [], 
-    products = [],
+    transfers = [], 
+    pagination = {}, 
     filters = {}, 
-    sort = {}, 
-    stats = {},
-    can = {} 
+    availableWarehouses = [], 
+    availableProducts = [], 
+    stats = {} 
 }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
@@ -78,12 +77,11 @@ export default function TransferIndex({
     const [statusFilter, setStatusFilter] = useState(filters.status || "");
     const [dateFrom, setDateFrom] = useState(filters.date_from || "");
     const [dateTo, setDateTo] = useState(filters.date_to || "");
-    const [minAmount, setMinAmount] = useState(filters.min_amount || "");
-    const [maxAmount, setMaxAmount] = useState(filters.max_amount || "");
+
     const [showFilters, setShowFilters] = useState(false);
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
-    const [filteredTransfers, setFilteredTransfers] = useState(transfers?.data || []);
+    const [filteredTransfers, setFilteredTransfers] = useState(transfers || []);
 
     // Animation effect
     useEffect(() => {
@@ -96,34 +94,36 @@ export default function TransferIndex({
 
     // Enhanced filtering logic
     useEffect(() => {
-        let filtered = [...(transfers?.data || [])];
+        let filtered = [...(transfers || [])];
 
         // Search filter
         if (searchTerm) {
             filtered = filtered.filter(transfer =>
                 (transfer.reference_number && transfer.reference_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (transfer.fromWarehouse?.name && transfer.fromWarehouse.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (transfer.toWarehouse?.name && transfer.toWarehouse.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (transfer.fromWarehouse?.code && transfer.fromWarehouse.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (transfer.toWarehouse?.code && transfer.toWarehouse.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (transfer.product?.name && transfer.product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (transfer.product?.barcode && transfer.product.barcode.toLowerCase().includes(searchTerm.toLowerCase()))
+                (transfer.from_warehouse?.name && transfer.from_warehouse.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (transfer.to_warehouse?.name && transfer.to_warehouse.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (transfer.from_warehouse?.code && transfer.from_warehouse.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (transfer.to_warehouse?.code && transfer.to_warehouse.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (transfer.transfer_items?.some(item => 
+                    (item.product?.name && item.product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (item.product?.barcode && item.product.barcode.toLowerCase().includes(searchTerm.toLowerCase()))
+                ))
             );
         }
 
         // From Warehouse filter
         if (fromWarehouseFilter) {
-            filtered = filtered.filter(transfer => transfer.from_warehouse_id && transfer.from_warehouse_id.toString() === fromWarehouseFilter);
+            filtered = filtered.filter(transfer => transfer.from_warehouse?.id && transfer.from_warehouse.id.toString() === fromWarehouseFilter);
         }
 
         // To Warehouse filter
         if (toWarehouseFilter) {
-            filtered = filtered.filter(transfer => transfer.to_warehouse_id && transfer.to_warehouse_id.toString() === toWarehouseFilter);
+            filtered = filtered.filter(transfer => transfer.to_warehouse?.id && transfer.to_warehouse.id.toString() === toWarehouseFilter);
         }
 
         // Product filter
         if (productFilter) {
-            filtered = filtered.filter(transfer => transfer.product_id && transfer.product_id.toString() === productFilter);
+            filtered = filtered.filter(transfer => transfer.transfer_items?.some(item => item.product?.id && item.product.id.toString() === productFilter));
         }
 
         // Status filter
@@ -148,29 +148,19 @@ export default function TransferIndex({
             });
         }
 
-        // Amount filters
-        if (minAmount) {
-            filtered = filtered.filter(transfer => (transfer.total || 0) >= parseFloat(minAmount));
-        }
 
-        if (maxAmount) {
-            filtered = filtered.filter(transfer => (transfer.total || 0) <= parseFloat(maxAmount));
-        }
 
         // Sorting
         filtered.sort((a, b) => {
             let aValue = a[sortBy];
             let bValue = b[sortBy];
 
-            if (sortBy === 'fromWarehouse.name') {
-                aValue = a.fromWarehouse?.name || '';
-                bValue = b.fromWarehouse?.name || '';
-            } else if (sortBy === 'toWarehouse.name') {
-                aValue = a.toWarehouse?.name || '';
-                bValue = b.toWarehouse?.name || '';
-            } else if (sortBy === 'product.name') {
-                aValue = a.product?.name || '';
-                bValue = b.product?.name || '';
+            if (sortBy === 'from_warehouse.name') {
+                aValue = a.from_warehouse?.name || '';
+                bValue = b.from_warehouse?.name || '';
+            } else if (sortBy === 'to_warehouse.name') {
+                aValue = a.to_warehouse?.name || '';
+                bValue = b.to_warehouse?.name || '';
             }
 
             if (typeof aValue === 'string') {
@@ -186,13 +176,13 @@ export default function TransferIndex({
         });
 
         setFilteredTransfers(filtered);
-    }, [searchTerm, fromWarehouseFilter, toWarehouseFilter, productFilter, statusFilter, dateFrom, dateTo, minAmount, maxAmount, sortBy, sortOrder, transfers]);
+    }, [searchTerm, fromWarehouseFilter, toWarehouseFilter, productFilter, statusFilter, dateFrom, dateTo, sortBy, sortOrder, transfers]);
 
     // Calculate totals from filtered data
     const totalTransfers = filteredTransfers?.length || 0;
-    const totalAmount = filteredTransfers?.reduce((sum, transfer) => sum + (transfer.total || 0), 0) || 0;
-    const totalQuantity = filteredTransfers?.reduce((sum, transfer) => sum + (transfer.quantity || 0), 0) || 0;
-    const avgTransferValue = totalTransfers > 0 ? totalAmount / totalTransfers : 0;
+    const totalQuantity = filteredTransfers?.reduce((sum, transfer) => sum + (transfer.total_quantity || 0), 0) || 0;
+    const pendingTransfers = filteredTransfers?.filter(transfer => transfer.status === 'pending').length || 0;
+    const completedTransfers = filteredTransfers?.filter(transfer => transfer.status === 'completed').length || 0;
 
     const handleSearch = () => {
         router.get(route('admin.transfers.index'), {
@@ -203,8 +193,7 @@ export default function TransferIndex({
             status: statusFilter,
             date_from: dateFrom,
             date_to: dateTo,
-            min_amount: minAmount,
-            max_amount: maxAmount,
+
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -266,8 +255,7 @@ export default function TransferIndex({
         setStatusFilter("");
         setDateFrom("");
         setDateTo("");
-        setMinAmount("");
-        setMaxAmount("");
+
         router.get(route('admin.transfers.index'));
     };
 
@@ -422,7 +410,7 @@ export default function TransferIndex({
                                                             {t("Total Transfer Records")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                                            {stats.total_transfers?.toLocaleString() || "0"}
+                                                            {stats.total_transfers?.toLocaleString() || totalTransfers.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Records")}
@@ -476,15 +464,15 @@ export default function TransferIndex({
                                                             {t("Total Value")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                                            {formatCurrency(stats.total_amount || 0)}
+                                                            {stats.pending_transfers?.toLocaleString() || pendingTransfers.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Transfer value")}
+                                                            {t("Pending Transfers")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                                                    </div>
+                                                                                                            <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
+                                                            <Clock className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                                                        </div>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -503,15 +491,15 @@ export default function TransferIndex({
                                                             {t("Average Transfer")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                                                            {formatCurrency(avgTransferValue)}
+                                                            {stats.completed_transfers?.toLocaleString() || completedTransfers.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Per record")}
+                                                            {t("Completed Transfers")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl">
-                                                        <BarChart3 className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-                                                    </div>
+                                                                                                            <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl">
+                                                            <CheckCircle className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+                                                        </div>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -591,9 +579,9 @@ export default function TransferIndex({
                                                                 </SelectTrigger>
                                                                 <SelectContent>
                                                                     <SelectItem value="">{t("All Warehouses")}</SelectItem>
-                                                                    {warehouses.map((warehouse) => (
+                                                                    {availableWarehouses.map((warehouse) => (
                                                                         <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                                                                            {warehouse.name}
+                                                                            {warehouse.name} ({warehouse.code})
                                                                         </SelectItem>
                                                                     ))}
                                                                 </SelectContent>
@@ -610,9 +598,9 @@ export default function TransferIndex({
                                                                 </SelectTrigger>
                                                                 <SelectContent>
                                                                     <SelectItem value="">{t("All Warehouses")}</SelectItem>
-                                                                    {warehouses.map((warehouse) => (
+                                                                    {availableWarehouses.map((warehouse) => (
                                                                         <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                                                                            {warehouse.name}
+                                                                            {warehouse.name} ({warehouse.code})
                                                                         </SelectItem>
                                                                     ))}
                                                                 </SelectContent>
@@ -629,9 +617,9 @@ export default function TransferIndex({
                                                                 </SelectTrigger>
                                                                 <SelectContent>
                                                                     <SelectItem value="">{t("All Products")}</SelectItem>
-                                                                    {products.map((product) => (
+                                                                    {availableProducts.map((product) => (
                                                                         <SelectItem key={product.id} value={product.id.toString()}>
-                                                                            {product.name}
+                                                                            {product.name} ({product.barcode})
                                                                         </SelectItem>
                                                                     ))}
                                                                 </SelectContent>
@@ -685,31 +673,7 @@ export default function TransferIndex({
                                                             />
                                                         </div>
 
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                                {t("Min Amount")}
-                                                            </label>
-                                                            <Input
-                                                                type="number"
-                                                                value={minAmount}
-                                                                onChange={(e) => setMinAmount(e.target.value)}
-                                                                placeholder="0"
-                                                                className="h-10"
-                                                            />
-                                                        </div>
 
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                                {t("Max Amount")}
-                                                            </label>
-                                                            <Input
-                                                                type="number"
-                                                                value={maxAmount}
-                                                                onChange={(e) => setMaxAmount(e.target.value)}
-                                                                placeholder="999999"
-                                                                className="h-10"
-                                                            />
-                                                        </div>
 
                                                         <div className="flex items-end">
                                                             <Button
@@ -752,7 +716,7 @@ export default function TransferIndex({
                                                 </div>
                                                 {t("Transfer Records")}
                                                 <Badge variant="secondary" className="ml-auto">
-                                                    {transfers?.data?.length || 0} {t("of")} {transfers?.total || 0}
+                                                    {transfers?.length || 0} {t("of")} {pagination?.total || 0}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
@@ -772,12 +736,6 @@ export default function TransferIndex({
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Product")}
-                                                            </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Quantity")}
-                                                            </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Total Amount")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Status")}
@@ -806,8 +764,8 @@ export default function TransferIndex({
                                                                         <div className="flex items-center gap-2">
                                                                             <Building2 className="h-4 w-4 text-purple-600" />
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{transfer.fromWarehouse?.name || t('Unknown Warehouse')}</div>
-                                                                                <div className="text-sm text-slate-500">{transfer.fromWarehouse?.code}</div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{transfer.from_warehouse?.name || t('Unknown Warehouse')}</div>
+                                                                                <div className="text-sm text-slate-500">{transfer.from_warehouse?.code}</div>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
@@ -815,27 +773,15 @@ export default function TransferIndex({
                                                                         <div className="flex items-center gap-2">
                                                                             <Warehouse className="h-4 w-4 text-green-600" />
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{transfer.toWarehouse?.name || t('Unknown Warehouse')}</div>
-                                                                                <div className="text-sm text-slate-500">{transfer.toWarehouse?.code}</div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <ShoppingBag className="h-4 w-4 text-blue-600" />
-                                                                            <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{transfer.product?.name || t('Unknown Product')}</div>
-                                                                                <div className="text-sm text-slate-500">{transfer.product?.barcode}</div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{transfer.to_warehouse?.name || t('Unknown Warehouse')}</div>
+                                                                                <div className="text-sm text-slate-500">{transfer.to_warehouse?.code}</div>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                            {transfer.quantity?.toLocaleString() || 0}
+                                                                            {transfer.total_quantity?.toLocaleString() || 0}
                                                                         </Badge>
-                                                                    </TableCell>
-                                                                    <TableCell className="font-bold text-green-600">
-                                                                        {formatCurrency(transfer.total)}
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <Badge className={getStatusBadgeClass(transfer.status)}>
@@ -850,7 +796,15 @@ export default function TransferIndex({
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            {/* Actions can be added here if needed */}
+                                                                            <Link href={route('admin.warehouses.transfers.show', [transfer.from_warehouse.id, transfer.id])}>
+                                                                                <Button
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 border-blue-200 hover:border-blue-300 dark:border-blue-700 dark:hover:border-blue-600"
+                                                                                >
+                                                                                    <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                                </Button>
+                                                                            </Link>
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
@@ -882,7 +836,7 @@ export default function TransferIndex({
                                 </motion.div>
 
                                 {/* Enhanced Pagination */}
-                                {transfers?.links && transfers.links.length > 3 && (
+                                {pagination && pagination.last_page > 1 && (
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
@@ -890,56 +844,77 @@ export default function TransferIndex({
                                         className="flex items-center justify-center space-x-2"
                                     >
                                         <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
-                                            {transfers.links.map((link, index) => {
-                                                if (link.label.includes('Previous')) {
-                                                    return (
-                                                        <Link
-                                                            key={index}
-                                                            href={link.url || '#'}
-                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-                                                                link.url 
-                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30' 
-                                                                    : 'text-gray-400 cursor-not-allowed'
-                                                            }`}
-                                                        >
-                                                            <ChevronLeft className="h-4 w-4" />
-                                                            <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
-                                                        </Link>
-                                                    );
+                                            {/* Previous Page */}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => router.get(route('admin.transfers.index'), {
+                                                    ...filters,
+                                                    page: pagination.current_page - 1,
+                                                }, {
+                                                    preserveState: true,
+                                                    preserveScroll: true,
+                                                })}
+                                                disabled={pagination.current_page === 1}
+                                                className="h-8 w-8 p-0"
+                                            >
+                                                <ChevronLeft className="h-4 w-4" />
+                                            </Button>
+
+                                            {/* Page Numbers */}
+                                            {(() => {
+                                                const pages = [];
+                                                const totalPages = pagination.last_page;
+                                                const currentPage = pagination.current_page;
+                                                let startPage = Math.max(1, currentPage - 2);
+                                                let endPage = Math.min(totalPages, currentPage + 2);
+                                                
+                                                if (endPage - startPage < 4) {
+                                                    if (startPage === 1) {
+                                                        endPage = Math.min(totalPages, startPage + 4);
+                                                    } else if (endPage === totalPages) {
+                                                        startPage = Math.max(1, endPage - 4);
+                                                    }
                                                 }
                                                 
-                                                if (link.label.includes('Next')) {
-                                                    return (
-                                                        <Link
-                                                            key={index}
-                                                            href={link.url || '#'}
-                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
-                                                                link.url 
-                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30' 
-                                                                    : 'text-gray-400 cursor-not-allowed'
-                                                            }`}
+                                                for (let i = startPage; i <= endPage; i++) {
+                                                    pages.push(
+                                                        <Button
+                                                            key={i}
+                                                            variant={currentPage === i ? "default" : "outline"}
+                                                            size="sm"
+                                                            onClick={() => router.get(route('admin.transfers.index'), {
+                                                                ...filters,
+                                                                page: i,
+                                                            }, {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            })}
+                                                            className="h-8 w-8 p-0"
                                                         >
-                                                            <span className="mr-1 hidden sm:inline">{t('Next')}</span>
-                                                            <ChevronRight className="h-4 w-4" />
-                                                        </Link>
+                                                            {i}
+                                                        </Button>
                                                     );
                                                 }
-                                                
-                                                return (
-                                                    <Link
-                                                        key={index}
-                                                        href={link.url || '#'}
-                                                        className={`px-3 py-2 rounded-lg transition-all duration-200 ${
-                                                            link.active 
-                                                                ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg' 
-                                                                : link.url 
-                                                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30' 
-                                                                    : 'text-gray-400 cursor-not-allowed'
-                                                        }`}
-                                                        dangerouslySetInnerHTML={{ __html: link.label }}
-                                                    />
-                                                );
-                                            })}
+                                                return pages;
+                                            })()}
+
+                                            {/* Next Page */}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => router.get(route('admin.transfers.index'), {
+                                                    ...filters,
+                                                    page: pagination.current_page + 1,
+                                                }, {
+                                                    preserveState: true,
+                                                    preserveScroll: true,
+                                                })}
+                                                disabled={pagination.current_page === pagination.last_page}
+                                                className="h-8 w-8 p-0"
+                                            >
+                                                <ChevronRight className="h-4 w-4" />
+                                            </Button>
                                         </div>
                                     </motion.div>
                                 )}

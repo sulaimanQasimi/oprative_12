@@ -3,183 +3,270 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\WarehouseTransfer;
-use App\Models\Warehouse;
-use App\Models\Product;
+use App\Models\{Warehouse, Product, Batch, WarehouseTransfer, TransferItem};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\{DB, Log, Auth};
 use Carbon\Carbon;
 
 class TransferController extends Controller
 {
-    /**
-     * Display a listing of warehouse transfer records.
-     */
     public function index(Request $request)
     {
-        $query = WarehouseTransfer::with(['fromWarehouse', 'toWarehouse', 'product']);
+        try {
+            $query = WarehouseTransfer::with(['fromWarehouse', 'toWarehouse', 'transferItems.product', 'transferItems.batch', 'creator']);
 
-        // Filter by warehouse if specified
-        if ($request->filled('from_warehouse_id')) {
-            $query->where('from_warehouse_id', $request->from_warehouse_id);
-        }
+            // Apply search filter
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('reference_number', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%")
+                      ->orWhereHas('fromWarehouse', function ($warehouseQuery) use ($search) {
+                          $warehouseQuery->where('name', 'like', "%{$search}%")
+                                        ->orWhere('code', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('toWarehouse', function ($warehouseQuery) use ($search) {
+                          $warehouseQuery->where('name', 'like', "%{$search}%")
+                                        ->orWhere('code', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('transferItems.product', function ($productQuery) use ($search) {
+                          $productQuery->where('name', 'like', "%{$search}%")
+                                      ->orWhere('barcode', 'like', "%{$search}%");
+                      });
+                });
+            }
 
-        if ($request->filled('to_warehouse_id')) {
-            $query->where('to_warehouse_id', $request->to_warehouse_id);
-        }
+            // Apply date filters
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
 
-        // Enhanced search functionality
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('reference_number', 'like', "%{$search}%")
-                  ->orWhere('id', 'like', "%{$search}%")
-                  ->orWhereHas('fromWarehouse', function ($warehouseQuery) use ($search) {
-                      $warehouseQuery->where('name', 'like', "%{$search}%")
-                                    ->orWhere('code', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('toWarehouse', function ($warehouseQuery) use ($search) {
-                      $warehouseQuery->where('name', 'like', "%{$search}%")
-                                    ->orWhere('code', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('product', function ($productQuery) use ($search) {
-                      $productQuery->where('name', 'like', "%{$search}%")
-                                  ->orWhere('barcode', 'like', "%{$search}%");
-                  });
-            });
-        }
+            // Apply warehouse filters
+            if ($request->filled('from_warehouse_id')) {
+                $query->where('from_warehouse_id', $request->from_warehouse_id);
+            }
+            if ($request->filled('to_warehouse_id')) {
+                $query->where('to_warehouse_id', $request->to_warehouse_id);
+            }
 
-        // Enhanced date filtering
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
+            // Apply product filter
+            if ($request->filled('product_id')) {
+                $query->whereHas('transferItems', function ($q) use ($request) {
+                    $q->where('product_id', $request->product_id);
+                });
+            }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
+            // Apply status filter
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
 
-        // Product filter
-        if ($request->filled('product_id')) {
-            $query->where('product_id', $request->product_id);
-        }
+            // Apply sorting
+            $sortBy = $request->get('sort', 'created_at');
+            $direction = $request->get('direction', 'desc');
+            $allowedSorts = ['created_at', 'reference_number', 'total_amount', 'total_quantity', 'status', 'id'];
+            if (!in_array($sortBy, $allowedSorts)) {
+                $sortBy = 'created_at';
+            }
+            if (!in_array($direction, ['asc', 'desc'])) {
+                $direction = 'desc';
+            }
+            $query->orderBy($sortBy, $direction);
 
-        // Status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
+            // Get per page value
+            $perPage = $request->get('per_page', 15);
+            if (!in_array($perPage, [10, 15, 25, 50, 100])) {
+                $perPage = 15;
+            }
 
-        // Amount range filter
-        if ($request->filled('min_amount')) {
-            $query->where('total', '>=', $request->min_amount);
-        }
+            // Paginate results
+            $transferRecords = $query->paginate($perPage);
 
-        if ($request->filled('max_amount')) {
-            $query->where('total', '<=', $request->max_amount);
-        }
-
-        // Enhanced sorting
-        $sortField = $request->get('sort_field', 'created_at');
-        $sortDirection = $request->get('sort_direction', 'desc');
-        
-        // Validate sort fields
-        $allowedSortFields = ['id', 'reference_number', 'total', 'quantity', 'status', 'created_at'];
-        if (!in_array($sortField, $allowedSortFields)) {
-            $sortField = 'created_at';
-        }
-        
-        $query->orderBy($sortField, $sortDirection);
-
-        // Enhanced pagination
-        $perPage = $request->get('per_page', 15);   
-        $perPage = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15;
-        
-        $transfers = $query->paginate($perPage);
-
-        // Get warehouses for filter dropdown
-        $warehouses = Warehouse::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name', 'code']);
-
-        // Get products for filter dropdown
-        $products = Product::where('is_activated', true)
-            ->select('id', 'name', 'barcode')
-            ->orderBy('name')
-            ->limit(100)
-            ->get();
-
-        // Enhanced summary stats with date ranges
-        $today = today();
-        $thisWeek = Carbon::now()->startOfWeek();
-        $thisMonth = Carbon::now()->startOfMonth();
-
-        $totalTransfers = WarehouseTransfer::count();
-        $totalAmount = WarehouseTransfer::sum('total');
-        $totalQuantity = WarehouseTransfer::sum('quantity');
-        
-        $todayTransfers = WarehouseTransfer::whereDate('created_at', $today)->count();
-        $todayAmount = WarehouseTransfer::whereDate('created_at', $today)->sum('total');
-        
-        $weekTransfers = WarehouseTransfer::where('created_at', '>=', $thisWeek)->count();
-        $weekAmount = WarehouseTransfer::where('created_at', '>=', $thisWeek)->sum('total');
-        
-        $monthTransfers = WarehouseTransfer::where('created_at', '>=', $thisMonth)->count();
-        $monthAmount = WarehouseTransfer::where('created_at', '>=', $thisMonth)->sum('total');
-
-        // Status breakdown
-        $statusStats = WarehouseTransfer::selectRaw('status, COUNT(*) as count, SUM(total) as total_amount')
-            ->groupBy('status')
-            ->get()
-            ->keyBy('status');
-
-        // Top products by transfer
-        $topProducts = WarehouseTransfer::with('product')
-            ->selectRaw('product_id, COUNT(*) as transfer_count, SUM(total) as total_amount, SUM(quantity) as total_quantity')
-            ->groupBy('product_id')
-            ->orderBy('total_amount', 'desc')
-            ->limit(5)
-            ->get()
-            ->map(function ($item) {
+            // Transform the data
+            $transfers = $transferRecords->map(function ($transferRecord) {
                 return [
-                    'product_name' => $item->product->name ?? 'Unknown',
-                    'transfer_count' => $item->transfer_count,
-                    'total_amount' => $item->total_amount,
-                    'total_quantity' => $item->total_quantity,
+                    'id' => $transferRecord->id,
+                    'reference_number' => $transferRecord->reference_number,
+                    'from_warehouse' => [
+                        'id' => $transferRecord->fromWarehouse->id,
+                        'name' => $transferRecord->fromWarehouse->name,
+                        'code' => $transferRecord->fromWarehouse->code,
+                    ],
+                    'to_warehouse' => [
+                        'id' => $transferRecord->toWarehouse->id,
+                        'name' => $transferRecord->toWarehouse->name,
+                        'code' => $transferRecord->toWarehouse->code,
+                    ],
+                    'status' => $transferRecord->status,
+                    'notes' => $transferRecord->notes,
+                    'created_by' => $transferRecord->creator ? [
+                        'id' => $transferRecord->creator->id,
+                        'name' => $transferRecord->creator->name,
+                    ] : null,
+                    'transfer_date' => $transferRecord->transfer_date,
+                    'completed_at' => $transferRecord->completed_at,
+                    'total_amount' => $transferRecord->total_amount,
+                    'total_quantity' => $transferRecord->total_quantity,
+                    'items_count' => $transferRecord->transferItems->count(),
+                    'transfer_items' => $transferRecord->transferItems->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product' => [
+                                'id' => $item->product->id,
+                                'name' => $item->product->name,
+                                'barcode' => $item->product->barcode,
+                                'type' => $item->product->type,
+                            ],
+                            'batch' => $item->batch ? [
+                                'id' => $item->batch->id,
+                                'reference_number' => $item->batch->reference_number,
+                                'expire_date' => $item->batch->expire_date,
+                            ] : null,
+                            'quantity' => $item->quantity,
+                            'unit_type' => $item->unit_type,
+                            'unit_name' => $item->unit_name,
+                            'unit_amount' => $item->unit_amount,
+                        ];
+                    }),
+                    'created_at' => $transferRecord->created_at,
+                    'updated_at' => $transferRecord->updated_at,
                 ];
             });
 
-        return Inertia::render('Admin/Warehouse/TransferIndex', [
-            'transfers' => $transfers,
-            'warehouses' => $warehouses,
-            'products' => $products,
-            'filters' => $request->only([
-                'search', 'from_warehouse_id', 'to_warehouse_id', 'product_id', 'status',
-                'date_from', 'date_to', 'min_amount', 'max_amount', 'per_page'
-            ]),
-            'sort' => [
-                'field' => $sortField,
-                'direction' => $sortDirection,
-            ],
-            'stats' => [
-                'total_transfers' => $totalTransfers,
-                'total_amount' => $totalAmount,
-                'total_quantity' => $totalQuantity,
-                'today_transfers' => $todayTransfers,
-                'today_amount' => $todayAmount,
-                'week_transfers' => $weekTransfers,
-                'week_amount' => $weekAmount,
-                'month_transfers' => $monthTransfers,
-                'month_amount' => $monthAmount,
-                'status_stats' => $statusStats,
-                'top_products' => $topProducts,
-            ],
-            'can' => [
-                'view_any_warehouse_transfer' => true, // $request->user()->can('view_any_warehouse_transfer'),
-                'view_warehouse_transfer' => true, // $request->user()->can('view_warehouse_transfer'),
-                'create_warehouse_transfer' => true, // $request->user()->can('create_warehouse_transfer'),
-                'update_warehouse_transfer' => true, // $request->user()->can('update_warehouse_transfer'),
-                'delete_warehouse_transfer' => true, // $request->user()->can('delete_warehouse_transfer'),
-                'export_warehouse_transfer' => true, // $request->user()->can('export_warehouse_transfer'),
-            ],
-        ]);
+            // Get available warehouses for filter
+            $availableWarehouses = Warehouse::where('is_active', true)
+                ->get(['id', 'name', 'code']);
+
+            // Get available products for filter
+            $availableProducts = Product::select('id', 'name', 'barcode', 'type')->get();
+
+            // Calculate statistics
+            $stats = [
+                'total_transfers' => $transferRecords->total(),
+                'total_amount' => $transferRecords->sum('total_amount'),
+                'total_quantity' => $transferRecords->sum('total_quantity'),
+                'pending_transfers' => $transferRecords->where('status', 'pending')->count(),
+                'completed_transfers' => $transferRecords->where('status', 'completed')->count(),
+            ];
+
+            return Inertia::render('Admin/Warehouse/TransferIndex', [
+                'transfers' => $transfers,
+                'pagination' => [
+                    'current_page' => $transferRecords->currentPage(),
+                    'last_page' => $transferRecords->lastPage(),
+                    'per_page' => $transferRecords->perPage(),
+                    'total' => $transferRecords->total(),
+                    'from' => $transferRecords->firstItem(),
+                    'to' => $transferRecords->lastItem(),
+                ],
+                'filters' => [
+                    'search' => $request->search,
+                    'date_from' => $request->date_from,
+                    'date_to' => $request->date_to,
+                    'from_warehouse_id' => $request->from_warehouse_id,
+                    'to_warehouse_id' => $request->to_warehouse_id,
+                    'product_id' => $request->product_id,
+                    'status' => $request->status,
+                    'sort' => $sortBy,
+                    'direction' => $direction,
+                    'per_page' => $perPage,
+                ],
+                'availableWarehouses' => $availableWarehouses,
+                'availableProducts' => $availableProducts,
+                'stats' => $stats,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading warehouse transfers: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading warehouse transfers');
+        }
+    }
+
+    public function showTransfer(WarehouseTransfer $transfer)
+    {
+        try {
+            $transfer->load([
+                'fromWarehouse',
+                'toWarehouse',
+                'transferItems.product',
+                'transferItems.batch',
+                'creator'
+            ]);
+
+            return Inertia::render('Admin/Warehouse/ShowTransfer', [
+                'transfer' => [
+                    'id' => $transfer->id,
+                    'reference_number' => $transfer->reference_number,
+                    'from_warehouse' => [
+                        'id' => $transfer->fromWarehouse->id,
+                        'name' => $transfer->fromWarehouse->name,
+                        'code' => $transfer->fromWarehouse->code,
+                    ],
+                    'to_warehouse' => [
+                        'id' => $transfer->toWarehouse->id,
+                        'name' => $transfer->toWarehouse->name,
+                        'code' => $transfer->toWarehouse->code,
+                    ],
+                    'status' => $transfer->status,
+                    'notes' => $transfer->notes,
+                    'created_by' => $transfer->creator ? [
+                        'id' => $transfer->creator->id,
+                        'name' => $transfer->creator->name,
+                    ] : null,
+                    'transfer_date' => $transfer->transfer_date,
+                    'completed_at' => $transfer->completed_at,
+                    'total_amount' => $transfer->total_amount,
+                    'total_quantity' => $transfer->total_quantity,
+                    'transfer_items' => $transfer->transferItems->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product' => [
+                                'id' => $item->product->id,
+                                'name' => $item->product->name,
+                                'barcode' => $item->product->barcode,
+                                'type' => $item->product->type,
+                            ],
+                            'batch' => $item->batch ? [
+                                'id' => $item->batch->id,
+                                'reference_number' => $item->batch->reference_number,
+                                'expire_date' => $item->batch->expire_date,
+                            ] : null,
+                            'quantity' => $item->quantity,
+                            'unit_type' => $item->unit_type,
+                            'unit_name' => $item->unit_name,
+                            'unit_amount' => $item->unit_amount,
+                        ];
+                    }),
+                    'created_at' => $transfer->created_at,
+                    'updated_at' => $transfer->updated_at,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading transfer details: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading transfer details');
+        }
+    }
+
+    public function printTransferDocument(WarehouseTransfer $transfer)
+    {
+        try {
+            $transfer->load([
+                'fromWarehouse',
+                'toWarehouse',
+                'transferItems.product',
+                'transferItems.batch',
+                'creator'
+            ]);
+
+            return view('warehouse.transfer-document', [
+                'transfer' => $transfer,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error generating transfer document: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error generating transfer document');
+        }
     }
 } 

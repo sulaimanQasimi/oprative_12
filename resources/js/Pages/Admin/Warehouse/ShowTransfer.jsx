@@ -87,7 +87,7 @@ export default function ShowTransfer({ auth, warehouse, transfer }) {
 
     const getStatusBadge = (status) => {
         const baseClasses = "text-xs font-medium px-3 py-1 rounded-full";
-        
+
         switch (status) {
             case 'completed':
                 return <Badge className={`${baseClasses} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`}>
@@ -113,7 +113,7 @@ export default function ShowTransfer({ auth, warehouse, transfer }) {
 
     const getDirectionBadge = (direction) => {
         const baseClasses = "text-xs font-medium px-3 py-1 rounded-full";
-        
+
         if (direction === 'outgoing') {
             return <Badge className={`${baseClasses} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`}>
                 <ArrowRightLeft className="w-4 h-4 mr-1" />
@@ -261,7 +261,6 @@ export default function ShowTransfer({ auth, warehouse, transfer }) {
                                         className="bg-white dark:bg-slate-800 border-2 border-blue-300 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 gap-2"
                                     >
                                         <Printer className="h-4 w-4" />
-                                        {t("Print Document")}
                                     </Button>
                                 </Link>
                                 <BackButton link={route("admin.warehouses.transfers", warehouse.id)} />
