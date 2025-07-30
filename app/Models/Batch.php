@@ -109,4 +109,9 @@ class Batch extends Model
     {
         return $this->hasMany(WarehouseOutcome::class, 'batch_id');
     }
+
+    public function transferItems()
+    {
+        return $this->hasMany(TransferItem::class, 'batch_id');
+    }
 } 

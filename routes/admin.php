@@ -26,7 +26,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\ActivityLogController;
-use App\Http\Controllers\Admin\{IncomeController, OutcomeController, TransferController};
+use App\Http\Controllers\Admin\{IncomeController, OutcomeController, TransferController, BatchController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -416,9 +416,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('outcomes')->group(function () {
         Route::get('/', [OutcomeController::class, 'index'])->name('admin.outcomes.index');
     });
-    // Warehouse Income Management
-    Route::prefix('transfer')->group(function () {
+    // Warehouse Transfer Management
+    Route::prefix('transfers')->group(function () {
         Route::get('/', [TransferController::class, 'index'])->name('admin.transfers.index');
+    });
+
+    // Warehouse Batch Management
+    Route::prefix('batches')->group(function () {
+        Route::get('/', [BatchController::class, 'index'])->name('admin.batches.index');
+        Route::get('/{batch}', [BatchController::class, 'showBatch'])->name('admin.batches.show');
+        Route::get('/{batch}/print', [BatchController::class, 'printBatchDocument'])->name('admin.batches.print');
     });
 
     // Universal Activity Log Routes
