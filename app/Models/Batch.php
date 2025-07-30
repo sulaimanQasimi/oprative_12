@@ -114,4 +114,12 @@ class Batch extends Model
     {
         return $this->hasMany(TransferItem::class, 'batch_id');
     }
+    public function warehouseProducts()
+    {
+        return $this->hasMany(WarehouseProduct::class, 'batch_id');
+    }
+    public function customerStockProducts()
+    {
+        return $this->hasMany(CustomerStockProduct::class, 'batch_id');
+    }
 } 

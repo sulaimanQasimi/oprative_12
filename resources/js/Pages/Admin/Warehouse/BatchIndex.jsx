@@ -243,10 +243,10 @@ export default function BatchIndex({
         }
 
         if (batch.expire_date && new Date(batch.expire_date) <= new Date()) {
-            return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300';
+            return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
         }
 
-        if (batch.expire_date && new Date(batch.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)) {
+        if (batch.expire_date && new Date(batch.expire_date) <= new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)) {
             return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
         }
 
@@ -262,7 +262,7 @@ export default function BatchIndex({
             return t("Expired");
         }
 
-        if (batch.expire_date && new Date(batch.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)) {
+        if (batch.expire_date && new Date(batch.expire_date) <= new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)) {
             return t("Expiring Soon");
         }
 
@@ -622,6 +622,12 @@ export default function BatchIndex({
                                                                 {t("Quantity")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Warehouse")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Customer")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Expire Date")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
@@ -661,10 +667,32 @@ export default function BatchIndex({
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell>
+                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                                            {batch.remaining_warehouse/batch.unit_amount} {batch.unit_name}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                                            {batch.remaining_customer/batch.unit_amount} {batch.unit_name}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell>
                                                                         {batch.expire_date ? (
                                                                             <div className="flex items-center gap-2">
-                                                                                <CalendarDays className="h-4 w-4 text-orange-600" />
-                                                                                <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                                                <CalendarDays className={`h-4 w-4 ${
+                                                                                    new Date(batch.expire_date) <= new Date() 
+                                                                                        ? 'text-red-600' 
+                                                                                        : new Date(batch.expire_date) <= new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)
+                                                                                        ? 'text-yellow-600'
+                                                                                        : 'text-green-600'
+                                                                                }`} />
+                                                                                <span className={`text-sm font-medium ${
+                                                                                    new Date(batch.expire_date) <= new Date() 
+                                                                                        ? 'text-red-600 dark:text-red-400' 
+                                                                                        : new Date(batch.expire_date) <= new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)
+                                                                                        ? 'text-yellow-600 dark:text-yellow-400'
+                                                                                        : 'text-green-600 dark:text-green-400'
+                                                                                }`}>
                                                                                     {formatDate(batch.expire_date)}
                                                                                 </span>
                                                                             </div>

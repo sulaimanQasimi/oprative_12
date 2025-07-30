@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerStockProduct extends Model
 {
-    protected $table = "customer_stock_product_movements";
+    protected $table = "customer_inventory";
 
     public function customer()
     {

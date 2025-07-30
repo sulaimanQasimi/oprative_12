@@ -310,6 +310,7 @@ trait SaleController
                     'unit_amount' => $batchInventory->unit_amount,
                     'unit_name' => $batchInventory->unit_name,
                     'batch_id' => $item['batch_id'],
+                    'is_wholesale' => true,
                 ]);
             }
             $sale->update([

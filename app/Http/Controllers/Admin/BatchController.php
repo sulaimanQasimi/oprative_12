@@ -84,6 +84,8 @@ class BatchController extends Controller
                         'barcode' => $batchRecord->product->barcode,
                         'type' => $batchRecord->product->type,
                     ],
+                    'remaining_warehouse' => $batchRecord->warehouseProducts->sum('remaining_qty'),
+                    'remaining_customer' => $batchRecord->customerStockProducts->sum('remaining_qty'),
                     'quantity' => $batchRecord->quantity,
                     'unit_type' => $batchRecord->unit_type,
                     'unit_name' => $batchRecord->unit_name,
@@ -159,10 +161,46 @@ class BatchController extends Controller
                 'product',
                 'purchase.supplier',
                 'purchase.warehouse',
-                'warehouseIncomes',
-                'warehouseOutcomes',
-                'transferItems'
+                'warehouseIncomes.warehouse',
+                'warehouseOutcomes.warehouse',
+                'warehouseProducts.warehouse',
+                'customerStockProducts.customer'
             ]);
+
+            // Get warehouse batch inventory data
+            $warehouseInventory = $batch->warehouseProducts->map(function ($item) {
+                return [
+                    'warehouse_id' => $item->warehouse->id,
+                        'warehouse_name' => $item->warehouse->name,
+                        'income_qty' => $item->income_qty,
+                        'outcome_qty' => $item->outcome_qty,
+                        'remaining_qty' => $item->remaining_qty,
+                        'total_income_value' => $item->total_income_value,
+                        'total_outcome_value' => $item->total_outcome_value,
+                        'expiry_status' => $item->expiry_status,
+                        'days_to_expiry' => $item->days_to_expiry,
+                    ];
+                });
+
+            // Get customer inventory data
+            $customerInventory =$batch->customerStockProducts->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'customer_id' => $item->customer_id,
+                    'customer_name' => $item->customer->name,
+                    'customer_code' => $item->customer->code,
+                    'quantity' => $item->quantity,
+                    'remaining_quantity' => $item->remaining_quantity,
+                    'price' => $item->price,
+                    'total' => $item->total,
+                    'created_at' => $item->created_at,
+                ];
+            });
+            // Calculate summary statistics
+            $totalWarehouseRemaining = $warehouseInventory->sum('remaining_qty');
+            $totalCustomerRemaining = $customerInventory->sum('remaining_quantity');
+            $totalWarehouseValue = $warehouseInventory->sum('total_income_value') - $warehouseInventory->sum('total_outcome_value');
+            $totalCustomerValue = $customerInventory->sum('total');
 
             return Inertia::render('Admin/Warehouse/ShowBatch', [
                 'batch' => [
@@ -177,12 +215,12 @@ class BatchController extends Controller
                     'warehouse' => $batch->purchase && $batch->purchase->warehouse ? [
                         'id' => $batch->purchase->warehouse->id,
                         'name' => $batch->purchase->warehouse->name,
-                        // 'code' => $batch->purchase->warehouse->code,
+                        'code' => $batch->purchase->warehouse->code,
                     ] : null,
                     'supplier' => $batch->purchase && $batch->purchase->supplier ? [
                         'id' => $batch->purchase->supplier->id,
                         'name' => $batch->purchase->supplier->name,
-                        // 'code' => $batch->purchase->supplier->code,
+                        'code' => $batch->purchase->supplier->code,
                     ] : null,
                     'quantity' => $batch->quantity,
                     'unit_type' => $batch->unit_type,
@@ -192,11 +230,22 @@ class BatchController extends Controller
                     'manufacture_date' => $batch->issue_date,
                     'is_active' => $batch->expire_date ? ($batch->expire_date > now()) : true,
                     'notes' => $batch->notes,
+                    'purchase_price' => $batch->purchase_price,
+                    'wholesale_price' => $batch->wholesale_price,
+                    'retail_price' => $batch->retail_price,
+                    'total' => $batch->total,
                     'incomes' => $batch->warehouseIncomes->map(function ($income) {
                         return [
                             'id' => $income->id,
                             'reference_number' => $income->reference_number,
+                            'warehouse' => [
+                                'id' => $income->warehouse->id,
+                                'name' => $income->warehouse->name,
+                                'code' => $income->warehouse->code,
+                            ],
                             'quantity' => $income->quantity,
+                            'price' => $income->price,
+                            'total' => $income->total,
                             'created_at' => $income->created_at,
                         ];
                     }),
@@ -204,21 +253,27 @@ class BatchController extends Controller
                         return [
                             'id' => $outcome->id,
                             'reference_number' => $outcome->reference_number,
+                            'warehouse' => [
+                                'id' => $outcome->warehouse->id,
+                                'name' => $outcome->warehouse->name,
+                                'code' => $outcome->warehouse->code,
+                            ],
                             'quantity' => $outcome->quantity,
+                            'price' => $outcome->price,
+                            'total' => $outcome->total,
                             'created_at' => $outcome->created_at,
                         ];
                     }),
-                    'transfer_items' => $batch->transferItems->map(function ($item) {
-                        return [
-                            'id' => $item->id,
-                            'transfer' => [
-                                'id' => $item->transfer->id,
-                                'reference_number' => $item->transfer->reference_number,
-                            ],
-                            'quantity' => $item->quantity,
-                            'created_at' => $item->created_at,
-                        ];
-                    }),
+                    'warehouse_inventory' => $warehouseInventory,
+                    'customer_inventory' => $customerInventory,
+                    'summary' => [
+                        'total_warehouse_remaining' => $totalWarehouseRemaining,
+                        'total_customer_remaining' => $totalCustomerRemaining,
+                        'total_warehouse_value' => $totalWarehouseValue,
+                        'total_customer_value' => $totalCustomerValue,
+                        'total_warehouses' => $warehouseInventory->count(),
+                        'total_customers' => $customerInventory->count(),
+                    ],
                     'created_at' => $batch->created_at,
                     'updated_at' => $batch->updated_at,
                 ],
