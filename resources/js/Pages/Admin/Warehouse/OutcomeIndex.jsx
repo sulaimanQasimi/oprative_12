@@ -527,7 +527,7 @@ export default function OutcomeIndex({ auth, outcomes = [], pagination = {}, fil
                                                                 <td className="px-6 py-4 whitespace-nowrap text-right">
                                                                     <div className="text-center">
                                                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
-                                                                            {record.quantity}
+                                                                            {record.quantity / record.batch.unit_amount}
                                                                         </span>
                                                                         {record.unit_name && (
                                                                             <div className="text-xs text-slate-500 mt-1">
