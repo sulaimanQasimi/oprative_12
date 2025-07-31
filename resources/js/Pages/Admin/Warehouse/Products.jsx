@@ -8,7 +8,6 @@ import {
     TrendingUp,
     TrendingDown,
     BarChart3,
-    DollarSign,
     Boxes,
     Calendar,
     AlertTriangle,
@@ -100,17 +99,9 @@ export default function Products({ auth, warehouse, products }) {
 
     // Calculate summary statistics
     const totalProducts = filteredProducts.length;
-    const totalValue = filteredProducts.reduce((sum, product) => sum + (product.total_income_value || 0), 0);
     const totalQuantity = filteredProducts.reduce((sum, product) => sum + (product.remaining_qty || 0), 0);
-    const totalProfit = filteredProducts.reduce((sum, product) => sum + (product.profit || 0), 0);
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'AFN',
-            minimumFractionDigits: 0,
-        }).format(amount || 0);
-    };
+
 
     const getStockStatus = (quantity) => {
         if (quantity <= 0) return { status: 'out', color: 'bg-red-500', text: 'Out of Stock' };
@@ -287,41 +278,7 @@ export default function Products({ auth, warehouse, products }) {
                                     </CardContent>
                                 </Card>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                                    {t("Total Value")}
-                                                </p>
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                    {formatCurrency(totalValue)}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                                                <DollarSign className="h-6 w-6 text-white" />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                                    {t("Total Profit")}
-                                                </p>
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                    {formatCurrency(totalProfit)}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
-                                                <TrendingUp className="h-6 w-6 text-white" />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
                             </motion.div>
 
                             {/* Filters and Search */}
@@ -350,8 +307,6 @@ export default function Products({ auth, warehouse, products }) {
                                                     <SelectContent>
                                                         <SelectItem value="product.name">{t("Product Name")}</SelectItem>
                                                         <SelectItem value="remaining_qty">{t("Remaining Quantity")}</SelectItem>
-                                                        <SelectItem value="total_income_value">{t("Income Value")}</SelectItem>
-                                                        <SelectItem value="profit">{t("Profit")}</SelectItem>
                                                         <SelectItem value="income_qty">{t("Income Quantity")}</SelectItem>
                                                         <SelectItem value="outcome_qty">{t("Outcome Quantity")}</SelectItem>
                                                         <SelectItem value="expire_date">{t("Expire Date")}</SelectItem>
@@ -411,20 +366,11 @@ export default function Products({ auth, warehouse, products }) {
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
                                                                     {t("Income Qty")}
                                                                 </TableHead>
-                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                    {t("Income Total")}
-                                                                </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
                                                                     {t("Outcome Qty")}
                                                                 </TableHead>
-                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                    {t("Outcome Total")}
-                                                                </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
                                                                     {t("Remaining")}
-                                                                </TableHead>
-                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                    {t("Profit")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
                                                                     {t("Issue Date")}
@@ -487,14 +433,8 @@ export default function Products({ auth, warehouse, products }) {
                                                                         <TableCell className="text-center font-semibold">
                                                                             {batch.income_qty?.toLocaleString() || 0}
                                                                         </TableCell>
-                                                                        <TableCell className="text-right font-semibold text-green-600 dark:text-green-400">
-                                                                            {formatCurrency(batch.total_income_value)}
-                                                                        </TableCell>
                                                                         <TableCell className="text-center font-semibold">
                                                                             {batch.outcome_qty?.toLocaleString() || 0}
-                                                                        </TableCell>
-                                                                        <TableCell className="text-right font-semibold text-red-600 dark:text-red-400">
-                                                                            {formatCurrency(batch.total_outcome_value)}
                                                                         </TableCell>
                                                                         <TableCell className="text-center">
                                                                             <Badge
@@ -503,11 +443,6 @@ export default function Products({ auth, warehouse, products }) {
                                                                             >
                                                                                 {batch.remaining_qty?.toLocaleString() || 0}
                                                                             </Badge>
-                                                                        </TableCell>
-                                                                        <TableCell className="text-right font-bold">
-                                                                            <span className={batch.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                                                                {formatCurrency(batch.profit)}
-                                                                            </span>
                                                                         </TableCell>
                                                                         <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">
                                                                             {batch.issue_date ? formatDate(batch.issue_date) : '-'}

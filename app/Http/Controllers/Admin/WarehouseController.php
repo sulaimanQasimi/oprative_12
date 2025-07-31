@@ -283,26 +283,24 @@ class WarehouseController extends Controller
             $warehouse = Warehouse::findOrFail($warehouse->id);
 
             // Get batch inventory data directly from the view without grouping
-            $batchInventory = DB::table('warehouse_batch_inventory')
-                ->where('warehouse_id', $warehouse->id)
+            $batchInventory = $warehouse->items()
+                ->with(['batch', 'product'])
                 ->orderBy('expire_date', 'asc')
                 ->orderBy('batch_id', 'desc')
+                ->where('remaining_qty', '>', 0)
                 ->get()
                 ->map(function ($batch) {
-                    // Get product details from database
-                    $product = Product::find($batch->product_id);
-
                     return [
-                        'batch_id' => $batch->batch_id,
-                        'batch_reference' => $batch->batch_reference,
-                        'product_id' => $batch->product_id,
+                        'batch_id' => $batch->batch->id,
+                        'batch_reference' => $batch->batch->reference_number,
+                        'product_id' => $batch->product->id,
                         'product' => [
-                            'id' => $product->id ?? $batch->product_id,
-                            'name' => $product->name ?? $batch->product_name,
-                            'barcode' => $product->barcode ?? $batch->product_barcode,
-                            'type' => $product->type ?? 'Unknown',
-                            'is_activated' => $product->is_activated ?? true,
-                            'is_in_stock' => $product->is_in_stock ?? true,
+                            'id' => $batch->product->id ?? $batch->product_id,
+                            'name' => $batch->product->name ?? $batch->product_name,
+                            'barcode' => $batch->product->barcode ?? $batch->product_barcode,
+                            'type' => $batch->product->type ?? 'Unknown',
+                            'is_activated' => $batch->product->is_activated ?? true,
+                            'is_in_stock' => $batch->product->is_in_stock ?? true,
                         ],
                         'warehouse_id' => $batch->warehouse_id,
                         'warehouse_name' => $batch->warehouse_name,
@@ -450,7 +448,7 @@ class WarehouseController extends Controller
                             return $product->remaining_qty / ($product->unit_amount ?: 1);
                         });
                         $unitName = $products->first()->unit_name ?: 'Units';
-                        
+
                         return [
                             'product' => $productName,
                             'total_remaining' => round($totalRemaining, 2),
@@ -470,7 +468,7 @@ class WarehouseController extends Controller
                         $totalQuantity = $items->sum(function ($item) {
                             return $item->remaining_qty / ($item->unit_amount ?: 1);
                         });
-                        
+
                         return [
                             'status' => $status,
                             'count' => $items->count(),
@@ -492,7 +490,7 @@ class WarehouseController extends Controller
                         $outcomeQuantity = $items->sum(function ($item) {
                             return $item->outcome_qty / ($item->unit_amount ?: 1);
                         });
-                        
+
                         return [
                             'month' => $month,
                             'income_quantity' => round($incomeQuantity, 2),
@@ -526,7 +524,7 @@ class WarehouseController extends Controller
                         $totalQuantity = $items->sum(function ($item) {
                             return $item->remaining_qty / ($item->unit_amount ?: 1);
                         });
-                        
+
                         return [
                             'unit' => $unitName ?: 'Unknown',
                             'count' => $items->count(),
