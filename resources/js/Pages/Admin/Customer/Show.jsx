@@ -519,6 +519,12 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                                 {t("View All Customer Users")}
                                                             </Button>
                                                         </Link>
+                                                        <Link href={route("admin.customer-transfers.index", { customer_id: customer.id })}>
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
+                                                                <Package className="w-4 h-4" />
+                                                                {t("View Customer Transfers")}
+                                                            </Button>
+                                                        </Link>
                                                     </CardContent>
                                                 </Card>
 
@@ -1061,6 +1067,21 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                             </div>
                                                             <h3 className="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-3">{t("Manage Accounts")}</h3>
                                                             <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("View and manage store accounts")}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
+                                                <Link href={route("admin.customer-transfers.index", { customer_id: customer.id })}>
+                                                    <Card className="border-0 shadow-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 dark:from-emerald-900/20 dark:via-teal-900/20 dark:to-emerald-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                        <CardContent className="p-8 text-center">
+                                                            <div className="relative">
+                                                                <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl blur-lg opacity-30"></div>
+                                                                <div className="relative p-6 bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                    <Users className="w-10 h-10 text-white" />
+                                                                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-3">{t("Customer Transfers")}</h3>
+                                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage transfers between customers")}</p>
                                                         </CardContent>
                                                     </Card>
                                                 </Link>

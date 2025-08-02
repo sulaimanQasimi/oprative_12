@@ -107,10 +107,12 @@ Route::get('units/select', [App\Http\Controllers\Api\UnitController::class, 'sel
 Route::get('suppliers/select', [App\Http\Controllers\Api\SupplierController::class, 'select']);
 Route::get('currencies/select', [App\Http\Controllers\Api\CurrencyController::class, 'select']);
 Route::get('warehouses/select', [App\Http\Controllers\Api\WarehouseController::class, 'select']);
+Route::get('customers/select', [App\Http\Controllers\Api\CustomerController::class, 'select']);
 
 // Customer Inventory & Sales Data
 Route::get('customer-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getByPurchase']);
 Route::get('customer-inventory/analytics/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getSalesAnalytics']);
+Route::get('customer-inventory/select', [App\Http\Controllers\Api\CustomerInventoryController::class, 'select']);
 
 // Warehouse Inventory Data
 Route::get('warehouse-inventory/purchase/{purchaseId}', [App\Http\Controllers\Api\CustomerInventoryController::class, 'getWarehouseInventory']);

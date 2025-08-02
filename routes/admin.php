@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AttendanceRequestController;
 use App\Http\Controllers\Admin\WarehouseUserController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerUserController;
+use App\Http\Controllers\Admin\CustomerTransferController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AccountIncomeController;
 use App\Http\Controllers\Admin\AccountOutcomeController;
@@ -271,6 +272,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Customer inventory management
         Route::get('/{customer:id}/inventory', [CustomerController::class, 'inventory'])->name('admin.customers.inventory');
+        
+        // Customer transfer management
+        Route::get('/{customer:id}/transfers', [CustomerController::class, 'transfers'])->name('admin.customers.transfers');
+        Route::get('/{customer:id}/transfers/create', [CustomerController::class, 'createTransfer'])->name('admin.customers.transfers.create');
+        Route::post('/{customer:id}/transfers', [CustomerController::class, 'storeTransfer'])->name('admin.customers.transfers.store');
+        Route::get('/{customer:id}/transfers/{transfer}', [CustomerController::class, 'showTransfer'])->name('admin.customers.transfers.show');
+    });
+    
+    // Customer Transfers
+    Route::prefix('customer-transfers')->group(function () {
+        Route::get('/', [CustomerTransferController::class, 'index'])->name('admin.customer-transfers.index');
+        Route::get('/create', [CustomerTransferController::class, 'create'])->name('admin.customer-transfers.create');
+        Route::post('/', [CustomerTransferController::class, 'store'])->name('admin.customer-transfers.store');
+        Route::get('/{transfer}', [CustomerTransferController::class, 'show'])->name('admin.customer-transfers.show');
+        Route::post('/{transfer}/complete', [CustomerTransferController::class, 'complete'])->name('admin.customer-transfers.complete');
+        Route::post('/{transfer}/cancel', [CustomerTransferController::class, 'cancel'])->name('admin.customer-transfers.cancel');
+        Route::delete('/{transfer}', [CustomerTransferController::class, 'destroy'])->name('admin.customer-transfers.destroy');
     });
 
     // Customer User Management

@@ -157,6 +157,134 @@ class CustomerInventoryController extends Controller
         }
     }
 
+    public function select(Request $request)
+    {
+        try {
+            $search = $request->get('search', '');
+            $customerId = $request->get('customer_id');
+            $purchaseId = $request->get('purchase_id');
+            $limit = min((int) $request->get('limit', 50), 100); // Cap at 100 for performance
+            
+            $query = DB::table('customer_inventory as ci')
+                ->select([
+                    'ci.batch_id',
+                    'ci.product_id',
+                    'ci.customer_id',
+                    'ci.product_name',
+                    'ci.product_barcode',
+                    'ci.batch_reference',
+                    'ci.customer_name',
+                    'ci.customer_email',
+                    'ci.customer_phone',
+                    'ci.expire_date',
+                    'ci.issue_date',
+                    'ci.wholesale_price',
+                    'ci.retail_price',
+                    'ci.unit_amount',
+                    'ci.unit_name',
+                    'ci.remaining_qty as available_quantity',
+                    'ci.income_qty',
+                    'ci.outcome_qty',
+                    'ci.total_income_value',
+                    'ci.total_outcome_value',
+                    'ci.expiry_status',
+                    'ci.days_to_expiry',
+                    'ci.purchase_id'
+                ])
+                ->where('ci.remaining_qty', '>', 0)
+                ->whereNotNull('ci.customer_id');
+
+            // Filter by customer if specified
+            if ($customerId) {
+                $query->where('ci.customer_id', $customerId);
+            }
+
+            // Filter by purchase if specified
+            if ($purchaseId) {
+                $query->where('ci.purchase_id', $purchaseId);
+            }
+
+            // Apply search filters
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('ci.product_name', 'like', "%{$search}%")
+                      ->orWhere('ci.product_barcode', 'like', "%{$search}%")
+                      ->orWhere('ci.batch_reference', 'like', "%{$search}%")
+                      ->orWhere('ci.customer_name', 'like', "%{$search}%");
+                });
+            }
+
+            // Order by expiry status (expired first, then expiring soon, then valid)
+            $query->orderByRaw("
+                CASE 
+                    WHEN ci.expiry_status = 'expired' THEN 1
+                    WHEN ci.expiry_status = 'expiring_soon' THEN 2
+                    ELSE 3
+                END
+            ")
+            ->orderBy('ci.days_to_expiry', 'asc')
+            ->orderBy('ci.product_name', 'asc')
+            ->orderBy('ci.batch_reference', 'asc');
+
+            $inventory = $query->limit($limit)->get();
+
+            $options = $inventory->map(function($item) {
+                $expiryInfo = '';
+                if ($item->expiry_status === 'expired') {
+                    $expiryInfo = ' | EXPIRED';
+                } elseif ($item->expiry_status === 'expiring_soon') {
+                    $expiryInfo = " | Expires in {$item->days_to_expiry} days";
+                }
+
+                return [
+                    'value' => $item->batch_id, // Composite key for uniqueness
+                    'label' => $item->product_name,
+                    'subtitle' => "Batch: {$item->batch_reference} | Customer: {$item->customer_name} | Available: {$item->available_quantity} {$item->unit_name}{$expiryInfo}",
+                    'data' => [
+                        'batch_id' => $item->batch_id,
+                        'product_id' => $item->product_id,
+                        'customer_id' => $item->customer_id,
+                        'product_name' => $item->product_name,
+                        'product_barcode' => $item->product_barcode,
+                        'batch_reference' => $item->batch_reference,
+                        'customer_name' => $item->customer_name,
+                        'customer_email' => $item->customer_email,
+                        'customer_phone' => $item->customer_phone,
+                        'expire_date' => $item->expire_date,
+                        'issue_date' => $item->issue_date,
+                        'wholesale_price' => $item->wholesale_price,
+                        'retail_price' => $item->retail_price,
+                        'unit_amount' => $item->unit_amount,
+                        'unit_name' => $item->unit_name,
+                        'available_quantity' => $item->available_quantity,
+                        'income_qty' => $item->income_qty,
+                        'outcome_qty' => $item->outcome_qty,
+                        'total_income_value' => $item->total_income_value,
+                        'total_outcome_value' => $item->total_outcome_value,
+                        'expiry_status' => $item->expiry_status,
+                        'days_to_expiry' => $item->days_to_expiry,
+                        'purchase_id' => $item->purchase_id
+                    ]
+                ];
+            });
+
+            return response()->json($options);
+
+        } catch (\Exception $e) {
+            \Log::error('CustomerInventoryController::select error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to fetch customer inventory',
+                'message' => config('app.debug') ? $e->getMessage() : 'An error occurred while fetching inventory data'
+            ], 500);
+        }
+    }
+
     public function getWarehouseInventory(Request $request, $purchaseId)
     {
         try {

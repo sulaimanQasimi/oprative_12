@@ -70,4 +70,14 @@ class Customer extends Authenticatable implements Wallet
     {
         return $this->hasMany(MarketOrder::class);
     }
+
+    public function transfersFrom(): HasMany
+    {
+        return $this->hasMany(CustomerTransfer::class, 'from_customer_id');
+    }
+
+    public function transfersTo(): HasMany
+    {
+        return $this->hasMany(CustomerTransfer::class, 'to_customer_id');
+    }
 }
