@@ -297,7 +297,7 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                             className="pl-10 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors"
                                                         />
                                                     </div>
-                                                    
+
                                                     <Input
                                                         type="date"
                                                         placeholder={t("From Date")}
@@ -305,7 +305,7 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                         onChange={(e) => setDateFrom(e.target.value)}
                                                         className="h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors"
                                                     />
-                                                    
+
                                                     <Input
                                                         type="date"
                                                         placeholder={t("To Date")}
@@ -313,7 +313,7 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                         onChange={(e) => setDateTo(e.target.value)}
                                                         className="h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors"
                                                     />
-                                                    
+
                                                     <select
                                                         value={statusFilter}
                                                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -339,13 +339,13 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                             </option>
                                                         ))}
                                                     </select>
-                                                    
+
                                                     <div className="flex gap-2">
                                                         <Button type="submit" className="flex-1 gap-2 h-12 bg-green-600 hover:bg-green-700">
                                                             <Search className="h-4 w-4" />
                                                             {t("Search")}
                                                         </Button>
-                                                        
+
                                                         {(searchTerm || dateFrom || dateTo || statusFilter || customerFilter) && (
                                                             <Button
                                                                 type="button"
@@ -432,45 +432,19 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                                         {formatDate(transfer.created_at)}
                                                                     </TableCell>
                                                                     <TableCell className="text-right">
-                                                                        <div className="flex items-center justify-end gap-1">
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                                                                                asChild
-                                                                            >
-                                                                                <Link href={route('admin.customer-transfers.show', transfer.id)}>
-                                                                                    <Eye className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("View")}</span>
-                                                                                </Link>
-                                                                            </Button>
-                                                                            
-                                                                            {transfer.status === 'pending' && (
-                                                                                <>
-                                                                                    <Button
-                                                                                        variant="ghost"
-                                                                                        size="sm"
-                                                                                        className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
-                                                                                        asChild
-                                                                                    >
-                                                                                        <Link href={route('admin.customer-transfers.edit', transfer.id)}>
-                                                                                            <Edit className="h-4 w-4" />
-                                                                                            <span className="sr-only">{t("Edit")}</span>
-                                                                                        </Link>
-                                                                                    </Button>
-                                                                                    
-                                                                                    <Button
-                                                                                        variant="ghost"
-                                                                                        size="sm"
-                                                                                        className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                                                                                        onClick={() => handleDeleteTransfer(transfer.id)}
-                                                                                    >
-                                                                                        <Trash2 className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("Delete")}</span>
-                                                                                    </Button>
-                                                                                </>
-                                                                            )}
-                                                                        </div>
+
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="default"
+                                                                            className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                            asChild
+                                                                            title={t("View Details")}
+                                                                        >
+                                                                            <Link href={route('admin.customer-transfers.show', transfer.id)}>
+                                                                                <Eye className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                                                                            </Link>
+                                                                        </Button>
+
                                                                     </TableCell>
                                                                 </TableRow>
                                                             ))}
@@ -512,7 +486,7 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("Showing")} {transfers.from} {t("to")} {transfers.to} {t("of")} {transfers.total} {t("transfers")}
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-2">
                                                         {transfers.links.map((link, index) => {
                                                             if (link.url === null) {
@@ -545,11 +519,10 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                                     <Button
                                                                         variant={link.active ? "default" : "outline"}
                                                                         size="sm"
-                                                                        className={`w-10 h-10 p-0 ${
-                                                                            link.active 
-                                                                                ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                                                                : 'hover:bg-green-50 hover:border-green-300'
-                                                                        }`}
+                                                                        className={`w-10 h-10 p-0 ${link.active
+                                                                            ? 'bg-green-600 hover:bg-green-700 text-white'
+                                                                            : 'hover:bg-green-50 hover:border-green-300'
+                                                                            }`}
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? (
                                                                             <ChevronLeft className="h-4 w-4" />

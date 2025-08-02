@@ -119,30 +119,75 @@ class CustomerTransferController extends Controller
                 'created_by' => Auth::id(),
                 'transfer_date' => now(),
             ]);
-
-            $totalAmount = 0;
-            $totalQuantity = 0;
-
             // Create transfer items
             foreach ($validated['transfer_items'] as $itemData) {
-                $totalPrice = $itemData['quantity'] * $itemData['unit_price'];
+                // Get batch
+                $batch=Batch::find($itemData['batch_id']);
+                // Get unit price
+                $unitPrice=$batch->purchase_price;
+                // Get actual quantity
+                $actualQuantity=$itemData['quantity']*$batch->unit_amount;
+                // Get total price
+                $totalPrice = $itemData['quantity'] * $unitPrice;
                 
+                // Create transfer item
                 CustomerTransferItem::create([
                     'customer_transfer_id' => $transfer->id,
                     'product_id' => $itemData['product_id'],
                     'batch_id' => $itemData['batch_id'] ?? null,
-                    'quantity' => $itemData['quantity'],
-                    'unit_price' => $itemData['unit_price'],
+                    'quantity' => $actualQuantity,
+                    'unit_price' => $unitPrice,
                     'total_price' => $totalPrice,
-                    'unit_type' => $itemData['unit_type'] ?? 'batch_unit',
+                    'unit_type' => $batch->unit_type,
                     'unit_id' => $itemData['unit_id'] ?? null,
                     'unit_amount' => $itemData['unit_amount'] ?? 1,
                     'unit_name' => $itemData['unit_name'] ?? null,
                     'notes' => $itemData['notes'] ?? null,
+                
                 ]);
 
-                $totalAmount += $totalPrice;
-                $totalQuantity += $itemData['quantity'];
+                // Create batch inventory record
+
+
+
+
+
+                // Create customer income record for to_customer
+                \App\Models\CustomerStockIncome::create([
+                    'customer_id' => $validated['to_customer_id'],
+                    'product_id' => $itemData['product_id'],
+                    'reference_number' => $referenceNumber,
+                    'quantity' => $actualQuantity,
+                    'price' => $unitPrice,
+                    'total' => $totalPrice,
+                    'model_id' => $transfer->id,
+                    'model_type' => 'App\Models\CustomerTransfer',
+                    'unit_id' => $itemData['unit_id'] ?? null,
+                    'unit_type' => $batch->unit_type,
+                    'unit_amount' => $itemData['unit_amount'] ?? 1,
+                    'unit_name' => $itemData['unit_name'] ?? null,
+                    'batch_id' => $itemData['batch_id'] ?? null,
+                    'is_wholesale' => true,
+                ]);
+
+                // Create customer outcome record for customer tracking
+
+                \App\Models\CustomerStockOutcome::create([
+                    'customer_id' => $validated['from_customer_id'],
+                    'product_id' => $itemData['product_id'],
+                    'reference_number' => $referenceNumber,
+                    'quantity' => $actualQuantity,
+                    'price' => $unitPrice,
+                    'total' => $totalPrice,
+                    'model_id' => $transfer->id,
+                    'model_type' => 'App\Models\CustomerTransfer',
+                    'unit_id' => $itemData['unit_id'] ?? null,
+                    'unit_type' => $batch->unit_type,
+                    'unit_amount' => $itemData['unit_amount'] ?? 1,
+                    'unit_name' => $itemData['unit_name'] ?? null,
+                    'batch_id' => $itemData['batch_id'] ?? null,
+                    'is_wholesale' => true,
+                ]);
             }
 
             DB::commit();

@@ -231,7 +231,6 @@ export default function Show({ auth, transfer }) {
                                 className="flex items-center gap-x-2"
                             >
                                 {transfer.status === 'pending' && (
-                                    <>
                                         <Button
                                             onClick={handleCompleteTransfer}
                                             className="gap-2 bg-green-600 hover:bg-green-700"
@@ -239,27 +238,9 @@ export default function Show({ auth, transfer }) {
                                             <CheckCircle className="w-4 h-4" />
                                             {t("Complete")}
                                         </Button>
-                                        <Button
-                                            onClick={handleCancelTransfer}
-                                            variant="outline"
-                                            className="gap-2 border-red-300 text-red-600 hover:bg-red-50"
-                                        >
-                                            <XCircle className="w-4 h-4" />
-                                            {t("Cancel")}
-                                        </Button>
-                                    </>
                                 )}
                                 
-                                {transfer.status === 'pending' && (
-                                    <Button
-                                        onClick={handleDeleteTransfer}
-                                        variant="outline"
-                                        className="gap-2 border-red-300 text-red-600 hover:bg-red-50"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                        {t("Delete")}
-                                    </Button>
-                                )}
+                            
                                 
                                 <BackButton link={route("admin.customer-transfers.index")} />
                             </motion.div>
@@ -379,7 +360,7 @@ export default function Show({ auth, transfer }) {
                                                         <div className="p-2 bg-red-100 rounded-lg">
                                                             <Phone className="w-4 h-4 text-red-600" />
                                                         </div>
-                                                        <p className="text-slate-700 dark:text-slate-300">{transfer.from_customer.phone}</p>
+                                                        <p className="text-slate-700 dark:text-slate-300" dir="ltr">{transfer.from_customer.phone}</p>
                                                     </div>
                                                 )}
                                                 
@@ -422,7 +403,7 @@ export default function Show({ auth, transfer }) {
                                                         <div className="p-2 bg-green-100 rounded-lg">
                                                             <Phone className="w-4 h-4 text-green-600" />
                                                         </div>
-                                                        <p className="text-slate-700 dark:text-slate-300">{transfer.to_customer.phone}</p>
+                                                        <p className="text-slate-700 dark:text-slate-300" dir="ltr">{transfer.to_customer.phone}</p>
                                                     </div>
                                                 )}
                                                 
@@ -457,7 +438,7 @@ export default function Show({ auth, transfer }) {
                                             <div className="text-right">
                                                 <p className="text-sm text-slate-600 dark:text-slate-400">{t("Total Amount")}</p>
                                                 <p className="text-2xl font-bold text-green-600">
-                                                    {formatCurrency(transfer.total_amount || 0)}
+                                                    {formatCurrency(transfer.transfer_items.reduce((acc, item) => acc + item.total_price, 0))}
                                                 </p>
                                             </div>
                                         </CardHeader>
@@ -473,6 +454,7 @@ export default function Show({ auth, transfer }) {
                                                                 <TableHead>{t("Unit Price")}</TableHead>
                                                                 <TableHead>{t("Total")}</TableHead>
                                                                 <TableHead>{t("Unit")}</TableHead>
+                                                                <TableHead>{t("Batch")}</TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
@@ -488,7 +470,7 @@ export default function Show({ auth, transfer }) {
                                                                         {item.batch?.name || '-'}
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <span className="font-semibold">{item.quantity}</span>
+                                                                        <span className="font-semibold">{item.quantity/item.batch.unit_amount} {item.batch.unit_name}</span>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         {formatCurrency(item.unit_price)}
@@ -502,6 +484,14 @@ export default function Show({ auth, transfer }) {
                                                                         <div className="space-y-1">
                                                                             <div className="text-sm">{item.unit_name || item.unit?.name}</div>
                                                                             <div className="text-xs text-slate-500">{item.unit_type}</div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        {console.log(item.batch)}
+                                                                        <div className="space-y-1">
+                                                                            <div className="text-sm">{item.batch?.name}</div>
+                                                                            <div className="text-xs text-slate-500">{item.batch?.batch_reference}</div>
+                                                                            <div className="text-xs text-slate-500">{item.batch?.expiry_date}</div>
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>

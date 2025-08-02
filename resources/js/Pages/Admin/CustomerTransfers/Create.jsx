@@ -527,7 +527,7 @@ export default function Create({ auth, customers = [], products = [] }) {
                                                             direction="ltr"
                                                             value={currentItem.inventory_id}
                                                             onChange={(value, option) => {
-                                                                setCurrentItem({ ...currentItem, inventory_id: value });
+                                                                setCurrentItem({ ...currentItem, inventory_id: value ,unit_price:option.data.purchase_price});
                                                                 setSelectedInventoryItem(option);
                                                             }}
                                                             searchParam="search"
@@ -592,47 +592,23 @@ export default function Create({ auth, customers = [], products = [] }) {
                                                             <DollarSign className="w-5 h-5 text-purple-500" />
                                                             {t("Unit Price")} *
                                                         </Label>
-                                                        <Select
-                                                            value={currentItem.unit_price}
+                                                        <div className="h-12 flex items-center px-3 border-2 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 rounded-md">
+                                                            <span className="text-slate-600 dark:text-slate-400"
+                                                            dir="ltr"
                                                             onValueChange={(value) => setCurrentItem({ ...currentItem, unit_price: value })}
-                                                            disabled={!selectedInventoryItem}
-                                                        >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
-                                                                <SelectValue placeholder={selectedInventoryItem ? t("Select price type") : t("Select inventory first")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {selectedInventoryItem && (
-                                                                    <>
-                                                                        <SelectItem value={selectedInventoryItem.data.wholesale_price?.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                                            <div className="flex items-center space-x-3">
-                                                                                <DollarSign className="h-4 w-4 text-green-600" />
-                                                                                <div>
-                                                                                    <div className="font-semibold text-slate-800 dark:text-white">{t("Wholesale Price")}</div>
-                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                        {formatCurrency(selectedInventoryItem.data.wholesale_price || 0)}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </SelectItem>
-                                                                        <SelectItem value={selectedInventoryItem.data.retail_price?.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                                            <div className="flex items-center space-x-3">
-                                                                                <DollarSign className="h-4 w-4 text-blue-600" />
-                                                                                <div>
-                                                                                    <div className="font-semibold text-slate-800 dark:text-white">{t("Retail Price")}</div>
-                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                        {formatCurrency(selectedInventoryItem.data.retail_price || 0)}
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </SelectItem>
-                                                                    </>
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            onValueChangeCapture={(value) => setCurrentItem({ ...currentItem, unit_price: value })}
+                                                            >
+                                                                {selectedInventoryItem && selectedInventoryItem.data.purchase_price ?
+                                                                    `${formatCurrency(selectedInventoryItem.data.purchase_price)}` :
+                                                                    t("Select inventory item to see unit price")
+                                                                }
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
 
                                                 {/* Add Button */}
+                                                {selectedInventoryItem && currentItem.unit_price && currentItem.quantity < (selectedInventoryItem.data.available_quantity/selectedInventoryItem.data.unit_amount) && (
                                                 <div className="flex justify-center">
                                                     <Button
                                                         type="button"
@@ -644,7 +620,7 @@ export default function Create({ auth, customers = [], products = [] }) {
                                                         {t("Add Item")}
                                                     </Button>
                                                 </div>
-
+                                                )}
                                                 {/* Inventory Information Display */}
                                                 <AnimatePresence>
                                                     {selectedInventoryItem && (

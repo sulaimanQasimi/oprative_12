@@ -178,6 +178,7 @@ class CustomerInventoryController extends Controller
                     'ci.customer_phone',
                     'ci.expire_date',
                     'ci.issue_date',
+                    'ci.purchase_price',
                     'ci.wholesale_price',
                     'ci.retail_price',
                     'ci.unit_amount',
@@ -239,7 +240,7 @@ class CustomerInventoryController extends Controller
                 return [
                     'value' => $item->batch_id, // Composite key for uniqueness
                     'label' => $item->product_name,
-                    'subtitle' => "Batch: {$item->batch_reference} | Customer: {$item->customer_name} | Available: {$item->available_quantity} {$item->unit_name}{$expiryInfo}",
+                    'subtitle' => "موجود: " . ($item->available_quantity/$item->unit_amount) . " {$item->unit_name}{$expiryInfo}",
                     'data' => [
                         'batch_id' => $item->batch_id,
                         'product_id' => $item->product_id,
@@ -252,6 +253,7 @@ class CustomerInventoryController extends Controller
                         'customer_phone' => $item->customer_phone,
                         'expire_date' => $item->expire_date,
                         'issue_date' => $item->issue_date,
+                        'purchase_price' => $item->purchase_price,
                         'wholesale_price' => $item->wholesale_price,
                         'retail_price' => $item->retail_price,
                         'unit_amount' => $item->unit_amount,

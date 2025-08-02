@@ -20,11 +20,6 @@ use Spatie\Permission\Models\Permission;
 
 class CustomerController extends Controller
 {
-    public function __construct()
-    {
- 
-    }
-
     /**
      * Display a paginated listing of customers with search and filtering.
      * 
@@ -888,8 +883,8 @@ class CustomerController extends Controller
                         'remaining_qty' => $item->remaining_qty,
                         'total_income_value' => $item->total_income_value,
                         'total_outcome_value' => $item->total_outcome_value,
-                        'net_quantity' => $item->net_quantity,
-                        'net_value' => $item->net_value,
+                        // 'net_quantity' => $item->net_quantity,
+                        // 'net_value' => $item->net_value,
                         'expiry_status' => $item->expiry_status,
                         'days_to_expiry' => $item->days_to_expiry,
                         // Unit information
