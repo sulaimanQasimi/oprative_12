@@ -17,7 +17,6 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "*",
         "laravel/tinker": "^2.9",
-        "livewire/livewire": "^3.0",
         "maatwebsite/excel": "^3.1",
         "mojtabaahn/php-persian-number-to-words": "*",
         "namu/wirechat": "^0.0.7",

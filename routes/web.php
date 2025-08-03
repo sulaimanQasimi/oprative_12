@@ -31,7 +31,6 @@ Route::prefix('attendance-request')->group(function () {
 
 // Inventory Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/inventory/dashboard/{warehouse}', \App\Livewire\Inventory\Dashboard::class)->name('inventory.dashboard');
 
     // Employee Management Routes
     Route::resource('employees', EmployeeController::class);
