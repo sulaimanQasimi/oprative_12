@@ -63,7 +63,6 @@ class CustomerTransferController extends Controller
             return Inertia::render('Admin/CustomerTransfers/Index', [
                 'transfers' => $transfers,
                 'filters' => $request->only(['search', 'date_from', 'date_to', 'status', 'customer_id']),
-                'customers' => Customer::select('id', 'name', 'email')->get(),
             ]);
         } catch (\Exception $e) {
             Log::error('Error in CustomerTransferController@index: ' . $e->getMessage());

@@ -44,8 +44,10 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
 import ActionButton from "@/Components/ActionButton";
+import ApiSelect from "@/Components/ApiSelect";
 
-export default function Index({ auth, transfers, filters = {}, customers = [] }) {
+export default function Index({ auth, transfers, filters = {} }) {
+    console.log(transfers);
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -250,7 +252,7 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center gap-x-2"
                             >
-                                <ActionButton link={route("admin.customer-transfers.create")} className="bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:text-white dark:hover:bg-green-700" icon={<Plus className="h-4 w-4" />} text={t("New Transfer")} />
+                                <ActionButton link={route("admin.customer-transfers.create")} className="light:bg-green-500 text-white hover:bg-green-700 dark:bg-green-600 dark:text-white dark:hover:bg-green-700" icon={<Plus className="h-4 w-4" />} text={t("New Transfer")} />
                                 <BackButton link={route("admin.dashboard")} />
                             </motion.div>
                         </div>
@@ -286,8 +288,8 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-8">
-                                            <form onSubmit={handleSearch} className="space-y-6">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            <form onSubmit={handleSearch} className="space-y-6 flex flex-col gap-4 mb-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                                     <div className="relative">
                                                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                                                         <Input
@@ -327,18 +329,18 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                 </div>
 
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <select
+                                                    <ApiSelect
+                                                        apiEndpoint="/api/customers/select"
+                                                        placeholder={t("Select Customer")}
+                                                        searchPlaceholder={t("Search customers...")}
+                                                        icon={Users}
+                                                        direction="ltr"
                                                         value={customerFilter}
-                                                        onChange={(e) => setCustomerFilter(e.target.value)}
-                                                        className="h-12 px-3 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 rounded-md transition-colors"
-                                                    >
-                                                        <option value="">{t("All Customers")}</option>
-                                                        {customers.map((customer) => (
-                                                            <option key={customer.id} value={customer.id}>
-                                                                {customer.name} ({customer.email})
-                                                            </option>
-                                                        ))}
-                                                    </select>
+                                                        onChange={(value, option) => setCustomerFilter(option.value)}
+                                                        searchParam="search"
+                                                        requireAuth={false}
+                                                        className="w-full"
+                                                    />
 
                                                     <div className="flex gap-2">
                                                         <Button type="submit" className="flex-1 gap-2 h-12 bg-green-600 hover:bg-green-700">
@@ -360,27 +362,8 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                     </div>
                                                 </div>
                                             </form>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
 
-                                {/* Transfers List */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.0, duration: 0.4 }}
-                                >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="flex flex-row items-center justify-between">
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Package className="w-5 h-5 text-green-600" />
-                                                {t("Customer Transfers")}
-                                                <Badge variant="secondary">
-                                                    {transfers.total || 0}
-                                                </Badge>
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent>
+
                                             {transfers.data && transfers.data.length > 0 ? (
                                                 <div className="overflow-x-auto">
                                                     <Table>
@@ -425,7 +408,7 @@ export default function Index({ auth, transfers, filters = {}, customers = [] })
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="font-semibold text-green-600">
-                                                                            {formatCurrency(transfer.total_amount || 0)}
+                                                                            {formatCurrency(transfer.transfer_items.reduce((acc, item) => acc + item.total_price, 0))}
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>

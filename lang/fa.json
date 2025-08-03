@@ -1,8 +1,16 @@
 {
+  "Warehouse Stock": "موجودی گدام",
+  "Customer Stock": "موجودی مغازه",
+  "Warehouse Value": "ارزش موجودی گدام",
+  "Customer Value": "ارزش موجودی مغازه",
+
+  "Search & Filter Transfers": "جستجو و فیلتر انتقالات",
+  "Filtered": "فیلتر شده",
   "Customer transfer information": "اطلاعات انتقال مغازه",
   "From Customer": "از مغازه",
   "To Customer": "به مغازه",
-
+  "Customer Transfers": "انتقالات مغازه",
+  "Customer Inventory": "موجودی مغازه",
   "Analytics & Charts": "تحلیل گدام",
   "View Analytics": "مشاهده تحلیل گدام",
   "View comprehensive warehouse analytics and insights": "مشاهده تحلیل گدام",

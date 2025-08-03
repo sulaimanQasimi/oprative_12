@@ -336,6 +336,20 @@ const Navigation = ({ auth, currentRoute }) => {
             icon: <Warehouse className="w-4 h-4" />,
             items: [
                 {
+                    name: t("Batches"),
+                    icon: <Store className="w-5 h-5" />,
+                    route: "admin.batches.index",
+                    active: currentRoute?.includes("batches"),
+                    // permission: "view_any_batch",
+                },
+                {
+                    name: t("Customer Transfers"),
+                    icon: <Store className="w-5 h-5" />,
+                    route: "admin.customer-transfers.index",
+                    active: currentRoute?.includes("customer-transfers"),
+                    permission: "view_any_customer_transfer",
+                },
+                {
                     name: t("Move to shop"),
                     icon: <Store className="w-5 h-5" />,
                     route: "admin.sales.index",

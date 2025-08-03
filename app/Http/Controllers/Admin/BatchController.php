@@ -190,7 +190,7 @@ class BatchController extends Controller
                     'customer_name' => $item->customer->name,
                     'customer_code' => $item->customer->code,
                     'quantity' => $item->quantity,
-                    'remaining_quantity' => $item->remaining_quantity,
+                    'remaining_quantity' => $item->remaining_qty,
                     'price' => $item->price,
                     'total' => $item->total,
                     'created_at' => $item->created_at,

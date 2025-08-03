@@ -80,6 +80,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function ShowBatch({ auth, batch }) {
     const { t } = useLaravelReactI18n();
@@ -143,7 +144,7 @@ export default function ShowBatch({ auth, batch }) {
     // Utility function to convert Gregorian to Jalali date
     const formatJalaliDate = (dateString) => {
         if (!dateString) return 'N/A';
-        
+
         const date = new Date(dateString);
 
         // Convert to Jalali date using Persian calendar
@@ -279,12 +280,6 @@ export default function ShowBatch({ auth, batch }) {
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <Link href={route('admin.batches.index')}>
-                                    <Button variant="outline" size="sm" className="gap-2">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Batches")}
-                                    </Button>
-                                </Link>
                                 <motion.div
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
@@ -327,14 +322,8 @@ export default function ShowBatch({ auth, batch }) {
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <Button variant="outline" size="sm" className="gap-2">
-                                    <Printer className="h-4 w-4" />
-                                    {t("Print")}
-                                </Button>
-                                <Button variant="outline" size="sm" className="gap-2">
-                                    <Share2 className="h-4 w-4" />
-                                    {t("Share")}
-                                </Button>
+                                <BackButton link={route('admin.batches.index')} />
+
                             </div>
                         </div>
                     </motion.header>
@@ -454,20 +443,18 @@ export default function ShowBatch({ auth, batch }) {
                                                 <div>
                                                     <p className="text-sm text-slate-500 dark:text-slate-400">{t("Expire Date")}</p>
                                                     <div className="flex items-center gap-2">
-                                                        <CalendarDays className={`h-4 w-4 ${
-                                                            safeBatch.expire_date && new Date(safeBatch.expire_date) <= new Date() 
-                                                                ? 'text-red-600' 
+                                                        <CalendarDays className={`h-4 w-4 ${safeBatch.expire_date && new Date(safeBatch.expire_date) <= new Date()
+                                                                ? 'text-red-600'
                                                                 : safeBatch.expire_date && new Date(safeBatch.expire_date) <= new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)
-                                                                ? 'text-yellow-600'
-                                                                : 'text-green-600'
-                                                        }`} />
-                                                        <span className={`font-semibold ${
-                                                            safeBatch.expire_date && new Date(safeBatch.expire_date) <= new Date() 
-                                                                ? 'text-red-600 dark:text-red-400' 
+                                                                    ? 'text-yellow-600'
+                                                                    : 'text-green-600'
+                                                            }`} />
+                                                        <span className={`font-semibold ${safeBatch.expire_date && new Date(safeBatch.expire_date) <= new Date()
+                                                                ? 'text-red-600 dark:text-red-400'
                                                                 : safeBatch.expire_date && new Date(safeBatch.expire_date) <= new Date(Date.now() + 20 * 24 * 60 * 60 * 1000)
-                                                                ? 'text-yellow-600 dark:text-yellow-400'
-                                                                : 'text-green-600 dark:text-green-400'
-                                                        }`}>
+                                                                    ? 'text-yellow-600 dark:text-yellow-400'
+                                                                    : 'text-green-600 dark:text-green-400'
+                                                            }`}>
                                                             {safeBatch.expire_date ? formatDate(safeBatch.expire_date) : t("No expiry")}
                                                         </span>
                                                     </div>
