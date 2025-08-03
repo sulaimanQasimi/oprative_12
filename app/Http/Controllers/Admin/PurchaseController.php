@@ -531,7 +531,7 @@ class PurchaseController extends Controller
             DB::beginTransaction();
 
             // Load purchase items
-            $purchase->load('purchaseItems.product');
+            $purchase->load(['purchaseItems.product', 'purchaseItems.batch']);
 
             // Check if purchase has items
             if ($purchase->purchaseItems->count() === 0) {
@@ -545,22 +545,21 @@ class PurchaseController extends Controller
             // Create warehouse income records for each purchase item
             foreach ($purchase->purchaseItems as $item) {
                 // Find the batch for this purchase item
-                $batch = Batch::where('purchase_item_id', $item->id)->first();
                 \App\Models\WarehouseIncome::create([
                     'reference_number' => $referenceNumber,
                     'warehouse_id' => $validated['warehouse_id'],
                     'product_id' => $item->product_id,
-                    'batch_id' => $batch ? $batch->id : null,
+                    'batch_id' => $item->batch ? $item->batch->id : null,
                     'quantity' => $item->quantity,
-                    'price' => $item->price,
-                    'total' => $item->actual_amount,
+                    'price' => $item->batch?->purchase_price,
+                    'total' => ($item->quantity / $item->batch?->unit_amount) * $item->batch?->purchase_price,
                     'model_type' => 'App\\Models\\Purchase',
                     'model_id' => $purchase->id,
                     'unit_type' => $item->unit_type,
                     'is_wholesale' => $item->is_wholesale,
-                    'unit_id' => $batch->unit_id,
-                    'unit_amount' => $batch->unit_amount,
-                    'unit_name' => $batch->unit_name,
+                    'unit_id' => $item->batch?->unit_id,
+                    'unit_amount' => $item->batch->unit_amount,
+                    'unit_name' => $item->batch->unit_name,
                 ]);
             }
 

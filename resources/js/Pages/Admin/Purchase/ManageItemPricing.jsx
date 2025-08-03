@@ -74,7 +74,7 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
 
     const getExpiryStatus = (expireDate) => {
         if (!expireDate) return { status: 'no-expiry', text: t("No expiry"), color: 'gray' };
-        
+
         const today = new Date();
         const expiry = new Date(expireDate);
         const diffTime = expiry - today;
@@ -93,15 +93,13 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
         const purchasePrice = parseFloat(data.purchase_price || item.price || 0);
         const wholesalePrice = parseFloat(data.wholesale_price || 0);
         const retailPrice = parseFloat(data.retail_price || 0);
-        
+
         // Include additional costs in the base cost calculation
         const totalCostPerUnit = purchasePrice + (totalAdditionalCosts / (item.quantity / item.unit_amount));
 
-        const wholesaleMargin = wholesalePrice > 0 && totalCostPerUnit > 0 
-            ? ((wholesalePrice - totalCostPerUnit) / totalCostPerUnit * 100)
-            : 0;
+        const wholesaleMargin = (data.wholesale_price || 0) - (item.price + (totalAdditionalCosts / (item.quantity / item.unit_amount)));
 
-        const retailMargin = retailPrice > 0 && totalCostPerUnit > 0 
+        const retailMargin = retailPrice > 0 && totalCostPerUnit > 0
             ? ((retailPrice - totalCostPerUnit) / totalCostPerUnit * 100)
             : 0;
 
@@ -194,7 +192,7 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
 
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent p-8">
                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
-                            
+
                             {/* Global Steps Progress */}
                             <div className="max-w-6xl mx-auto mb-8">
                                 <div className="flex items-center justify-between">
@@ -208,9 +206,9 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                             <p className="text-sm text-green-500 dark:text-green-400">{t("Step 1 - Completed")}</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="w-24 h-1 bg-green-400 rounded"></div>
-                                    
+
                                     {/* Step 2: Additional Costs */}
                                     <div className="flex items-center opacity-60">
                                         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-orange-100 dark:bg-orange-900 text-orange-600 border-2 border-orange-300">
@@ -221,9 +219,9 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                             <p className="text-sm text-orange-500 dark:text-orange-400">{t("Step 2 - Completed")}</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="w-24 h-1 bg-orange-400 rounded"></div>
-                                    
+
                                     {/* Step 3: Pricing (Current) */}
                                     <div className="flex items-center">
                                         <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg ring-4 ring-blue-100 dark:ring-blue-900">
@@ -256,7 +254,7 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                     <p className="text-xs text-green-500">{item.product?.barcode}</p>
                                                 </div>
                                             </div>
-                                            
+
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                                                     <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t("Quantity")}</p>
@@ -302,15 +300,14 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                             <p className="text-sm font-bold text-orange-800 dark:text-orange-200">{formatDate(item.batch.expire_date)}</p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     {/* Expiry Status */}
                                                     <div className="flex justify-center">
-                                                        <Badge className={`${
-                                                            expiryStatus.color === 'green' ? 'bg-green-100 text-green-800' :
-                                                            expiryStatus.color === 'orange' ? 'bg-orange-100 text-orange-800' :
-                                                            expiryStatus.color === 'red' ? 'bg-red-100 text-red-800' :
-                                                            'bg-gray-100 text-gray-800'
-                                                        }`}>
+                                                        <Badge className={`${expiryStatus.color === 'green' ? 'bg-green-100 text-green-800' :
+                                                                expiryStatus.color === 'orange' ? 'bg-orange-100 text-orange-800' :
+                                                                    expiryStatus.color === 'red' ? 'bg-red-100 text-red-800' :
+                                                                        'bg-gray-100 text-gray-800'
+                                                            }`}>
                                                             {expiryStatus.text}
                                                         </Badge>
                                                     </div>
@@ -321,14 +318,14 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                             <div className="space-y-3">
                                                 <div className="flex justify-between items-center">
                                                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Additional Costs")}</p>
-                                                    <Link 
+                                                    <Link
                                                         href={route("admin.purchases.items.additional-costs", [purchase.id, item.id])}
                                                         className="text-blue-600 hover:text-blue-800 text-xs"
                                                     >
                                                         {t("Manage")}
                                                     </Link>
                                                 </div>
-                                                
+
                                                 {additionalCosts.length > 0 ? (
                                                     <div className="space-y-2">
                                                         {additionalCosts.slice(0, 3).map((cost) => (
@@ -344,7 +341,7 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                 ) : (
                                                     <p className="text-xs text-gray-500 text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">{t("No additional costs")}</p>
                                                 )}
-                                                
+
                                                 <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border-t">
                                                     <div className="flex justify-between items-center">
                                                         <span className="text-sm font-bold text-red-700 dark:text-red-300">{t("Total Additional")}</span>
@@ -480,9 +477,9 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                         {t("Cancel")}
                                                     </Button>
                                                 </Link>
-                                                <Button 
-                                                    type="submit" 
-                                                    disabled={processing} 
+                                                <Button
+                                                    type="submit"
+                                                    disabled={processing}
                                                     className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3"
                                                 >
                                                     {processing ? (
@@ -525,7 +522,7 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                             <div className="space-y-2">
                                                 <div className="flex justify-between">
                                                     <span className="text-sm text-slate-600">{t("Base Purchase Price")}:</span>
-                                                    <span className="font-mono">{formatCurrency(data.purchase_price || item.price)}</span>
+                                                    <span className="font-mono">{formatCurrency(item.price)}</span>
                                                 </div>
                                                 <div className="flex justify-between">
                                                     <span className="text-sm text-slate-600">{t("Additional Costs per Unit")}:</span>
@@ -533,7 +530,7 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                 </div>
                                                 <div className="flex justify-between border-t pt-2 font-bold">
                                                     <span className="text-slate-800 dark:text-slate-200">{t("Total Cost per Unit")}:</span>
-                                                    <span className="font-mono text-slate-800 dark:text-slate-200">{formatCurrency(totalCostPerUnit)}</span>
+                                                    <span className="font-mono text-slate-800 dark:text-slate-200">{formatCurrency(item.price + (totalAdditionalCosts / (item.quantity / item.unit_amount)))}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -553,18 +550,13 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                         </div>
                                                         <div className="flex justify-between">
                                                             <span className="text-sm text-blue-600">{t("Total Cost")}:</span>
-                                                            <span className="font-mono">- {formatCurrency(totalCostPerUnit)}</span>
+                                                            <span className="font-mono">- {formatCurrency(item.price + (totalAdditionalCosts / (item.quantity / item.unit_amount)))}</span>
                                                         </div>
                                                         <div className="flex justify-between border-t pt-2">
                                                             <span className="font-semibold text-blue-800">{t("Profit")}:</span>
                                                             <span className="font-bold font-mono text-green-600">
-                                                                {formatCurrency((data.wholesale_price || 0) - totalCostPerUnit)}
+                                                                {formatCurrency((data.wholesale_price || 0) - (item.price + (totalAdditionalCosts / (item.quantity / item.unit_amount))))}
                                                             </span>
-                                                        </div>
-                                                        <div className="text-center pt-2">
-                                                            <Badge className={`${wholesaleMargin >= 20 ? 'bg-green-100 text-green-800' : wholesaleMargin >= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                                                {wholesaleMargin.toFixed(1)}% {t("Margin")}
-                                                            </Badge>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -584,18 +576,14 @@ export default function ManageItemPricing({ auth, purchase, item, additionalCost
                                                         </div>
                                                         <div className="flex justify-between">
                                                             <span className="text-sm text-green-600">{t("Total Cost")}:</span>
-                                                            <span className="font-mono">- {formatCurrency(totalCostPerUnit)}</span>
+                                                            <span className="font-mono">- {formatCurrency(data.retail_price * item.unit_amount)}</span>
                                                         </div>
                                                         <div className="flex justify-between border-t pt-2">
                                                             <span className="font-semibold text-green-800">{t("Profit")}:</span>
                                                             <span className="font-bold font-mono text-green-600">
-                                                                {formatCurrency((data.retail_price || 0) - totalCostPerUnit)}
+                                                                {/* {formatCurrency(data.retail_price * item.unit_amount-(data.retail_price || 0))} - {formatCurrency(data.purchase_price)} */}
+                                                                {formatCurrency(data.retail_price * item.unit_amount-(data.purchase_price || 0))}
                                                             </span>
-                                                        </div>
-                                                        <div className="text-center pt-2">
-                                                            <Badge className={`${retailMargin >= 20 ? 'bg-green-100 text-green-800' : retailMargin >= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                                                {retailMargin.toFixed(1)}% {t("Margin")}
-                                                            </Badge>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -13,6 +13,8 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
+
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
         // Define all models that need permissions
         $models = [
             'user',
