@@ -45,6 +45,7 @@ import {
 } from "@/Components/ui/select";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Edit({ auth, warehouse, roles, permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -243,12 +244,7 @@ export default function Edit({ auth, warehouse, roles, permissions = {} }) {
                             </div>
 
                             <div className="flex items-center space-x-3">
-                                <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="shadow-sm">
-                                        <ArrowLeft className="h-4 w-4 mr-2" />
-                                        {t("Back to Warehouse")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.warehouses.show", warehouse.id)} />
                             </div>
                         </div>
                     </header>
@@ -306,11 +302,10 @@ export default function Edit({ auth, warehouse, roles, permissions = {} }) {
                                                             placeholder={t("Enter warehouse name")}
                                                             value={data.name}
                                                             onChange={(e) => setData("name", e.target.value)}
-                                                            className={`transition-all duration-200 ${
-                                                                errors.name
+                                                            className={`transition-all duration-200 ${errors.name
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
-                                                            }`}
+                                                                }`}
                                                         />
                                                         {errors.name && (
                                                             <motion.p
@@ -336,11 +331,10 @@ export default function Edit({ auth, warehouse, roles, permissions = {} }) {
                                                             placeholder={t("Enter unique warehouse code")}
                                                             value={data.code}
                                                             onChange={(e) => setData("code", e.target.value.toUpperCase())}
-                                                            className={`transition-all duration-200 font-mono ${
-                                                                errors.code
+                                                            className={`transition-all duration-200 font-mono ${errors.code
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
-                                                            }`}
+                                                                }`}
                                                         />
                                                         {errors.code && (
                                                             <motion.p
@@ -366,11 +360,10 @@ export default function Edit({ auth, warehouse, roles, permissions = {} }) {
                                                             placeholder={t("Enter warehouse location")}
                                                             value={data.location}
                                                             onChange={(e) => setData("location", e.target.value)}
-                                                            className={`transition-all duration-200 ${
-                                                                errors.location
+                                                            className={`transition-all duration-200 ${errors.location
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
-                                                            }`}
+                                                                }`}
                                                         />
                                                         {errors.location && (
                                                             <motion.p
@@ -396,11 +389,10 @@ export default function Edit({ auth, warehouse, roles, permissions = {} }) {
                                                             placeholder={t("Enter storage capacity")}
                                                             value={data.capacity}
                                                             onChange={(e) => setData("capacity", e.target.value)}
-                                                            className={`transition-all duration-200 ${
-                                                                errors.capacity
+                                                            className={`transition-all duration-200 ${errors.capacity
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
-                                                            }`}
+                                                                }`}
                                                         />
                                                         {errors.capacity && (
                                                             <motion.p
@@ -427,11 +419,10 @@ export default function Edit({ auth, warehouse, roles, permissions = {} }) {
                                                         value={data.description}
                                                         onChange={(e) => setData("description", e.target.value)}
                                                         rows={4}
-                                                        className={`transition-all duration-200 resize-none ${
-                                                            errors.description
+                                                        className={`transition-all duration-200 resize-none ${errors.description
                                                                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                 : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
-                                                        }`}
+                                                            }`}
                                                     />
                                                     {errors.description && (
                                                         <motion.p

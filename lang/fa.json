@@ -1,4 +1,8 @@
 {
+  "Edit Mode": "حالت ویرایش",
+  "Update warehouse information and settings": "به روز رسانی اطلاعات و تنظیمات گدام",
+
+  "Update the basic information for this warehouse": "به روز رسانی اطلاعات اصلی برای این گدام",
   "Income Value": "ارزش ورودی",
   "Outcome Value": "ارزش خروجی",
   "Enter basic product information, quantities, and dates": "تکمیل اطلاعات محصول، تعداد و تاریخ",

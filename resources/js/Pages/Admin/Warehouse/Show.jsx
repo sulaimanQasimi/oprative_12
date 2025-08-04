@@ -78,6 +78,7 @@ import { Badge } from "@/Components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Show({ auth, warehouse, roles, permissions, warehousePermissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -239,13 +240,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                     </Link>
                                 )}
 
-                                <Link href={route("admin.warehouses.index")} >
-                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-transform">
-                                        {t("Back")}
-                                        <ArrowLeft className="h-4 w-4" />
-                                    </Button>
-                                </Link>
-
+                                <BackButton link={route("admin.warehouses.index")} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -259,73 +254,6 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
                             >
-                                {/* Overview Statistics Cards */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.3, duration: 0.5 }}
-                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-                                >
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/30">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Total Users")}</p>
-                                                    <p className="text-3xl font-bold text-green-700 dark:text-green-300">
-                                                        {warehouse?.users?.length || 0}
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 bg-green-500 rounded-xl">
-                                                    <Users className="w-6 h-6 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/30">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Products")}</p>
-                                                    <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">0</p>
-                                                </div>
-                                                <div className="p-3 bg-blue-500 rounded-xl">
-                                                    <Package className="w-6 h-6 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/30">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t("Transactions")}</p>
-                                                    <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">0</p>
-                                                </div>
-                                                <div className="p-3 bg-purple-500 rounded-xl">
-                                                    <ArrowRightLeft className="w-6 h-6 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/30">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t("Status")}</p>
-                                                    <p className="text-lg font-bold text-orange-700 dark:text-orange-300 capitalize">
-                                                        {warehouse?.is_active ? t("Active") : t("Inactive")}
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 bg-orange-500 rounded-xl">
-                                                    <CheckCircle className="w-6 h-6 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
 
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                                     <TabsList className="grid w-full grid-cols-4 h-14 p-1 bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-600">

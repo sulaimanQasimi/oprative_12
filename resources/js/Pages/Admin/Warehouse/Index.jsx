@@ -511,143 +511,185 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                 </CardContent>
                             </Card>
 
-                            {/* Warehouses Grid */}
+                            {/* Warehouses Table */}
                             <div ref={tableRef} className="space-y-6">
                                 {sortedWarehouses.length > 0 ? (
-                                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                        <AnimatePresence>
-                                            {sortedWarehouses.map((warehouse, index) => (
-                                                <motion.div
-                                                    key={warehouse.id}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: -20 }}
-                                                    transition={{ delay: index * 0.1 }}
-                                                >
-                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl hover:shadow-2xl transition-all duration-300">
-                                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 border-b border-slate-200 dark:border-slate-600 rounded-t-xl">
-                                                            <div className="flex items-start justify-between">
-                                                                <div className="flex items-center space-x-4">
-                                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                                        <Building2 className="h-6 w-6 text-white" />
-                                                                    </div>
-                                                                    <div>
-                                                                        <CardTitle className="text-xl font-bold text-slate-800 dark:text-slate-200">
-                                                                            {warehouse.name}
-                                                                        </CardTitle>
-                                                                        <p className="text-sm text-slate-600 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
-                                                                            {warehouse.code}
-                                                                        </p>
-                                                                    </div>
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                            <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                    <Building2 className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                                                </div>
+                                                {t("Warehouses List")}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+                                                        <tr>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                <div className="flex items-center gap-2">
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        checked={selectedWarehouses.length === sortedWarehouses.length}
+                                                                        onChange={handleSelectAll}
+                                                                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                                    />
                                                                 </div>
-                                                                <Badge
-                                                                    variant={warehouse.is_active ? "default" : "secondary"}
-                                                                    className={`px-3 py-1 text-sm font-medium ${
-                                                                        warehouse.is_active
-                                                                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                                                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                                                                    }`}
+                                                            </th>
+                                                            <th 
+                                                                className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-gray-300"
+                                                                onClick={() => handleSort("name")}
+                                                            >
+                                                                <div className="flex items-center gap-2">
+                                                                    {t("Name")}
+                                                                    <ArrowUpDown className="h-4 w-4" />
+                                                                </div>
+                                                            </th>
+                                                            <th 
+                                                                className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-gray-300"
+                                                                onClick={() => handleSort("code")}
+                                                            >
+                                                                <div className="flex items-center gap-2">
+                                                                    {t("Code")}
+                                                                    <ArrowUpDown className="h-4 w-4" />
+                                                                </div>
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                {t("Location")}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                {t("Status")}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                {t("Users")}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                {t("Products")}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                                {t("Actions")}
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                        <AnimatePresence>
+                                                            {sortedWarehouses.map((warehouse, index) => (
+                                                                <motion.tr
+                                                                    key={warehouse.id}
+                                                                    initial={{ opacity: 0, y: 20 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    exit={{ opacity: 0, y: -20 }}
+                                                                    transition={{ delay: index * 0.05 }}
+                                                                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200"
                                                                 >
-                                                                    {warehouse.is_active ? (
-                                                                        <CheckCircle className="h-4 w-4 mr-1" />
-                                                                    ) : (
-                                                                        <XCircle className="h-4 w-4 mr-1" />
-                                                                    )}
-                                                                    {warehouse.is_active ? t("Active") : t("Inactive")}
-                                                                </Badge>
-                                                            </div>
-                                                        </CardHeader>
-                                                        <CardContent className="p-6">
-                                                            <div className="space-y-6">
-                                                                {warehouse.description && (
-                                                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-                                                                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                                                        {warehouse.description}
-                                                                    </p>
-                                                                    </div>
-                                                                )}
-
-                                                                <div className="grid grid-cols-2 gap-6">
-                                                                    <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                                                            <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={selectedWarehouses.includes(warehouse.id)}
+                                                                            onChange={() => handleSelectWarehouse(warehouse.id)}
+                                                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                                        />
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <div className="flex items-center">
+                                                                            <div className="flex-shrink-0 h-10 w-10">
+                                                                                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                                                                    <Building2 className="h-5 w-5 text-white" />
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="ml-4">
+                                                                                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                                    {warehouse.name}
+                                                                                </div>
+                                                                                {warehouse.description && (
+                                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">
+                                                                                        {warehouse.description}
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
                                                                         </div>
-                                                                        <div>
-                                                                            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <div className="text-sm font-mono text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                                                                            {warehouse.code}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <div className="text-sm text-gray-900 dark:text-white">
+                                                                            {warehouse.location || t("Not specified")}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <Badge
+                                                                            variant={warehouse.is_active ? "default" : "secondary"}
+                                                                            className={`px-3 py-1 text-sm font-medium ${
+                                                                                warehouse.is_active
+                                                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                                                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                                                                            }`}
+                                                                        >
+                                                                            {warehouse.is_active ? (
+                                                                                <CheckCircle className="h-4 w-4 mr-1" />
+                                                                            ) : (
+                                                                                <XCircle className="h-4 w-4 mr-1" />
+                                                                            )}
+                                                                            {warehouse.is_active ? t("Active") : t("Inactive")}
+                                                                        </Badge>
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <div className="flex items-center">
+                                                                            <Users className="h-4 w-4 text-blue-500 mr-2" />
+                                                                            <span className="text-sm font-medium text-gray-900 dark:text-white">
                                                                                 {warehouse.users_count || 0}
-                                                                            </div>
-                                                                            <div className="text-xs text-slate-600 dark:text-slate-400">
-                                                                                {t("Users")}
-                                                                            </div>
+                                                                            </span>
                                                                         </div>
-                                                                    </div>
-                                                                    <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                                                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                                                            <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                                        <div className="flex items-center">
+                                                                            <Package className="h-4 w-4 text-green-500 mr-2" />
+                                                                            <span className="text-sm font-medium text-gray-900 dark:text-white">
                                                                                 {warehouse.items_count || 0}
-                                                                            </div>
-                                                                            <div className="text-xs text-slate-600 dark:text-slate-400">
-                                                                                {t("Products")}
-                                                                            </div>
+                                                                            </span>
                                                                         </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                {warehouse.location && (
-                                                                    <div className="flex items-center space-x-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                                                                        <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
-                                                                            <MapPin className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                                                                    </td>
+                                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                                        <div className="flex items-center gap-2">
+                                                                            {permissions.can_view && (
+                                                                                <Link href={route("admin.warehouses.show", warehouse.id)}>
+                                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-blue-700 dark:hover:border-blue-600 dark:hover:bg-blue-900/20 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-200">
+                                                                                        <Eye className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            {permissions.can_update && (
+                                                                                <Link href={route("admin.warehouses.edit", warehouse.id)}>
+                                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0 border-2 border-green-200 hover:border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:border-green-600 dark:hover:bg-green-900/20 dark:text-green-400 dark:hover:text-green-300 transition-all duration-200">
+                                                                                        <Edit className="h-3 w-3 text-green-600 dark:text-green-400" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            {permissions.can_delete && (
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    onClick={() => handleDelete(warehouse.id)}
+                                                                                    className="h-8 w-8 p-0 border-2 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:border-red-600 dark:hover:bg-red-900/20 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200"
+                                                                                >
+                                                                                    <Trash2 className="h-3 w-3 text-red-600 dark:text-red-400" />
+                                                                                </Button>
+                                                                            )}
                                                                         </div>
-                                                                        <div>
-                                                                            <div className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                                                                                {t("Location")}
-                                                                            </div>
-                                                                            <div className="text-sm text-slate-600 dark:text-slate-400">
-                                                                            {warehouse.location}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </CardContent>
-                                                        <CardFooter className="bg-slate-50 dark:bg-slate-700 border-t border-slate-200 dark:border-slate-600 p-6">
-                                                            <div className="flex items-center justify-between w-full">
-                                                                <div className="flex items-center gap-3">
-                                                                    {permissions.can_view && (
-                                                                        <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                                                            <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-blue-700 dark:hover:border-blue-600 dark:hover:bg-blue-900/20 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 shadow-sm hover:shadow-md">
-                                                                                <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                                                            </Button>
-                                                                        </Link>
-                                                                    )}
-                                                                    {permissions.can_update && (
-                                                                        <Link href={route("admin.warehouses.edit", warehouse.id)}>
-                                                                            <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-green-200 hover:border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:border-green-600 dark:hover:bg-green-900/20 dark:text-green-400 dark:hover:text-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
-                                                                                <Edit className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                            </Button>
-                                                                        </Link>
-                                                                    )}
-                                                                </div>
-                                                                {permissions.can_delete && (
-                                                                    <Button
-                                                                        size="sm"
-                                                                        variant="outline"
-                                                                        onClick={() => handleDelete(warehouse.id)}
-                                                                        className="h-10 w-10 p-0 border-2 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:border-red-600 dark:hover:bg-red-900/20 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200 shadow-sm hover:shadow-md"
-                                                                    >
-                                                                        <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
-                                                                    </Button>
-                                                                )}
-                                                            </div>
-                                                        </CardFooter>
-                                                    </Card>
-                                                </motion.div>
-                                            ))}
-                                        </AnimatePresence>
-                                    </div>
+                                                                    </td>
+                                                                </motion.tr>
+                                                            ))}
+                                                        </AnimatePresence>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 ) : (
                                     <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
                                         <CardContent className="p-12 text-center">
