@@ -173,12 +173,10 @@ export default function Dashboard({ auth = {}, stats = {} }) {
     const statsCardsRef = useRef([]);
     const chartsRef = useRef([]);
 
-    // Format currency values
-    const formatCurrency = (value) => {
+    // Format quantity values
+    const formatQuantity = (value) => {
         return new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            minimumFractionDigits: 2,
+            minimumFractionDigits: 0,
         }).format(value);
     };
 
@@ -233,7 +231,7 @@ export default function Dashboard({ auth = {}, stats = {} }) {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [
             {
-                label: 'Income',
+                label: 'Import Quantity',
                 data: stats?.monthly_income || [],
                 borderColor: '#10b981',
                 backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -241,18 +239,10 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                 tension: 0.4,
             },
             {
-                label: 'Outcome',
+                label: 'Export Quantity',
                 data: stats?.monthly_outcome || [],
                 borderColor: '#ef4444',
                 backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                fill: true,
-                tension: 0.4,
-            },
-            {
-                label: 'Profit',
-                data: stats?.monthly_profit || [],
-                borderColor: '#f59e0b',
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
                 fill: true,
                 tension: 0.4,
             },
@@ -432,7 +422,7 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                         <div className="card-shine"></div>
                                     </motion.div>
 
-                                    {/* Total Stock Value */}
+                                    {/* Total Stock Quantity */}
                                     <motion.div
                                         ref={(el) => statsCardsRef.current.push(el)}
                                         className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
@@ -443,20 +433,19 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                     >
                                         <div className="p-6 relative z-10">
                                             <div className="flex justify-between items-center mb-4">
-                                                <span className="font-medium text-lg">{t("Stock Value")}</span>
+                                                <span className="font-medium text-lg">{t("Stock Quantity")}</span>
                                                 <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm">
-                                                    <DollarSign className="h-6 w-6" />
+                                                    <Package className="h-6 w-6" />
                                                 </div>
                                             </div>
                                             <div className="text-3xl font-bold mt-2">
-                                                <AnimatedCounter 
-                                                    value={parseFloat(stats?.total_stock_value || 0)} 
-                                                    prefix="$" 
-                                                    duration={2000} 
+                                                <AnimatedCounter
+                                                    value={parseFloat(stats?.total_remaining_qty || 0)}
+                                                    duration={2000}
                                                 />
                                             </div>
                                             <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit">
-                                                <span>{stats?.total_remaining_qty || 0} {t("units in stock")}</span>
+                                                <span>{t("units in stock")}</span>
                                             </div>
                                         </div>
                                         <div className="card-shine"></div>
@@ -533,7 +522,7 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <BarChart3 className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    {t("Monthly Trends")}
+                                                    {t("Monthly Quantity Trends")}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
@@ -580,7 +569,7 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <Package className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    {t("Top Products by Value")}
+                                                    {t("Top Products by Quantity")}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
@@ -602,7 +591,7 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <Layers className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    {t("Stock Distribution")}
+                                                    {t("Quantity Distribution")}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
@@ -660,16 +649,15 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                                                 className="flex items-center gap-4 p-4 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150 group"
                                                             >
                                                                 <div
-                                                                    className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                                                        activity?.type === "income"
+                                                                    className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${activity?.type === "import"
                                                                             ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
                                                                             : "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
-                                                                    }`}
+                                                                        }`}
                                                                 >
-                                                                    {activity?.type === "income" ? (
-                                                                        <TrendingUp className="h-5 w-5" />
+                                                                    {activity?.type === "import" ? (
+                                                                        <ArrowDown className="h-5 w-5" />
                                                                     ) : (
-                                                                        <TrendingDown className="h-5 w-5" />
+                                                                        <ArrowUp className="h-5 w-5" />
                                                                     )}
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
@@ -683,45 +671,44 @@ export default function Dashboard({ auth = {}, stats = {} }) {
                                                                         </span>
                                                                         <span className="flex items-center text-slate-500 dark:text-slate-400">
                                                                             <Package className="h-3 w-3 mr-1" />
-                                                                            Qty: {activity?.quantity || 0}
+                                                                            {formatQuantity(activity?.quantity || 0)} {activity?.unit_name}
                                                                         </span>
-                                                                                                                                                 <span className="flex items-center text-slate-500 dark:text-slate-400">
-                                                                             <Clock className="h-3 w-3 mr-1" />
-                                                                             {activity?.time || 'N/A'}
-                                                                         </span>
-                                                                     </div>
-                                                                 </div>
-                                                                 <div
-                                                                     className={`text-sm font-semibold ${
-                                                                         activity?.type === "income"
-                                                                             ? "text-emerald-600 dark:text-emerald-400"
-                                                                             : "text-rose-600 dark:text-rose-400"
-                                                                     }`}
-                                                                 >
-                                                                     {activity?.type === "income" ? "+" : "-"}
-                                                                     {formatCurrency(activity?.amount || 0)}
-                                                                 </div>
-                                                             </div>
-                                                         ))}
-                                                     </div>
-                                                 ) : (
-                                                     <div className="text-center py-12 text-slate-500 dark:text-slate-400">
-                                                         <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                                                         <p className="text-lg font-medium text-slate-900 dark:text-white mb-1">
-                                                             {t("No recent activities")}
-                                                         </p>
-                                                         <p>{t("Start tracking your warehouse activities")}</p>
-                                                     </div>
-                                                 )}
-                                             </div>
-                                         </CardContent>
-                                     </Card>
-                                 </motion.div>
-                             </div>
-                         </div>
-                     </main>
-                 </div>
-             </div>
-         </>
-     );
- }
+                                                                        <span className="flex items-center text-slate-500 dark:text-slate-400">
+                                                                            <Clock className="h-3 w-3 mr-1" />
+                                                                            {activity?.time || 'N/A'}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div
+                                                                    className={`text-sm font-semibold ${activity?.type === "import"
+                                                                            ? "text-emerald-600 dark:text-emerald-400"
+                                                                            : "text-rose-600 dark:text-rose-400"
+                                                                        }`}
+                                                                >
+                                                                    {activity?.type === "import" ? "+" : "-"}
+                                                                    {formatQuantity(activity?.quantity || 0)} {activity?.unit_name || ''}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                                                        <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                                                        <p className="text-lg font-medium text-slate-900 dark:text-white mb-1">
+                                                            {t("No recent activities")}
+                                                        </p>
+                                                        <p>{t("Start tracking your warehouse activities")}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </>
+    );
+}

@@ -49,7 +49,11 @@ return new class extends Migration
                 SELECT 
                     batch_id,
                     warehouse_id,
-                    SUM(quantity) as income_qty,
+                    SUM(CASE 
+                        WHEN unit_amount IS NOT NULL AND unit_amount > 0 
+                        THEN quantity / unit_amount 
+                        ELSE quantity 
+                    END) as income_qty,
                     SUM(total) as total_income_value
                 FROM warehouse_incomes 
                 WHERE batch_id IS NOT NULL
@@ -59,7 +63,11 @@ return new class extends Migration
                 SELECT 
                     batch_id,
                     warehouse_id,
-                    SUM(quantity) as outcome_qty,
+                    SUM(CASE 
+                        WHEN unit_amount IS NOT NULL AND unit_amount > 0 
+                        THEN quantity / unit_amount 
+                        ELSE quantity 
+                    END) as outcome_qty,
                     SUM(total) as total_outcome_value
                 FROM warehouse_outcomes 
                 WHERE batch_id IS NOT NULL

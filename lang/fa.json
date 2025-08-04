@@ -1,4 +1,18 @@
 {
+  "unique products": "محصولات منحصر به فرد",
+  "Stock Quantity": "موجودی",
+  "units in stock": "واحدهای موجود",
+  "expiring soon": "به زودی منقضی می‌شود",
+  "Avg Days to Expiry": "میانگین روز باقیمانده",
+  "days remaining": "روز باقیمانده",
+  "Monthly Quantity Trends": "تغییرات ماهانه موجودی",
+  "Top Products by Quantity": "بهترین محصولات بر اساس موجودی",
+  "Quantity Distribution": "توزیع موجودی",
+
+
+
+
+
   "Edit Mode": "حالت ویرایش",
   "Update warehouse information and settings": "به روز رسانی اطلاعات و تنظیمات گدام",
 
