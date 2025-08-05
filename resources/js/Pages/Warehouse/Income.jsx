@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { Button } from "@/Components/ui/button";
@@ -25,12 +25,36 @@ import {
     DollarSign,
     Package,
     X,
-    Store
+    Store,
+    Eye,
+    Clock,
+    Hash
 } from "lucide-react";
 import Navigation from "@/Components/Warehouse/Navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Jalali date conversion utility
+// Memoized animation variants
+const animationVariants = {
+    fadeIn: {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.5 } }
+    },
+    slideIn: {
+        hidden: { x: -20, opacity: 0 },
+        visible: { x: 0, opacity: 1, transition: { duration: 0.4 } }
+    },
+    staggerChildren: {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    }
+};
+
+// Memoized Jalali date conversion utility
 const toJalali = (gregorianDate) => {
     if (!gregorianDate) return '';
     
@@ -95,6 +119,154 @@ const toJalaliRelative = (dateString) => {
     return `${Math.floor(diffInSeconds / 31536000)} سال پیش`;
 };
 
+// Memoized table row component
+const IncomeRow = memo(({ record, index, t, onSort, sortBy, sortOrder }) => (
+    <motion.tr
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+    >
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center">
+                <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mr-3">
+                    <Download className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                        {record.reference}
+                    </div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
+                        ID: {record.id}
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="text-sm text-slate-900 dark:text-white">
+                {record.source}
+            </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-right">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
+                {record.quantity} {record.unit_name}
+            </span>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-center">
+            {record.batch ? (
+                <div className="p-3 rounded-xl bg-gradient-to-r from-emerald-50/70 to-teal-50/70 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200/30 dark:border-emerald-800/30">
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">
+                        {record.batch.name}
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                        {t('Code')}: {record.batch.code}
+                    </div>
+                    {record.batch.expiry_date && (
+                        <div className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-100/50 dark:bg-amber-900/30 px-2 py-1 rounded-full">
+                            {t('Exp')}: {record.batch.expiry_date}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="p-3 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/30 dark:border-slate-700/30">
+                    <span className="text-slate-400 dark:text-slate-500 text-sm font-medium">{t('No Batch Info')}</span>
+                </div>
+            )}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-center">
+            <div className="text-sm text-slate-900 dark:text-white" dir="rtl">
+                {toJalali(record.date)}
+            </div>
+            <div className="text-xs text-slate-500 dark:text-slate-400" dir="rtl">
+                {toJalaliRelative(record.created_at_raw)}
+            </div>
+        </td>
+    </motion.tr>
+));
+
+// Memoized pagination component
+const PaginationButtons = memo(({ pagination, onPageChange, t }) => {
+    const pages = useMemo(() => {
+        const pageNumbers = [];
+        const totalPages = pagination.last_page;
+        const currentPage = pagination.current_page;
+        
+        // Calculate start and end page numbers
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+        
+        // Adjust if we don't have enough pages on one side
+        if (endPage - startPage < 4) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + 4);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - 4);
+            }
+        }
+        
+        // Generate page buttons
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(
+                <Button
+                    key={i}
+                    variant={currentPage === i ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onPageChange(i)}
+                    className="h-8 w-8 p-0"
+                >
+                    {i}
+                </Button>
+            );
+        }
+        
+        return pageNumbers;
+    }, [pagination.current_page, pagination.last_page, onPageChange]);
+
+    return (
+        <div className="flex items-center space-x-2">
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(1)}
+                disabled={pagination.current_page === 1}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.current_page - 1)}
+                disabled={pagination.current_page === 1}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            {pages}
+            
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.current_page + 1)}
+                disabled={pagination.current_page === pagination.last_page}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.last_page)}
+                disabled={pagination.current_page === pagination.last_page}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronsRight className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+});
+
 export default function Income({ auth, income, pagination, filters }) {
     const { t } = useLaravelReactI18n();
     
@@ -106,15 +278,8 @@ export default function Income({ auth, income, pagination, filters }) {
     const [dateTo, setDateTo] = useState(filters?.date_to || "");
     const [showFilters, setShowFilters] = useState(false);
 
-    // Handle search with debounce
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            handleFilter();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
-
-    const handleFilter = () => {
+    // Memoized filter parameters
+    const filterParams = useMemo(() => {
         const params = {
             search: searchTerm,
             per_page: perPage,
@@ -129,13 +294,18 @@ export default function Income({ auth, income, pagination, filters }) {
             if (!params[key]) delete params[key];
         });
         
-        router.get(route('warehouse.income'), params, {
+        return params;
+    }, [searchTerm, perPage, sortBy, sortOrder, dateFrom, dateTo]);
+
+    // Memoized handlers
+    const handleFilter = useCallback(() => {
+        router.get(route('warehouse.income'), filterParams, {
             preserveState: true,
             preserveScroll: true,
         });
-    };
+    }, [filterParams]);
 
-    const handleSort = (column) => {
+    const handleSort = useCallback((column) => {
         const newDirection = sortBy === column && sortOrder === 'asc' ? 'desc' : 'asc';
         setSortBy(column);
         setSortOrder(newDirection);
@@ -148,9 +318,9 @@ export default function Income({ auth, income, pagination, filters }) {
             preserveState: true,
             preserveScroll: true,
         });
-    };
+    }, [sortBy, sortOrder, filters]);
 
-    const handlePageChange = (page) => {
+    const handlePageChange = useCallback((page) => {
         router.get(route('warehouse.income'), {
             ...filters,
             page: page,
@@ -158,9 +328,9 @@ export default function Income({ auth, income, pagination, filters }) {
             preserveState: true,
             preserveScroll: true,
         });
-    };
+    }, [filters]);
 
-    const clearFilters = () => {
+    const clearFilters = useCallback(() => {
         setSearchTerm("");
         setDateFrom("");
         setDateTo("");
@@ -172,12 +342,20 @@ export default function Income({ auth, income, pagination, filters }) {
             preserveState: true,
             preserveScroll: true,
         });
-    };
+    }, []);
 
-    const getSortIcon = (column) => {
+    const getSortIcon = useCallback((column) => {
         if (sortBy !== column) return null;
         return sortOrder === 'asc' ? '↑' : '↓';
-    };
+    }, [sortBy, sortOrder]);
+
+    // Handle search with debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            handleFilter();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [handleFilter]);
 
     return (
         <>
@@ -304,85 +482,70 @@ export default function Income({ auth, income, pagination, filters }) {
                                         </div>
 
                                         {/* Advanced Filters */}
-                                        {showFilters && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: "auto", opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700"
-                                            >
-                                                <div>
-                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                        {t("Date From")}
-                                                    </label>
-                                                    <Input
-                                                        type="date"
-                                                        value={dateFrom}
-                                                        onChange={(e) => setDateFrom(e.target.value)}
-                                                        className="h-10"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                        {t("Date To")}
-                                                    </label>
-                                                    <Input
-                                                        type="date"
-                                                        value={dateTo}
-                                                        onChange={(e) => setDateTo(e.target.value)}
-                                                        className="h-10"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                        {t("Sort By")}
-                                                    </label>
-                                                    <Select value={sortBy} onValueChange={setSortBy}>
-                                                        <SelectTrigger className="h-10">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="created_at">{t("Date Created")}</SelectItem>
-                                                            <SelectItem value="reference_number">{t("Reference")}</SelectItem>
-                                                            <SelectItem value="total">{t("Amount")}</SelectItem>
-                                                            <SelectItem value="quantity">{t("Quantity")}</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                        {t("Per Page")}
-                                                    </label>
-                                                    <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
-                                                        <SelectTrigger className="h-10">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="10">10</SelectItem>
-                                                            <SelectItem value="25">25</SelectItem>
-                                                            <SelectItem value="50">50</SelectItem>
-                                                            <SelectItem value="100">100</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="flex items-end gap-2">
-                                                    <Button
-                                                        onClick={handleFilter}
-                                                        className="h-10 bg-emerald-600 hover:bg-emerald-700 text-white"
-                                                    >
-                                                        {t("Apply")}
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        onClick={clearFilters}
-                                                        className="h-10"
-                                                    >
-                                                        <RefreshCw className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </motion.div>
-                                        )}
+                                        <AnimatePresence>
+                                            {showFilters && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700"
+                                                >
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Date From")}
+                                                        </label>
+                                                        <Input
+                                                            type="date"
+                                                            value={dateFrom}
+                                                            onChange={(e) => setDateFrom(e.target.value)}
+                                                            className="h-10"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Date To")}
+                                                        </label>
+                                                        <Input
+                                                            type="date"
+                                                            value={dateTo}
+                                                            onChange={(e) => setDateTo(e.target.value)}
+                                                            className="h-10"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Sort By")}
+                                                        </label>
+                                                        <Select value={sortBy} onValueChange={setSortBy}>
+                                                            <SelectTrigger className="h-10">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                                <SelectItem value="reference_number">{t("Reference")}</SelectItem>
+                                                                <SelectItem value="quantity">{t("Quantity")}</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="flex items-end gap-2">
+                                                        <Button
+                                                            onClick={handleFilter}
+                                                            className="h-10 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                        >
+                                                            {t("Apply")}
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={clearFilters}
+                                                            className="h-10"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </CardContent>
                                 </Card>
                             </motion.div>
@@ -423,17 +586,8 @@ export default function Income({ auth, income, pagination, filters }) {
                                                             >
                                                                 {t("Quantity")} {getSortIcon('quantity')}
                                                             </th>
-                                                            <th 
-                                                                className="px-6 py-4 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
-                                                                onClick={() => handleSort('price')}
-                                                            >
-                                                                {t("Price")} {getSortIcon('price')}
-                                                            </th>
-                                                            <th 
-                                                                className="px-6 py-4 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
-                                                                onClick={() => handleSort('total')}
-                                                            >
-                                                                {t("Total Amount")} {getSortIcon('total')}
+                                                            <th className="px-6 py-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                                {t("Batch Info")}
                                                             </th>
                                                             <th 
                                                                 className="px-6 py-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
@@ -445,57 +599,15 @@ export default function Income({ auth, income, pagination, filters }) {
                                                     </thead>
                                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-700">
                                                         {income.map((record, index) => (
-                                                            <motion.tr
+                                                            <IncomeRow
                                                                 key={record.id}
-                                                                initial={{ opacity: 0, y: 20 }}
-                                                                animate={{ opacity: 1, y: 0 }}
-                                                                transition={{ duration: 0.3, delay: index * 0.05 }}
-                                                                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                                                            >
-                                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                                    <div className="flex items-center">
-                                                                        <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mr-3">
-                                                                            <Download className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                                                                {record.reference}
-                                                                            </div>
-                                                                            <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                ID: {record.id}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                                    <div className="text-sm text-slate-900 dark:text-white">
-                                                                        {record.source}
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
-                                                                        {record.quantity}
-                                                                    </span>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                                    <div className="text-sm text-slate-900 dark:text-white">
-                                                                        ${record.price}
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                                    <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                                                                        ${record.amount}
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                                    <div className="text-sm text-slate-900 dark:text-white" dir="rtl">
-                                                                        {toJalali(record.date)}
-                                                                    </div>
-                                                                    <div className="text-xs text-slate-500 dark:text-slate-400" dir="rtl">
-                                                                        {toJalaliRelative(record.created_at_raw)}
-                                                                    </div>
-                                                                </td>
-                                                            </motion.tr>
+                                                                record={record}
+                                                                index={index}
+                                                                t={t}
+                                                                onSort={handleSort}
+                                                                sortBy={sortBy}
+                                                                sortOrder={sortOrder}
+                                                            />
                                                         ))}
                                                     </tbody>
                                                 </table>
@@ -528,82 +640,11 @@ export default function Income({ auth, income, pagination, filters }) {
                                     <div className="text-sm text-slate-700 dark:text-slate-300">
                                         {t("Showing")} {pagination.from} {t("to")} {pagination.to} {t("of")} {pagination.total} {t("results")}
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePageChange(1)}
-                                            disabled={pagination.current_page === 1}
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            <ChevronsLeft className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePageChange(pagination.current_page - 1)}
-                                            disabled={pagination.current_page === 1}
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            <ChevronLeft className="h-4 w-4" />
-                                        </Button>
-                                        
-                                        {/* Page numbers */}
-                                        {(() => {
-                                            const pages = [];
-                                            const totalPages = pagination.last_page;
-                                            const currentPage = pagination.current_page;
-                                            
-                                            // Calculate start and end page numbers
-                                            let startPage = Math.max(1, currentPage - 2);
-                                            let endPage = Math.min(totalPages, currentPage + 2);
-                                            
-                                            // Adjust if we don't have enough pages on one side
-                                            if (endPage - startPage < 4) {
-                                                if (startPage === 1) {
-                                                    endPage = Math.min(totalPages, startPage + 4);
-                                                } else if (endPage === totalPages) {
-                                                    startPage = Math.max(1, endPage - 4);
-                                                }
-                                            }
-                                            
-                                            // Generate page buttons
-                                            for (let i = startPage; i <= endPage; i++) {
-                                                pages.push(
-                                                    <Button
-                                                        key={i}
-                                                        variant={currentPage === i ? "default" : "outline"}
-                                                        size="sm"
-                                                        onClick={() => handlePageChange(i)}
-                                                        className="h-8 w-8 p-0"
-                                                    >
-                                                        {i}
-                                                    </Button>
-                                                );
-                                            }
-                                            
-                                            return pages;
-                                        })()}
-                                        
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePageChange(pagination.current_page + 1)}
-                                            disabled={pagination.current_page === pagination.last_page}
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handlePageChange(pagination.last_page)}
-                                            disabled={pagination.current_page === pagination.last_page}
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            <ChevronsRight className="h-4 w-4" />
-                                        </Button>
-                                    </div>
+                                    <PaginationButtons
+                                        pagination={pagination}
+                                        onPageChange={handlePageChange}
+                                        t={t}
+                                    />
                                 </motion.div>
                             )}
                         </div>
