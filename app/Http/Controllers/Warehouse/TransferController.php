@@ -227,6 +227,7 @@ class TransferController extends Controller
         $permissions = [
             'view_transfers' => Auth::guard('warehouse_user')->user()->can('warehouse.view_transfers'),
             'view_transfer_details' => Auth::guard('warehouse_user')->user()->can('warehouse.view_transfer_details'),
+            'confirm_transfers' => Auth::guard('warehouse_user')->user()->can('warehouse.confirm_transfers'),
         ];
 
         return Inertia::render('Warehouse/ShowTransfer', [
@@ -234,6 +235,47 @@ class TransferController extends Controller
             'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('warehouse_user')->user()->load('warehouse')
+            ]
+        ]);
+    }
+
+    /**
+     * Confirm a transfer.
+     */
+    public function confirm($id)
+    {
+        $this->middleware('permission:warehouse.confirm_transfers');
+
+        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
+
+        $transfer = WarehouseTransfer::where('id', $id)
+            ->where(function ($query) use ($warehouse) {
+                $query->where('from_warehouse_id', $warehouse->id)
+                    ->orWhere('to_warehouse_id', $warehouse->id);
+            })
+            ->firstOrFail();
+
+        // Check if transfer can be confirmed
+        if ($transfer->status !== 'pending') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transfer can only be confirmed if it is pending.'
+            ], 400);
+        }
+
+        // Update transfer status
+        $transfer->update([
+            'status' => 'completed',
+            'completed_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transfer confirmed successfully.',
+            'transfer' => [
+                'id' => $transfer->id,
+                'status' => $transfer->status,
+                'completed_at' => $transfer->completed_at->format('Y-m-d H:i:s'),
             ]
         ]);
     }

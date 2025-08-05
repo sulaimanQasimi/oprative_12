@@ -26,7 +26,8 @@ import {
     FileText,
     DollarSign,
     Package2,
-    AlertCircle
+    AlertCircle,
+    CheckSquare
 } from 'lucide-react';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -159,6 +160,7 @@ export default function ShowTransfer({ auth, transfer, permissions = {} }) {
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [isPrintMode, setIsPrintMode] = useState(false);
+    const [confirming, setConfirming] = useState(false);
 
     const { post, processing } = useForm();
 
@@ -182,6 +184,35 @@ export default function ShowTransfer({ auth, transfer, permissions = {} }) {
             setIsPrintMode(false);
         }, 100);
     }, []);
+
+    const handleConfirm = useCallback(async () => {
+        if (!permissions.confirm_transfers) return;
+        
+        setConfirming(true);
+        try {
+            const response = await fetch(route('warehouse.transfers.confirm', transfer.id), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Reload the page to show updated status
+                window.location.reload();
+            } else {
+                alert(data.message || t('Failed to confirm transfer'));
+            }
+        } catch (error) {
+            console.error('Error confirming transfer:', error);
+            alert(t('An error occurred while confirming the transfer'));
+        } finally {
+            setConfirming(false);
+        }
+    }, [transfer.id, permissions.confirm_transfers, t]);
 
     // Memoized warehouse info items
     const fromWarehouseInfoItems = useMemo(() => [
@@ -279,6 +310,38 @@ export default function ShowTransfer({ auth, transfer, permissions = {} }) {
                                     {transfer.status === 'cancelled' && <XCircle className="w-3 h-3 mr-1" />}
                                     {transfer.status}
                                 </Badge>
+                                {permissions.confirm_transfers && transfer.status === 'pending' && (
+                                    <motion.div
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.8, duration: 0.5, type: "spring", stiffness: 200 }}
+                                        className="relative"
+                                    >
+                                        <div className="absolute -inset-1 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 rounded-lg blur opacity-75 animate-pulse"></div>
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            onClick={handleConfirm}
+                                            disabled={confirming}
+                                            className="relative gap-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:via-emerald-600 hover:to-green-700 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 border-0"
+                                        >
+                                            {confirming ? (
+                                                <motion.div
+                                                    animate={{ rotate: 360 }}
+                                                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                                    className="h-4 w-4 border-2 border-white border-t-transparent rounded-full"
+                                                />
+                                            ) : (
+                                                <motion.div
+                                                    whileHover={{ scale: 1.1, rotate: 5 }}
+                                                    transition={{ type: "spring", stiffness: 400 }}
+                                                >
+                                                    <CheckSquare className="h-4 w-4" />
+                                                </motion.div>
+                                            )}
+                                        </Button>
+                                    </motion.div>
+                                )}
                                 <Button
                                     variant="outline"
                                     size="sm"
