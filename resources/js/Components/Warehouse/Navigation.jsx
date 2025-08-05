@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Package, Download, Upload, Store, ShoppingCart, BarChart3, LogOut, Menu, X, Wallet } from 'lucide-react';
+import { Package, Download, Upload, Store, ShoppingCart, BarChart3, LogOut, Menu, X, Wallet, Truck } from 'lucide-react';
 import { Link, useForm } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 
@@ -87,11 +87,11 @@ export default function Navigation({ auth, currentRoute }) {
             permission:'warehouse.view_outcome'
         },
         {
-            label: t('Wallet'),
-            route: 'warehouse.wallet',
-            icon: Wallet,
-            routeKey: 'warehouse.wallet',
-            permission:'warehouse.view_wallet'
+            label: t('Transfers'),
+            route: 'warehouse.transfers',
+            icon: Truck,
+            routeKey: 'warehouse.transfers',
+            permission:'warehouse.view_transfers'
         }
     ];
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\Warehouse\UsersController;
 use App\Http\Controllers\Warehouse\SaleController;
 use App\Http\Controllers\Warehouse\ReportController;
 use App\Http\Controllers\Warehouse\WalletController;
+use App\Http\Controllers\Warehouse\TransferController;
 
 trait RegisterRoutes
 {
@@ -109,6 +110,15 @@ trait RegisterRoutes
                 Route::post('logout', [AuthController::class, 'logout'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.logout')
                     ->name('logout');
+
+                // Transfer management
+                Route::get('transfers', [TransferController::class, 'index'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_transfers')
+                    ->name('transfers');
+
+                Route::get('transfers/{transfer}', [TransferController::class, 'show'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_transfers')
+                    ->name('transfers.show');
 
                 // Wallet management
                 Route::get('wallet', [WalletController::class, 'wallet'])->name('wallet');

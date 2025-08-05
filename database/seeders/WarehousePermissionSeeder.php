@@ -19,13 +19,14 @@ class WarehousePermissionSeeder extends Seeder
 
         // Create warehouse permissions
         $warehousePermissions = [
-            //Wallet permissions
-            'warehouse.view_wallet'=>"مشاهده کیف پول",
-            'warehouse.withdraw_wallet'=>"برداشت از کیف پول",
-            'warehouse.deposit_wallet'=>"واریز در کیف پول",
 
             // Product permissions
             'warehouse.view_products'=>"مشاهده محصولات",
+
+            // Transfers permissions
+            'warehouse.view_transfers'=>"مشاهده انتقالات",
+            'warehouse.confirm_transfers'=>"تایید انتقالات",
+
             // Income permissions
             'warehouse.view_income'=>"مشاهده واردات",
 

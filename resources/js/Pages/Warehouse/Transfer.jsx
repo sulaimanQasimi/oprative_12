@@ -1,0 +1,695 @@
+import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
+import { Head, Link, router } from "@inertiajs/react";
+import { useLaravelReactI18n } from "laravel-react-i18n";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Input } from "@/Components/ui/input";
+import { Badge } from "@/Components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import {
+    Search,
+    Truck,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+    RefreshCw,
+    Filter,
+    Calendar,
+    Package,
+    X,
+    Store,
+    Eye,
+    Clock,
+    Hash,
+    ArrowUpRight,
+    ArrowDownLeft
+} from "lucide-react";
+import Navigation from "@/Components/Warehouse/Navigation";
+import { motion, AnimatePresence } from "framer-motion";
+
+// Memoized animation variants
+const animationVariants = {
+    fadeIn: {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.5 } }
+    },
+    slideIn: {
+        hidden: { x: -20, opacity: 0 },
+        visible: { x: 0, opacity: 1, transition: { duration: 0.4 } }
+    },
+    staggerChildren: {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    }
+};
+
+// Memoized Jalali date conversion utility
+const toJalali = (gregorianDate) => {
+    if (!gregorianDate) return '';
+    
+    const date = new Date(gregorianDate);
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        calendar: 'persian',
+        numberingSystem: 'latn'
+    };
+    
+    try {
+        return new Intl.DateTimeFormat('fa-IR', options).format(date);
+    } catch (error) {
+        // Fallback to basic conversion if Intl.DateTimeFormat fails
+        const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+        const jy = (date.getFullYear() <= 1600) ? 0 : 979;
+        const gy = date.getFullYear() - 1600;
+        const gm = date.getMonth() + 1;
+        const gd = date.getDate();
+        
+        let g_day_no = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+        if (gm > 2) g_day_no += Math.floor(gy / 4) - Math.floor(gy / 100) + Math.floor(gy / 400) - Math.floor(1600 / 4) + Math.floor(1600 / 100) - Math.floor(1600 / 400);
+        
+        const j_day_no = g_day_no - 79;
+        const j_np = Math.floor(j_day_no / 12053);
+        const jy_final = 979 + 33 * j_np + 4 * Math.floor((j_day_no % 12053) / 1461) + Math.floor(((j_day_no % 12053) % 1461) / 365);
+        
+        let jp = 0;
+        if ((j_day_no % 12053) % 1461 >= 365) {
+            jp = Math.floor(((j_day_no % 12053) % 1461) / 365);
+        }
+        
+        const jd_remaining = ((j_day_no % 12053) % 1461) % 365;
+        let jm, jd;
+        
+        if (jd_remaining < 186) {
+            jm = 1 + Math.floor(jd_remaining / 31);
+            jd = 1 + (jd_remaining % 31);
+        } else {
+            jm = 7 + Math.floor((jd_remaining - 186) / 30);
+            jd = 1 + ((jd_remaining - 186) % 30);
+        }
+        
+        return `${jy_final + jp}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+    }
+};
+
+const toJalaliRelative = (dateString) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds} ثانیه پیش`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} دقیقه پیش`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ساعت پیش`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} روز پیش`;
+    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} ماه پیش`;
+    return `${Math.floor(diffInSeconds / 31536000)} سال پیش`;
+};
+
+// Memoized table row component
+const TransferRow = memo(({ record, index, t, onSort, sortBy, sortOrder }) => (
+    <motion.tr
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+    >
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="flex items-center">
+                <div className={`h-8 w-8 rounded-full flex items-center justify-center mr-3 ${
+                    record.type === 'outgoing' 
+                        ? 'bg-orange-100 dark:bg-orange-900/30' 
+                        : 'bg-blue-100 dark:bg-blue-900/30'
+                }`}>
+                    {record.type === 'outgoing' ? (
+                        <ArrowUpRight className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                    ) : (
+                        <ArrowDownLeft className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    )}
+                </div>
+                <div>
+                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                        {record.reference}
+                    </div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">
+                        ID: {record.id}
+                    </div>
+                </div>
+            </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="text-sm text-slate-900 dark:text-white">
+                {record.from_warehouse}
+            </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap">
+            <div className="text-sm text-slate-900 dark:text-white">
+                {record.to_warehouse}
+            </div>
+        </td>
+
+        <td className="px-6 py-4 whitespace-nowrap text-center">
+            <Badge
+                className={`
+                    ${record.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' :
+                      record.status === 'pending' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' :
+                      'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300'}
+                    capitalize
+                `}
+            >
+                {record.status}
+            </Badge>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-center">
+            <div className="text-sm text-slate-900 dark:text-white" dir="rtl">
+                {toJalali(record.transfer_date)}
+            </div>
+            <div className="text-xs text-slate-500 dark:text-slate-400" dir="rtl">
+                {toJalaliRelative(record.created_at_raw)}
+            </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-center">
+            <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 hover:bg-purple-100 dark:hover:bg-purple-900/30"
+                title={t("View Details")}
+                asChild
+            >
+                <Link href={route('warehouse.transfers.show', record.id)}>
+                    <Eye className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                </Link>
+            </Button>
+        </td>
+    </motion.tr>
+));
+
+// Memoized pagination component
+const PaginationButtons = memo(({ pagination, onPageChange, t }) => {
+    const pages = useMemo(() => {
+        const pageNumbers = [];
+        const totalPages = pagination.last_page;
+        const currentPage = pagination.current_page;
+        
+        // Calculate start and end page numbers
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+        
+        // Adjust if we don't have enough pages on one side
+        if (endPage - startPage < 4) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + 4);
+            } else if (endPage === totalPages) {
+                startPage = Math.max(1, endPage - 4);
+            }
+        }
+        
+        // Generate page buttons
+        for (let i = startPage; i <= endPage; i++) {
+            pageNumbers.push(
+                <Button
+                    key={i}
+                    variant={currentPage === i ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => onPageChange(i)}
+                    className="h-8 w-8 p-0"
+                >
+                    {i}
+                </Button>
+            );
+        }
+        
+        return pageNumbers;
+    }, [pagination.current_page, pagination.last_page, onPageChange]);
+
+    return (
+        <div className="flex items-center space-x-2">
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(1)}
+                disabled={pagination.current_page === 1}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronsLeft className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.current_page - 1)}
+                disabled={pagination.current_page === 1}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronLeft className="h-4 w-4" />
+            </Button>
+            
+            {pages}
+            
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.current_page + 1)}
+                disabled={pagination.current_page === pagination.last_page}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange(pagination.last_page)}
+                disabled={pagination.current_page === pagination.last_page}
+                className="h-8 w-8 p-0"
+            >
+                <ChevronsRight className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+});
+
+export default function Transfer({ auth, transfers, pagination, filters }) {
+    const { t } = useLaravelReactI18n();
+    
+    const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+    const [perPage, setPerPage] = useState(filters?.per_page || 10);
+    const [sortBy, setSortBy] = useState(filters?.sort || "created_at");
+    const [sortOrder, setSortOrder] = useState(filters?.direction || "desc");
+    const [dateFrom, setDateFrom] = useState(filters?.date_from || "");
+    const [dateTo, setDateTo] = useState(filters?.date_to || "");
+    const [statusFilter, setStatusFilter] = useState(filters?.status || "");
+    const [showFilters, setShowFilters] = useState(false);
+
+    // Memoized filter parameters
+    const filterParams = useMemo(() => {
+        const params = {
+            search: searchTerm,
+            per_page: perPage,
+            sort: sortBy,
+            direction: sortOrder,
+            date_from: dateFrom,
+            date_to: dateTo,
+            status: statusFilter,
+        };
+        
+        // Remove empty parameters
+        Object.keys(params).forEach(key => {
+            if (!params[key]) delete params[key];
+        });
+        
+        return params;
+    }, [searchTerm, perPage, sortBy, sortOrder, dateFrom, dateTo, statusFilter]);
+
+    // Memoized handlers
+    const handleFilter = useCallback(() => {
+        router.get(route('warehouse.transfers'), filterParams, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, [filterParams]);
+
+    const handleSort = useCallback((column) => {
+        const newDirection = sortBy === column && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortBy(column);
+        setSortOrder(newDirection);
+        
+        router.get(route('warehouse.transfers'), {
+            ...filters,
+            sort: column,
+            direction: newDirection,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, [sortBy, sortOrder, filters]);
+
+    const handlePageChange = useCallback((page) => {
+        router.get(route('warehouse.transfers'), {
+            ...filters,
+            page: page,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, [filters]);
+
+    const clearFilters = useCallback(() => {
+        setSearchTerm("");
+        setDateFrom("");
+        setDateTo("");
+        setStatusFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+        setPerPage(10);
+        
+        router.get(route('warehouse.transfers'), {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, []);
+
+    const getSortIcon = useCallback((column) => {
+        if (sortBy !== column) return null;
+        return sortOrder === 'asc' ? '↑' : '↓';
+    }, [sortBy, sortOrder]);
+
+    // Handle search with debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            handleFilter();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [handleFilter]);
+
+    return (
+        <>
+            <Head title={t("Warehouse Transfers")} />
+            
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
+                <Navigation auth={auth} currentRoute="warehouse.transfers" />
+                
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Header */}
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="bg-white/10 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600 p-4 rounded-2xl shadow-2xl">
+                                        <Truck className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    </div>
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Store className="w-4 h-4" />
+                                        {t("Warehouse Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 bg-clip-text text-transparent"
+                                    >
+                                        {t("Warehouse Transfers")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <Package className="w-4 h-4" />
+                                        {t("Track and manage warehouse transfers")}
+                                    </motion.p>
+                                </div>
+                            </div>
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
+                                <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">
+                                    {pagination?.total || 0} {t("transfers")}
+                                </Badge>
+                            </motion.div>
+                        </div>
+                    </motion.header>
+
+                    {/* Main Content */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-700 scrollbar-track-transparent">
+                        <div className="p-8">
+                            {/* Search and Filters */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="mb-6"
+                            >
+                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                    <CardHeader className="bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
+                                                    <Filter className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Search & Filter")}
+                                            </CardTitle>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowFilters(!showFilters)}
+                                                className="gap-2"
+                                            >
+                                                <Filter className="h-4 w-4" />
+                                                {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                            </Button>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        {/* Search Bar */}
+                                        <div className="mb-4">
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <Input
+                                                    placeholder={t("Search by reference, warehouses, or notes...")}
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="pl-12 h-12 text-lg border-2 border-purple-200 focus:border-purple-500 rounded-xl"
+                                                />
+                                                {searchTerm && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setSearchTerm("")}
+                                                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Advanced Filters */}
+                                        <AnimatePresence>
+                                            {showFilters && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700"
+                                                >
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Date From")}
+                                                        </label>
+                                                        <Input
+                                                            type="date"
+                                                            value={dateFrom}
+                                                            onChange={(e) => setDateFrom(e.target.value)}
+                                                            className="h-10"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Date To")}
+                                                        </label>
+                                                        <Input
+                                                            type="date"
+                                                            value={dateTo}
+                                                            onChange={(e) => setDateTo(e.target.value)}
+                                                            className="h-10"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Status")}
+                                                        </label>
+                                                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                                            <SelectTrigger className="h-10">
+                                                                <SelectValue placeholder={t("All Statuses")} />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="">{t("All Statuses")}</SelectItem>
+                                                                <SelectItem value="pending">{t("Pending")}</SelectItem>
+                                                                <SelectItem value="completed">{t("Completed")}</SelectItem>
+                                                                <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            {t("Sort By")}
+                                                        </label>
+                                                        <Select value={sortBy} onValueChange={setSortBy}>
+                                                            <SelectTrigger className="h-10">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                                <SelectItem value="reference_number">{t("Reference")}</SelectItem>
+                                                                <SelectItem value="transfer_date">{t("Transfer Date")}</SelectItem>
+                                                                <SelectItem value="status">{t("Status")}</SelectItem>
+
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div className="flex items-end gap-2">
+                                                        <Button
+                                                            onClick={handleFilter}
+                                                            className="h-10 bg-purple-600 hover:bg-purple-700 text-white"
+                                                        >
+                                                            {t("Apply")}
+                                                        </Button>
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={clearFilters}
+                                                            className="h-10"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+
+                            {/* Table */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 1, duration: 0.5 }}
+                            >
+                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl overflow-hidden">
+                                    <CardHeader className="bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardTitle className="flex items-center gap-3">
+                                            <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg">
+                                                <Truck className="h-5 w-5 text-white" />
+                                            </div>
+                                            {t("Warehouse Transfers")}
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-0">
+                                        {transfers && transfers.length > 0 ? (
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                                                        <tr>
+                                                            <th 
+                                                                className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                                                                onClick={() => handleSort('reference_number')}
+                                                            >
+                                                                {t("Reference")} {getSortIcon('reference_number')}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                                {t("From Warehouse")}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                                {t("To Warehouse")}
+                                                            </th>
+
+                                                            <th 
+                                                                className="px-6 py-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                                                                onClick={() => handleSort('status')}
+                                                            >
+                                                                {t("Status")} {getSortIcon('status')}
+                                                            </th>
+                                                            <th 
+                                                                className="px-6 py-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
+                                                                onClick={() => handleSort('transfer_date')}
+                                                            >
+                                                                {t("Transfer Date")} {getSortIcon('transfer_date')}
+                                                            </th>
+                                                            <th className="px-6 py-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                                {t("Actions")}
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-700">
+                                                        {transfers.map((record, index) => (
+                                                            <TransferRow
+                                                                key={record.id}
+                                                                record={record}
+                                                                index={index}
+                                                                t={t}
+                                                                onSort={handleSort}
+                                                                sortBy={sortBy}
+                                                                sortOrder={sortOrder}
+                                                            />
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-12">
+                                                <Truck className="mx-auto h-12 w-12 text-slate-400" />
+                                                <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
+                                                    {t("No transfer records found")}
+                                                </h3>
+                                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                                    {searchTerm 
+                                                        ? t("Try adjusting your search criteria.")
+                                                        : t("No warehouse transfers have been recorded yet.")}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+
+                            {/* Pagination */}
+                            {pagination && pagination.last_page > 1 && (
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.2, duration: 0.5 }}
+                                    className="mt-6 flex items-center justify-between"
+                                >
+                                    <div className="text-sm text-slate-700 dark:text-slate-300">
+                                        {t("Showing")} {pagination.from} {t("to")} {pagination.to} {t("of")} {pagination.total} {t("results")}
+                                    </div>
+                                    <PaginationButtons
+                                        pagination={pagination}
+                                        onPageChange={handlePageChange}
+                                        t={t}
+                                    />
+                                </motion.div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </>
+    );
+}
