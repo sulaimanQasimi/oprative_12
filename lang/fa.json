@@ -1,4 +1,17 @@
 {
+  "Imported": "واردات",
+  "Exported": "صادرات",
+  "Batch created": "دسته ساخته شده",
+  "View sale details and manage confirmation": "مشاهده جزئیات فروش و مدیریت تایید",
+  
+
+
+
+
+
+
+
+
   "unique products": "محصولات منحصر به فرد",
   "Stock Quantity": "موجودی",
   "units in stock": "واحدهای موجود",
@@ -8,7 +21,9 @@
   "Monthly Quantity Trends": "تغییرات ماهانه موجودی",
   "Top Products by Quantity": "بهترین محصولات بر اساس موجودی",
   "Quantity Distribution": "توزیع موجودی",
-
+  "Total imported": "خرج",
+  "Total exported": "وارد",
+  
 
 
 

@@ -234,12 +234,15 @@ class DashboardController extends Controller
             ->take(5)
             ->get()
             ->map(function ($income) {
+                $unitAmount = $income->unit_amount ?? 1;
+                $quantity = $unitAmount > 0 ? $income->quantity / $unitAmount : $income->quantity;
+                
                 return [
                     'id' => $income->id,
                     'title' => trans('Import') . ' : ' . ($income->product->name ?? 'Unknown Product'),
                     'time' => $income->created_at->diffForHumans(),
                     'type' => 'import',
-                    'quantity' => $income->quantity/$income->unit_amount,
+                    'quantity' => $quantity,
                     'unit_name' => $income->unit_name,
                     'reference' => $income->reference,
                     'batch_reference' => $income->batch?->reference_number,

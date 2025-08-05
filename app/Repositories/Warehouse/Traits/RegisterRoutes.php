@@ -75,21 +75,10 @@ trait RegisterRoutes
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_sales')
                     ->name('sales');
 
-                Route::get('sales/create', [SaleController::class, 'create'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_sales')
-                    ->name('sales.create');
-
-                Route::post('sales', [SaleController::class, 'store'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_sales')
-                    ->name('sales.store');
 
                 Route::get('sales/{sale}', [SaleController::class, 'show'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_sale_details')
                     ->name('sales.show');
-
-                Route::get('sales/{sale}/edit', [SaleController::class, 'edit'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.edit_sales')
-                    ->name('sales.edit');
 
                 Route::get('sales/{sale}/invoice', [SaleController::class, 'invoice'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.generate_invoice')
@@ -98,14 +87,6 @@ trait RegisterRoutes
                 Route::post('sales/{sale}/confirm', [SaleController::class, 'confirm'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.confirm_sales')
                     ->name('sales.confirm');
-
-                Route::put('sales/{sale}', [SaleController::class, 'update'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.edit_sales')
-                    ->name('sales.update');
-
-                Route::delete('sales/{sale}', [SaleController::class, 'destroy'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.delete_sales')
-                    ->name('sales.destroy');
 
                 // Reports management
                 Route::get('reports', [ReportController::class, 'index'])

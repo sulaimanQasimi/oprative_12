@@ -218,32 +218,31 @@ export default function Products({ auth, products }) {
     const totalValue = useMemo(() => {
         if (!products || !Array.isArray(products) || products.length === 0)
             return 0;
-        return products.reduce((sum, product) => {
-            if (!product) return sum;
-            const quantity = typeof product.net_quantity === "number" ? product.net_quantity : 0;
-            const price = typeof product.income_price === "number" ? product.income_price : 0;
-            return sum + quantity * price;
+        return products.reduce((sum, batch) => {
+            if (!batch) return sum;
+            const value = typeof batch.total_income_value === "number" ? batch.total_income_value : 0;
+            return sum + value;
         }, 0);
     }, [products]);
 
-    // Count low stock products using useMemo
+    // Count low stock batches using useMemo
     const lowStockCount = useMemo(() => {
         if (!products || !Array.isArray(products) || products.length === 0)
             return 0;
-        return products.filter((product) => {
-            if (!product) return false;
-            const quantity = typeof product.net_quantity === "number" ? product.net_quantity : 0;
+        return products.filter((batch) => {
+            if (!batch) return false;
+            const quantity = typeof batch.remaining_qty === "number" ? batch.remaining_qty : 0;
             return quantity < 10;
         }).length;
     }, [products]);
 
-    // Calculate total quantity (actual amounts) using useMemo
+    // Calculate total quantity using useMemo
     const totalQuantity = useMemo(() => {
         if (!products || !Array.isArray(products) || products.length === 0)
             return 0;
-        return products.reduce((sum, product) => {
-            if (!product) return sum;
-            const quantity = typeof product.net_quantity === "number" ? product.net_quantity : 0;
+        return products.reduce((sum, batch) => {
+            if (!batch) return sum;
+            const quantity = typeof batch.remaining_qty === "number" ? batch.remaining_qty : 0;
             return sum + quantity;
         }, 0);
     }, [products]);
@@ -266,6 +265,19 @@ export default function Products({ auth, products }) {
                 })
             )
         );
+    }, [products]);
+
+    // Count expired and expiring batches
+    const expiredCount = useMemo(() => {
+        if (!products || !Array.isArray(products) || products.length === 0)
+            return 0;
+        return products.filter((batch) => batch?.expiry_status === 'expired').length;
+    }, [products]);
+
+    const expiringSoonCount = useMemo(() => {
+        if (!products || !Array.isArray(products) || products.length === 0)
+            return 0;
+        return products.filter((batch) => batch?.expiry_status === 'expiring_soon').length;
     }, [products]);
 
     // Enhanced filtering logic
@@ -303,6 +315,12 @@ export default function Products({ auth, products }) {
             if (sortBy === 'product.name') {
                 aValue = a.product?.name || '';
                 bValue = b.product?.name || '';
+            } else if (sortBy === 'total_remaining_qty') {
+                aValue = a.total_remaining_qty || 0;
+                bValue = b.total_remaining_qty || 0;
+            } else if (sortBy === 'batches_count') {
+                aValue = a.batches_count || 0;
+                bValue = b.batches_count || 0;
             }
             if (typeof aValue === 'string') {
                 aValue = aValue.toLowerCase();
@@ -384,7 +402,7 @@ export default function Products({ auth, products }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Products Inventory")}
+                                        {t("Batch Inventory")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -393,7 +411,7 @@ export default function Products({ auth, products }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
-                                        {t("Manage and track your product inventory")}
+                                        {t("Manage and track your batch inventory")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -461,13 +479,13 @@ export default function Products({ auth, products }) {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Low Stock")}
+                                                        {t("Expiry Status")}
                                                     </p>
                                                     <p className="text-3xl font-bold text-orange-600">
-                                                        {lowStockCount}
+                                                        {expiredCount + expiringSoonCount}
                                                     </p>
                                                     <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Items need restock")}
+                                                        {expiredCount} {t("expired")}, {expiringSoonCount} {t("expiring soon")}
                                                     </p>
                                                 </div>
                                                 <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
@@ -482,13 +500,13 @@ export default function Products({ auth, products }) {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Products & Categories")}
+                                                        {t("Total Batches")}
                                                     </p>
                                                     <p className="text-3xl font-bold text-purple-600">
                                                         {products?.length || 0}
                                                     </p>
                                                     <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Products in")} {categories.length} {t("categories")}
+                                                        {t("Individual batches")}
                                                     </p>
                                                 </div>
                                                 <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
@@ -592,10 +610,11 @@ export default function Products({ auth, products }) {
                                                                     <SelectValue />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
-                                                                    <SelectItem value="created_at">{t("Date Created")}</SelectItem>
                                                                     <SelectItem value="product.name">{t("Product Name")}</SelectItem>
-                                                                    <SelectItem value="net_quantity">{t("Stock Quantity")}</SelectItem>
-                                                                    <SelectItem value="income_price">{t("Price")}</SelectItem>
+                                                                    <SelectItem value="batch_reference">{t("Batch Reference")}</SelectItem>
+                                                                    <SelectItem value="remaining_qty">{t("Stock Quantity")}</SelectItem>
+                                                                    <SelectItem value="expiry_status">{t("Expiry Status")}</SelectItem>
+                                                                    <SelectItem value="expire_date">{t("Expiry Date")}</SelectItem>
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
@@ -630,51 +649,8 @@ export default function Products({ auth, products }) {
                                     </CardContent>
                                 </Card>
 
-                                {/* View Toggle */}
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        {searchTerm && (
-                                            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 animate-pulse">
-                                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                                                <p>
-                                                    {t("Showing results for:")}{" "}
-                                                    <span className="font-medium text-slate-700 dark:text-slate-300">
-                                                        {searchTerm}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
-                                        >
-                                            <RefreshCw className="h-3.5 w-3.5" />
-                                            <span>{t("Refresh")}</span>
-                                        </Button>
-                                        <Tabs defaultValue="grid" className="w-auto">
-                                            <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
-                                                <TabsTrigger
-                                                    value="grid"
-                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                                >
-                                                    <LayoutGrid className="h-4 w-4" />
-                                                </TabsTrigger>
-                                                <TabsTrigger
-                                                    value="list"
-                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                                >
-                                                    <List className="h-4 w-4" />
-                                                </TabsTrigger>
-                                            </TabsList>
-                                        </Tabs>
-                                    </div>
-                                </div>
-
                                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center mb-6">
-                                    {searchTerm ? t("Search Results") : t("Products Inventory")}
+                                    {searchTerm ? t("Search Results") : t("Batch Inventory")}
                                 </h2>
 
                                 {/* Products Grid/List */}
@@ -715,97 +691,75 @@ export default function Products({ auth, products }) {
                                                                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                                                                                 {t("Stock")}
                                                                             </p>
-                                                                            <p className={`text-xl font-bold ${product.net_quantity < 10 ? "text-amber-600 dark:text-amber-500" : "text-emerald-600 dark:text-emerald-400"}`}>
-                                                                                {(() => {
-                                                                                    const netQty = product.net_quantity || 0;
-                                                                                    const wholesaleAmount = product.product?.whole_sale_unit_amount || 1;
-                                                                                    const wholesaleUnits = Math.floor(netQty / wholesaleAmount);
-                                                                                    const remainderUnits = netQty % wholesaleAmount;
-                                                                                    
-                                                                                    let display = "";
-                                                                                    if (wholesaleUnits > 0) {
-                                                                                        display += `${wholesaleUnits} ${product.product?.wholesaleUnit?.name || t("Units")}`;
-                                                                                    }
-                                                                                    if (remainderUnits > 0) {
-                                                                                        if (display) display += " + ";
-                                                                                        display += `${remainderUnits} ${product.product?.retailUnit?.name || t("Units")}`;
-                                                                                    }
-                                                                                    if (!display) display = `${netQty} ${t("Units")}`;
-                                                                                    
-                                                                                    // Add actual amount in parentheses
-                                                                                    display += ` (${netQty} ${t("total")})`;
-                                                                                    
-                                                                                    return display;
-                                                                                })()}
+                                                                            <p className={`text-xl font-bold ${product.remaining_qty < 10 ? "text-amber-600 dark:text-amber-500" : "text-emerald-600 dark:text-emerald-400"}`}>
+                                                                                {product.remaining_qty || 0} {product.unit_name}
                                                                             </p>
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                                {t("Purchase Price")}
+                                                                                {t("Batch Ref")}
                                                                             </p>
                                                                             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                                                ${product.income_price}
+                                                                                {product.batch_reference || t("N/A")}
                                                                             </p>
                                                                         </div>
                                                                     </div>
                                                                     
-                                                                    {/* Pricing Information */}
+                                                                    {/* Batch Information */}
                                                                     <div className="grid grid-cols-2 gap-2">
                                                                         <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                                                                             <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                                                                                {t("Wholesale Price")}
+                                                                            {t("Import")}
                                                                             </p>
                                                                             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                                                                ${product.product?.wholesale_price || 0}
+                                                                                {product.income_qty || 0}
                                                                             </p>
                                                                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                {t("per")} {product.product?.wholesaleUnit?.name || t("unit")}
+                                                                                {t("Imported")}
                                                                             </p>
                                                                         </div>
                                                                         <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
                                                                             <p className="text-xs font-medium text-green-600 dark:text-green-400">
-                                                                                {t("Retail Price")}
+                                                                                {t("Export")}
                                                                             </p>
                                                                             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                                                                ${product.product?.retail_price || 0}
+                                                                                {product.outcome_qty || 0}
                                                                             </p>
                                                                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                {t("per")} {product.product?.retailUnit?.name || t("unit")}
+                                                                                {t("Exported")}
                                                                             </p>
                                                                         </div>
                                                                     </div>
                                                                     
-                                                                    {/* Units Information */}
+                                                                    {/* Expiry Information */}
                                                                     <div className="grid grid-cols-2 gap-2">
-                                                                        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                                                            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                                                                                {t("Wholesale Unit")}
+                                                                        <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                                                            <p className="text-xs font-medium text-orange-600 dark:text-orange-400">
+                                                                                {t("Expiry Status")}
                                                                             </p>
-                                                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                                                                {product.product?.wholesaleUnit
-                                                                                    ? `${product.product.wholesaleUnit.name} (${product.product.wholesaleUnit.symbol})`
-                                                                                    : t("N/A")}
+                                                                            <p className={`text-sm font-semibold ${
+                                                                                product.expiry_status === 'expired' ? 'text-red-600 dark:text-red-400' :
+                                                                                product.expiry_status === 'expiring_soon' ? 'text-orange-600 dark:text-orange-400' :
+                                                                                'text-green-600 dark:text-green-400'
+                                                                            }`}>
+                                                                                {product.expiry_status === 'expired' ? t('Expired') :
+                                                                                 product.expiry_status === 'expiring_soon' ? t('Expiring Soon') :
+                                                                                 t('Valid')}
                                                                             </p>
-                                                                            {product.product?.whole_sale_unit_amount && (
-                                                                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                    {product.product.whole_sale_unit_amount} {t("retail units")}
-                                                                                </p>
-                                                                            )}
+                                                                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                {product.days_to_expiry || 0} {t("days")}
+                                                                            </p>
                                                                         </div>
-                                                                        <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                                                            <p className="text-xs font-medium text-green-600 dark:text-green-400">
-                                                                                {t("Retail Unit")}
+                                                                        <div className="p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                                                                            <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                                                                                {t("Issue Date")}
                                                                             </p>
                                                                             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                                                                {product.product?.retailUnit
-                                                                                    ? `${product.product.retailUnit.name} (${product.product.retailUnit.symbol})`
-                                                                                    : t("N/A")}
+                                                                                {product.issue_date ? new Date(product.issue_date).toLocaleDateString() : t("N/A")}
                                                                             </p>
-                                                                            {product.product?.retails_sale_unit_amount && (
-                                                                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                    {product.product.retails_sale_unit_amount} {t("base units")}
-                                                                                </p>
-                                                                            )}
+                                                                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                {t("Batch created")}
+                                                                            </p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -825,12 +779,12 @@ export default function Products({ auth, products }) {
                                                     <Package className="h-8 w-8 text-slate-400" />
                                                 </div>
                                                 <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                                                    {t("No products found")}
+                                                    {t("No batches found")}
                                                 </h3>
                                                 <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
                                                     {searchTerm 
                                                         ? t("Try adjusting your search criteria or check for typos.")
-                                                        : t("No products have been added yet.")}
+                                                        : t("No batches have been added yet.")}
                                                 </p>
                                             </motion.div>
                                         )}

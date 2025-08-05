@@ -50,7 +50,6 @@ class SaleController extends Controller
                     'items_count' => $sale->saleItems->count(),
                     'confirmed_by_warehouse' => (bool) $sale->confirmed_by_warehouse,
                     'detail_url' => route('warehouse.sales.show', $sale->id),
-                    'edit_url' => route('warehouse.sales.edit', $sale->id),
                     'invoice_url' => route('warehouse.sales.invoice', $sale->id),
                 ];
             });
@@ -84,13 +83,14 @@ class SaleController extends Controller
                 'customer',
                 'currency',
                 'warehouse',
-                'saleItems.product.wholesaleUnit',
-                'saleItems.product.retailUnit',
+                'saleItems.batch',
+                'saleItems.product',
+                'saleItems.product.unit',
                 'payments' // Load payment history
             ])
             ->firstOrFail();
 
-        // Transform sale items to include product details with wholesale and retail units
+        // Transform sale items to include product details with batch information
         $saleItems = $sale->saleItems->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -98,25 +98,26 @@ class SaleController extends Controller
                     'id' => $item->product->id,
                     'name' => $item->product->name,
                     'barcode' => $item->product->barcode,
-                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
-                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
-                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
-                        'id' => $item->product->wholesaleUnit->id,
-                        'name' => $item->product->wholesaleUnit->name,
-                        'code' => $item->product->wholesaleUnit->code,
-                        'symbol' => $item->product->wholesaleUnit->symbol,
-                    ] : null,
-                    'retailUnit' => $item->product->retailUnit ? [
-                        'id' => $item->product->retailUnit->id,
-                        'name' => $item->product->retailUnit->name,
-                        'code' => $item->product->retailUnit->code,
-                        'symbol' => $item->product->retailUnit->symbol,
+                    'unit_name' => $item->product->unit->name,
+                    'batch' => $item->batch ? [
+                        'id' => $item->batch->id,
+                        'name' => $item->batch->name,
+                        'code' => $item->batch->code,
+                        'unit_amount' => $item->batch->unit_amount,
+                        'unit_name' => $item->batch->unit->name,
+                        'expiry_date' => $item->batch->expiry_date ? $item->batch->expiry_date->format('Y-m-d') : null,
+                        'manufacturing_date' => $item->batch->manufacturing_date ? $item->batch->manufacturing_date->format('Y-m-d') : null,
                     ] : null,
                 ],
                 'unit' => $item->unit,
-                'quantity' => (float) $item->quantity,
-                'unit_price' => (float) $item->unit_price,
-                'total' => (float) $item->total
+                'quantity' => (float) $item->quantity/$item->batch->unit_amount,
+                'unit_amount' => (float) $item->batch->unit_amount,
+                'batch_info' => $item->batch ? [
+                    'name' => $item->batch->name,
+                    'code' => $item->batch->code,
+                    'expiry_date' => $item->batch->expiry_date ? $item->batch->expiry_date->format('Y-m-d') : null,
+                    'manufacturing_date' => $item->batch->manufacturing_date ? $item->batch->manufacturing_date->format('Y-m-d') : null,
+                ] : null
             ];
         });
 
@@ -227,13 +228,14 @@ class SaleController extends Controller
                 'customer',
                 'currency',
                 'warehouse',
+                'saleItems.product.batch',
                 'saleItems.product.wholesaleUnit',
                 'saleItems.product.retailUnit',
                 'payments'
             ])
             ->firstOrFail();
 
-        // Transform sale items to include product details with wholesale and retail units
+        // Transform sale items to include product details with batch information
         $saleItems = $sale->saleItems->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -255,11 +257,22 @@ class SaleController extends Controller
                         'code' => $item->product->retailUnit->code,
                         'symbol' => $item->product->retailUnit->symbol,
                     ] : null,
+                    'batch' => $item->product->batch ? [
+                        'id' => $item->product->batch->id,
+                        'name' => $item->product->batch->name,
+                        'code' => $item->product->batch->code,
+                        'expiry_date' => $item->product->batch->expiry_date ? $item->product->batch->expiry_date->format('Y-m-d') : null,
+                        'manufacturing_date' => $item->product->batch->manufacturing_date ? $item->product->batch->manufacturing_date->format('Y-m-d') : null,
+                    ] : null,
                 ],
                 'unit' => $item->unit,
                 'quantity' => (float) $item->quantity,
-                'unit_price' => (float) $item->unit_price,
-                'total' => (float) $item->total
+                'batch_info' => $item->product->batch ? [
+                    'name' => $item->product->batch->name,
+                    'code' => $item->product->batch->code,
+                    'expiry_date' => $item->product->batch->expiry_date ? $item->product->batch->expiry_date->format('Y-m-d') : null,
+                    'manufacturing_date' => $item->product->batch->manufacturing_date ? $item->product->batch->manufacturing_date->format('Y-m-d') : null,
+                ] : null
             ];
         });
 
