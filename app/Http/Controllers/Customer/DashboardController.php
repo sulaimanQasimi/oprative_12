@@ -371,7 +371,7 @@ class DashboardController extends Controller
                     'reference' => $income->reference_number,
                     'product' => $income->product->name,
                     'batch' => $income->batch ? $income->batch->reference_number : null,
-                    'quantity' => $income->quantity,
+                    'quantity' => $income->quantity/$income->unit_amount,
                     'price' => $income->purchase_price,
                     'total' => $income->total,
                     'date' => $income->created_at->format('Y-m-d H:i'),

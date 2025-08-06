@@ -247,7 +247,9 @@ export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
     }, [safeStats.stock_movement_charts]);
 
     const productPerformance = useMemo(() => {
-        return safeStats.product_performance || [];
+        const data = safeStats.product_performance || [];
+        console.log('Product Performance Data:', data);
+        return data;
     }, [safeStats.product_performance]);
 
     const expiryAnalysis = useMemo(() => {
@@ -789,8 +791,8 @@ export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
                                                 data={{
                                                     labels: productPerformance.slice(0, 5).map(item => item.product_name),
                                                     datasets: [{
-                                                        label: t('Total Value'),
-                                                        data: productPerformance.slice(0, 5).map(item => item.total_value),
+                                                        label: t('Total Quantity'),
+                                                        data: productPerformance.slice(0, 5).map(item => item.total_quantity),
                                                         backgroundColor: 'rgba(59, 130, 246, 0.8)',
                                                         borderColor: 'rgb(59, 130, 246)',
                                                         borderWidth: 1
