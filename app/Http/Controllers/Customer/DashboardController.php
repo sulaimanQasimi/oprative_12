@@ -142,7 +142,7 @@ class DashboardController extends Controller
         $inventory = $query->get();
 
         $totalProducts = $inventory->count();
-        $totalQuantity = $inventory->sum('remaining_qty');
+        $totalQuantity = $inventory->sum(fn($item) => $item->remaining_qty/$item->unit_amount);
         $totalValue = $inventory->sum(function($item) {
             return ($item->remaining_qty/$item->unit_amount) * $item->purchase_price;
         });
@@ -193,7 +193,7 @@ class DashboardController extends Controller
 
         $incomeData = $incomeQuery->select(
             DB::raw("DATE_FORMAT(created_at, '{$dateFormat}') as period"),
-            DB::raw('SUM(quantity) as total_quantity'),
+            DB::raw('SUM(quantity/unit_amount) as total_quantity'),
             DB::raw('SUM(total) as total_value'),
             DB::raw('COUNT(*) as transactions')
         )
@@ -207,7 +207,7 @@ class DashboardController extends Controller
 
         $outcomeData = $outcomeQuery->select(
             DB::raw("DATE_FORMAT(created_at, '{$dateFormat}') as period"),
-            DB::raw('SUM(quantity) as total_quantity'),
+            DB::raw('SUM(quantity/unit_amount) as total_quantity'),
             DB::raw('SUM(total) as total_value'),
             DB::raw('COUNT(*) as transactions')
         )
@@ -415,7 +415,7 @@ class DashboardController extends Controller
         if ($dateTo) $incomeQuery->whereDate('created_at', '<=', $dateTo);
 
         $incomeSummary = $incomeQuery->select(
-            DB::raw('SUM(quantity) as total_quantity'),
+            DB::raw('SUM(quantity/unit_amount) as total_quantity'),
             DB::raw('SUM(total) as total_value'),
             DB::raw('COUNT(*) as transaction_count'),
             DB::raw('AVG(price) as avg_price')
@@ -426,7 +426,7 @@ class DashboardController extends Controller
         if ($dateTo) $outcomeQuery->whereDate('created_at', '<=', $dateTo);
 
         $outcomeSummary = $outcomeQuery->select(
-            DB::raw('SUM(quantity) as total_quantity'),
+            DB::raw('SUM(quantity/unit_amount) as total_quantity'),
             DB::raw('SUM(total) as total_value'),
             DB::raw('COUNT(*) as transaction_count'),
             DB::raw('AVG(price) as avg_price')
@@ -436,7 +436,7 @@ class DashboardController extends Controller
             ->where('customer_id', $customerId)
             ->where('remaining_qty', '>', 0)
             ->select(
-                DB::raw('SUM(remaining_qty * price) as total_value'),
+                DB::raw('SUM((remaining_qty/unit_amount) * purchase_price) as total_value'),
                 DB::raw('SUM(remaining_qty) as total_quantity'),
                 DB::raw('COUNT(DISTINCT product_id) as product_count')
             )->first();
@@ -474,7 +474,7 @@ class DashboardController extends Controller
         $topByQuantity = DB::table('customer_inventory')
             ->where('customer_id', $customerId)
             ->where('remaining_qty', '>', 0)
-            ->select('product_name', DB::raw('SUM(remaining_qty) as total_quantity'))
+            ->select('product_name', DB::raw('SUM(remaining_qty/unit_amount) as total_quantity'))
             ->groupBy('product_name')
             ->orderBy('total_quantity', 'desc')
             ->limit(5)
@@ -483,7 +483,7 @@ class DashboardController extends Controller
         $topByValue = DB::table('customer_inventory')
             ->where('customer_id', $customerId)
             ->where('remaining_qty', '>', 0)
-            ->select('product_name', DB::raw('SUM(remaining_qty * price) as total_value'))
+            ->select('product_name', DB::raw('SUM((remaining_qty/unit_amount) * purchase_price) as total_value'))
             ->groupBy('product_name')
             ->orderBy('total_value', 'desc')
             ->limit(5)

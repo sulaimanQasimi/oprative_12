@@ -50,45 +50,10 @@ ChartJS.register(
     RadialLinearScale
 );
 
-// Memoized AnimatedCounter component for beautiful number animations
-const AnimatedCounter = memo(({
-    value,
-    prefix = "",
-    suffix = "",
-    duration = 800,
-    className = "",
-}) => {
-    const [count, setCount] = useState(0);
 
-    useEffect(() => {
-        let start = 0;
-        const end = parseInt(value) || 0;
-        if (start === end) return;
 
-        const incrementTime = (duration / end) * 1000;
-        const minIncrementTime = Math.max(5, incrementTime);
-        const step = end > 1000 ? Math.ceil(end / 100) : 1;
-
-        let timer = setInterval(() => {
-            start = Math.min(start + step, end);
-            setCount(start);
-            if (start === end) clearInterval(timer);
-        }, minIncrementTime);
-
-        return () => clearInterval(timer);
-    }, [value, duration]);
-
-    return (
-        <span className={className}>
-            {prefix}
-            {count.toLocaleString()}
-            {suffix}
-        </span>
-    );
-});
-
-// Memoized animation variants to prevent re-creation
-const animationVariants = useMemo(() => ({
+// Animation variants (moved inside component)
+const animationVariants = {
     fadeIn: {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { duration: 0.5 } }
@@ -148,10 +113,10 @@ const animationVariants = useMemo(() => ({
             }
         }
     }
-}), []);
+};
 
-// Memoized chart options to prevent re-creation
-const chartOptions = useMemo(() => ({
+// Chart options (moved inside component)
+const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
@@ -231,7 +196,7 @@ const chartOptions = useMemo(() => ({
             }
         }
     }
-}), []);
+};
 
 export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
     const { t } = useLaravelReactI18n();
@@ -678,10 +643,9 @@ export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
                                                 {t('Total Products')}
                                             </p>
                                             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                <AnimatedCounter 
-                                                    value={inventoryOverview.total_products || 0}
-                                                    className="text-blue-600 dark:text-blue-400"
-                                                />
+                                                <span className="text-blue-600 dark:text-blue-400">
+                                                    {(inventoryOverview.total_products || 0).toLocaleString()}
+                                                </span>
                                             </p>
                                         </div>
                                         <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
@@ -701,10 +665,9 @@ export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
                                                 {t('Total Quantity')}
                                             </p>
                                             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                <AnimatedCounter 
-                                                    value={inventoryOverview.total_quantity || 0}
-                                                    className="text-green-600 dark:text-green-400"
-                                                />
+                                                <span className="text-green-600 dark:text-green-400">
+                                                    {(inventoryOverview.total_quantity || 0).toLocaleString()}
+                                                </span>
                                             </p>
                                         </div>
                                         <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
@@ -724,10 +687,9 @@ export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
                                                 {t('Total Value')}
                                             </p>
                                             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                <AnimatedCounter 
-                                                    value={formatCurrency(inventoryOverview.total_value || 0)}
-                                                    className="text-purple-600 dark:text-purple-400"
-                                                />
+                                                <span className="text-purple-600 dark:text-purple-400">
+                                                    {formatCurrency(inventoryOverview.total_value || 0)}
+                                                </span>
                                             </p>
                                         </div>
                                         <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
@@ -747,10 +709,9 @@ export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
                                                 {t('Net Movement')}
                                             </p>
                                             <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                <AnimatedCounter 
-                                                    value={financialSummary.net_movement?.quantity || 0}
-                                                    className="text-orange-600 dark:text-orange-400"
-                                                />
+                                                <span className="text-orange-600 dark:text-orange-400">
+                                                    {(financialSummary.net_movement?.quantity || 0).toLocaleString()}
+                                                </span>
                                             </p>
                                         </div>
                                         <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
