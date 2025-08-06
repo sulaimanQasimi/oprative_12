@@ -143,18 +143,14 @@ class DashboardController extends Controller
 
         $totalProducts = $inventory->count();
         $totalQuantity = $inventory->sum('remaining_qty');
-        $totalValue = $inventory->sum(function($item) {
-            return ($item->remaining_qty/$item->unit_amount) * $item->purchase_price;
-        });
+        $totalValue = $inventory->sum(DB::raw('remaining_qty * price'));
         
         $expiryStatus = $inventory->groupBy('expiry_status')
             ->map(function ($items) {
                 return [
                     'count' => $items->count(),
                     'quantity' => $items->sum('remaining_qty'),
-                    'value' => $items->sum(function($item) {
-                        return ($item->remaining_qty/$item->unit_amount) * $item->purchase_price;
-                    })
+                    'value' => $items->sum(DB::raw('remaining_qty * price'))
                 ];
             });
 
@@ -168,10 +164,10 @@ class DashboardController extends Controller
                     'id' => $item->batch_id,
                     'product_name' => $item->product_name,
                     'batch_reference' => $item->batch_reference,
-                    'remaining_qty' => $item->remaining_qty/$item->unit_amount,
+                    'remaining_qty' => $item->remaining_qty,
                     'unit_name' => $item->unit_name,
-                    'purchase_price' => $item->purchase_price,
-                    'total_value' => ($item->remaining_qty/$item->unit_amount) * $item->purchase_price,
+                    'price' => $item->price,
+                    'total_value' => $item->remaining_qty * $item->price,
                     'expiry_status' => $item->expiry_status,
                     'days_to_expiry' => $item->days_to_expiry,
                     'expire_date' => $item->expire_date,
@@ -292,10 +288,10 @@ class DashboardController extends Controller
 
         $performance = $query->select(
             'product_name',
-            DB::raw('SUM(remaining_qty/unit_amount) as total_quantity'),
-            DB::raw('SUM((remaining_qty/unit_amount) * purchase_price) as total_value'),
+            DB::raw('SUM(remaining_qty) as total_quantity'),
+            DB::raw('SUM(remaining_qty * price) as total_value'),
             DB::raw('COUNT(DISTINCT batch_id) as batch_count'),
-            DB::raw('AVG(purchase_price) as avg_price')
+            DB::raw('AVG(price) as avg_price')
         )
         ->groupBy('product_name')
         ->orderBy('total_value', 'desc')
@@ -321,12 +317,12 @@ class DashboardController extends Controller
         $expiryData = DB::table('customer_inventory')
             ->where('customer_id', $customerId)
             ->where('remaining_qty', '>', 0)
-            ->whereNotNull('expire_date')
+            ->where('expire_date', 'IS NOT', null)
             ->select(
                 'expiry_status',
                 DB::raw('COUNT(*) as product_count'),
-                DB::raw('SUM(remaining_qty/unit_amount) as total_quantity'),
-                DB::raw('SUM((remaining_qty/unit_amount) * purchase_price) as total_value')
+                DB::raw('SUM(remaining_qty) as total_quantity'),
+                DB::raw('SUM(remaining_qty * price) as total_value')
             )
             ->groupBy('expiry_status')
             ->get();
@@ -345,10 +341,10 @@ class DashboardController extends Controller
                 return [
                     'product_name' => $item->product_name,
                     'batch_reference' => $item->batch_reference,
-                    'remaining_qty' => $item->remaining_qty/$item->unit_amount,
+                    'remaining_qty' => $item->remaining_qty,
                     'days_to_expiry' => $item->days_to_expiry,
                     'expire_date' => $item->expire_date,
-                    'total_value' => ($item->remaining_qty/$item->unit_amount) * $item->purchase_price,
+                    'total_value' => $item->remaining_qty * $item->price,
                 ];
             })
         ];
@@ -372,7 +368,7 @@ class DashboardController extends Controller
                     'product' => $income->product->name,
                     'batch' => $income->batch ? $income->batch->reference_number : null,
                     'quantity' => $income->quantity,
-                    'price' => $income->purchase_price,
+                    'price' => $income->price,
                     'total' => $income->total,
                     'date' => $income->created_at->format('Y-m-d H:i'),
                     'relative_time' => $income->created_at->diffForHumans(),
@@ -391,7 +387,7 @@ class DashboardController extends Controller
                     'reference' => $outcome->reference_number,
                     'product' => $outcome->product->name,
                     'batch' => $outcome->batch ? $outcome->batch->reference_number : null,
-                    'quantity' =>($outcome->is_wholesale) ? $outcome->quantity/$outcome->unit_amount : $outcome->quantity,
+                    'quantity' => $outcome->quantity,
                     'price' => $outcome->price,
                     'total' => $outcome->total,
                     'date' => $outcome->created_at->format('Y-m-d H:i'),

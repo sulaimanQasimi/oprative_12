@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Head, Link } from "@inertiajs/react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import CustomerNavbar from "@/Components/CustomerNavbar";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/Components/ui/button";
 import {
     ArrowUpRight,
     ArrowDownRight,
@@ -12,51 +13,60 @@ import {
     DollarSign,
     Calendar,
     ChevronRight,
-    Plus,
     RefreshCcw,
-    ArrowUp,
-    ArrowDown,
     Filter,
-    CreditCard,
     TrendingUp,
-    Clock,
-    Hash,
-    Check,
-    ShoppingCart,
-    Eye,
+    Activity,
+    Package2,
 } from "lucide-react";
 import {
-    BarChart,
-    Bar,
-    PieChart,
-    Pie,
-    XAxis,
-    YAxis,
-    CartesianGrid,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Title,
     Tooltip,
-    ResponsiveContainer,
-    Cell,
-} from "recharts";
+    Legend,
+    Filler,
+    RadialLinearScale,
+} from 'chart.js';
+import { Line, Bar, Doughnut, Radar } from 'react-chartjs-2';
 
-// AnimatedCounter component for beautiful number animations
-const AnimatedCounter = ({
+// Register Chart.js components
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler,
+    RadialLinearScale
+);
+
+// Memoized AnimatedCounter component for beautiful number animations
+const AnimatedCounter = memo(({
     value,
     prefix = "",
     suffix = "",
     duration = 800,
+    className = "",
 }) => {
     const [count, setCount] = useState(0);
 
     useEffect(() => {
         let start = 0;
-        const end = parseInt(value);
+        const end = parseInt(value) || 0;
         if (start === end) return;
 
-        // Use faster incrementTime for a quicker animation
         const incrementTime = (duration / end) * 1000;
-        // Set a minimum time between increments to ensure smooth animation
         const minIncrementTime = Math.max(5, incrementTime);
-        // For very large numbers, use larger steps
         const step = end > 1000 ? Math.ceil(end / 100) : 1;
 
         let timer = setInterval(() => {
@@ -65,1042 +75,850 @@ const AnimatedCounter = ({
             if (start === end) clearInterval(timer);
         }, minIncrementTime);
 
-        return () => {
-            clearInterval(timer);
-        };
+        return () => clearInterval(timer);
     }, [value, duration]);
 
     return (
-        <span>
+        <span className={className}>
             {prefix}
             {count.toLocaleString()}
             {suffix}
         </span>
     );
-};
+});
 
-export default function CustomerDashboard({ auth, stats = {} }) {
+// Memoized animation variants to prevent re-creation
+const animationVariants = useMemo(() => ({
+    fadeIn: {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { duration: 0.5 } }
+    },
+    slideIn: {
+        hidden: { x: -20, opacity: 0 },
+        visible: { x: 0, opacity: 1, transition: { duration: 0.4 } }
+    },
+    slideUp: {
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1, transition: { duration: 0.4 } }
+    },
+    scaleIn: {
+        hidden: { scale: 0.8, opacity: 0 },
+        visible: { scale: 1, opacity: 1, transition: { duration: 0.5 } }
+    },
+    staggerChildren: {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    },
+    // Enhanced animations for better UX
+    pulse: {
+        hidden: { scale: 1 },
+        visible: { 
+            scale: [1, 1.05, 1],
+            transition: { 
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        }
+    },
+    bounce: {
+        hidden: { y: 0 },
+        visible: { 
+            y: [0, -10, 0],
+            transition: { 
+                duration: 1,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        }
+    },
+    shimmer: {
+        hidden: { x: '-100%' },
+        visible: { 
+            x: '100%',
+            transition: { 
+                duration: 1.5,
+                repeat: Infinity,
+                ease: "linear"
+            }
+        }
+    }
+}), []);
+
+// Memoized chart options to prevent re-creation
+const chartOptions = useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+        intersect: false,
+        mode: 'index'
+    },
+    plugins: {
+        legend: {
+            position: 'top',
+            labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                    size: 12,
+                    weight: '500'
+                },
+                color: 'rgba(0, 0, 0, 0.8)'
+            }
+        },
+        tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            titleColor: 'white',
+            bodyColor: 'white',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            borderWidth: 1,
+            cornerRadius: 12,
+            displayColors: true,
+            padding: 16,
+            titleFont: {
+                size: 14,
+                weight: '600'
+            },
+            bodyFont: {
+                size: 12
+            },
+            callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                        label += new Intl.NumberFormat('en-US').format(context.parsed.y);
+                    }
+                    return label;
+                }
+            }
+        }
+    },
+    scales: {
+        x: {
+            grid: {
+                display: false
+            },
+            ticks: {
+                font: {
+                    size: 11,
+                    weight: '500'
+                },
+                color: 'rgba(0, 0, 0, 0.7)'
+            }
+        },
+        y: {
+            grid: {
+                color: 'rgba(0, 0, 0, 0.05)',
+                drawBorder: false
+            },
+            ticks: {
+                font: {
+                    size: 11,
+                    weight: '500'
+                },
+                color: 'rgba(0, 0, 0, 0.7)',
+                callback: function(value) {
+                    return new Intl.NumberFormat('en-US').format(value);
+                }
+            }
+        }
+    }
+}), []);
+
+export default function CustomerDashboard({ auth, stats = {}, filters = {} }) {
     const { t } = useLaravelReactI18n();
+    
+    // Optimized state management with better defaults
     const [isLoading, setIsLoading] = useState(true);
+    const [showFilters, setShowFilters] = useState(false);
+    const [chartType, setChartType] = useState(filters.chart_type || 'monthly');
+    const [dateFrom, setDateFrom] = useState(filters.date_from || '');
+    const [dateTo, setDateTo] = useState(filters.date_to || '');
+    const [productFilter, setProductFilter] = useState(filters.product_filter || '');
+    const [isAnimating, setIsAnimating] = useState(false);
 
-    // Refs for animations
+    // Optimized refs for animations
     const headerRef = useRef(null);
     const statsCardsRef = useRef([]);
     const chartsRef = useRef([]);
+    const filterPanelRef = useRef(null);
 
-    // Make sure stats is an object
-    const safeStats = typeof stats === "object" && stats !== null ? stats : {};
+    // Memoized safe stats with better error handling
+    const safeStats = useMemo(() => {
+        if (typeof stats === "object" && stats !== null) {
+            return stats;
+        }
+        console.warn('Invalid stats object provided to Dashboard');
+        return {};
+    }, [stats]);
 
-    // Default stats if not provided
-    const defaultStats = {
-        total_income: 0,
-        total_outcome: 0,
-        total_income_quantity: 0,
-        total_outcome_quantity: 0,
-        net_quantity: 0,
-        net_value: 0,
-        top_products: [],
-        monthly_stock_data: [],
-        stock_distribution: [],
-        recent_movements: [],
-        filters: {
-            date_from: null,
-            date_to: null,
-        },
-    };
+    // Memoized computed values with better performance
+    const inventoryOverview = useMemo(() => {
+        const overview = safeStats.inventory_overview || {};
+        return {
+            total_products: overview.total_products || 0,
+            total_quantity: overview.total_quantity || 0,
+            total_value: overview.total_value || 0,
+            expiry_status: overview.expiry_status || {},
+            products: overview.products || []
+        };
+    }, [safeStats.inventory_overview]);
 
-    // Merge provided stats with defaults
-    const mergedStats = {
-        ...defaultStats,
-        ...safeStats,
-    };
+    const stockMovementCharts = useMemo(() => {
+        const charts = safeStats.stock_movement_charts || {};
+        return {
+            labels: charts.labels || [],
+            quantity_datasets: charts.quantity_datasets || [],
+            value_datasets: charts.value_datasets || []
+        };
+    }, [safeStats.stock_movement_charts]);
 
-    // Format currency values
-    const formatCurrency = (value) => {
-        return new Intl.NumberFormat("en-US", {
-            style: "currency",
-                                    currency: "AFN",
-            minimumFractionDigits: 2,
-        }).format(value);
-    };
+    const productPerformance = useMemo(() => {
+        return safeStats.product_performance || [];
+    }, [safeStats.product_performance]);
 
-    // Colors for charts
-    const COLORS = ["#8b5cf6", "#ec4899", "#3b82f6", "#10b981", "#f59e0b"];
+    const expiryAnalysis = useMemo(() => {
+        const analysis = safeStats.expiry_analysis || {};
+        return {
+            summary: analysis.summary || [],
+            expiring_soon: analysis.expiring_soon || []
+        };
+    }, [safeStats.expiry_analysis]);
 
-    // Simulate loading
+    const recentActivities = useMemo(() => {
+        return safeStats.recent_activities || [];
+    }, [safeStats.recent_activities]);
+
+    const financialSummary = useMemo(() => {
+        const summary = safeStats.financial_summary || {};
+        return {
+            income: summary.income || {},
+            outcome: summary.outcome || {},
+            current_inventory: summary.current_inventory || {},
+            net_movement: summary.net_movement || {}
+        };
+    }, [safeStats.financial_summary]);
+
+    const topProducts = useMemo(() => {
+        const products = safeStats.top_products || {};
+        return {
+            by_quantity: products.by_quantity || [],
+            by_value: products.by_value || []
+        };
+    }, [safeStats.top_products]);
+
+    // Optimized loading effect with better error handling
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 300);
-
+            setIsAnimating(true);
+        }, 150);
         return () => clearTimeout(timer);
     }, []);
 
+    // Memoized loading state to prevent unnecessary re-renders
+    const loadingState = useMemo(() => isLoading, [isLoading]);
+
+    // Memoized handlers with better error handling and performance
+    const handleFilter = useCallback(() => {
+        try {
+            setIsAnimating(false);
+            router.get(route('customer.dashboard'), {
+                date_from: dateFrom,
+                date_to: dateTo,
+                chart_type: chartType,
+                product_filter: productFilter
+            }, {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    setTimeout(() => setIsAnimating(true), 100);
+                }
+            });
+        } catch (error) {
+            console.error('Error applying filters:', error);
+            setIsAnimating(true);
+        }
+    }, [dateFrom, dateTo, chartType, productFilter]);
+
+    const clearFilters = useCallback(() => {
+        try {
+            setDateFrom('');
+            setDateTo('');
+            setChartType('monthly');
+            setProductFilter('');
+            setIsAnimating(false);
+            router.get(route('customer.dashboard'), {}, {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    setTimeout(() => setIsAnimating(true), 100);
+                }
+            });
+        } catch (error) {
+            console.error('Error clearing filters:', error);
+            setIsAnimating(true);
+        }
+    }, []);
+
+    const toggleFilters = useCallback(() => {
+        setShowFilters(prev => !prev);
+    }, []);
+
+    const handleChartTypeChange = useCallback((newChartType) => {
+        setChartType(newChartType);
+    }, []);
+
+    const handleDateChange = useCallback((field, value) => {
+        if (field === 'from') {
+            setDateFrom(value);
+        } else if (field === 'to') {
+            setDateTo(value);
+        }
+    }, []);
+
+    const handleProductFilterChange = useCallback((value) => {
+        setProductFilter(value);
+    }, []);
+
+    // Memoized utility functions to prevent re-creation
+    const formatCurrency = useCallback((value) => {
+        if (!value || isNaN(value)) return '$0.00';
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    }, []);
+
+    const formatNumber = useCallback((value) => {
+        if (!value || isNaN(value)) return '0';
+        return new Intl.NumberFormat('en-US').format(value);
+    }, []);
+
+    const formatPercentage = useCallback((value) => {
+        if (!value || isNaN(value)) return '0%';
+        return new Intl.NumberFormat('en-US', {
+            style: 'percent',
+            minimumFractionDigits: 1,
+            maximumFractionDigits: 1,
+        }).format(value / 100);
+    }, []);
+
+    const getStatusColor = useCallback((status) => {
+        switch (status) {
+            case 'income':
+                return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30 border-green-200 dark:border-green-800';
+            case 'outcome':
+                return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+            default:
+                return 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800';
+        }
+    }, []);
+
+    const getExpiryStatusColor = useCallback((status) => {
+        switch (status) {
+            case 'expired':
+                return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30 border-red-200 dark:border-red-800';
+            case 'expiring_soon':
+                return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800';
+            case 'valid':
+                return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30 border-green-200 dark:border-green-800';
+            default:
+                return 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800';
+        }
+    }, []);
+
+    const getActivityIcon = useCallback((type) => {
+        switch (type) {
+            case 'income':
+                return ArrowUpRight;
+            case 'outcome':
+                return ArrowDownRight;
+            default:
+                return Activity;
+        }
+    }, []);
+
+    const getActivityColor = useCallback((type) => {
+        switch (type) {
+            case 'income':
+                return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30';
+            case 'outcome':
+                return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30';
+            default:
+                return 'text-slate-600 bg-slate-100 dark:text-slate-400 dark:bg-slate-900/30';
+        }
+    }, []);
+
+    if (loadingState) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+                <div className="text-center">
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                        className="relative"
+                    >
+                        <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60 animate-pulse"></div>
+                        <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-6 rounded-2xl shadow-2xl">
+                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mx-auto"></div>
+                        </div>
+                    </motion.div>
+                    <motion.p
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                        className="mt-6 text-lg font-semibold text-slate-700 dark:text-slate-300"
+                    >
+                        {t('Loading dashboard...')}
+                    </motion.p>
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                        className="mt-2 text-sm text-slate-500 dark:text-slate-400"
+                    >
+                        {t('Please wait while we load your data')}
+                    </motion.div>
+                    <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 0.7, duration: 0.5 }}
+                        className="mt-4 flex justify-center space-x-1"
+                    >
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </motion.div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <>
-            <Head title={t("Customer Dashboard")}>
-                <style>{`
-                    @keyframes shimmer {
-                        0% {
-                            transform: translateX(-100%);
-                        }
-                        100% {
-                            transform: translateX(100%);
-                        }
-                    }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
-                    }
+            <Head title={t('Customer Dashboard')} />
 
-                    .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-                        background-size: 14px 14px;
-                    }
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
+                <CustomerNavbar auth={auth} />
 
-                    .dark .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-                    }
-
-                    .card-shine {
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 50%;
-                        height: 100%;
-                        background: linear-gradient(
-                            to right,
-                            rgba(255, 255, 255, 0) 0%,
-                            rgba(255, 255, 255, 0.3) 50%,
-                            rgba(255, 255, 255, 0) 100%
-                        );
-                        animation: shimmer 3s infinite;
-                    }
-                `}</style>
-            </Head>
-
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
-                {/* Sidebar */}
-                <CustomerNavbar
-                    auth={auth || { user: { name: "Customer" } }}
-                    currentRoute="customer.dashboard"
-                />
-
-                {/* Main Content */}
-                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
-                    {/* Header */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Enhanced Header with better animations */}
                     <motion.header
                         ref={headerRef}
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="bg-white/10 backdrop-blur-lg border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30 shadow-lg"
                     >
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">
-                                    {t("Customer Portal")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    {t("Dashboard Overview")}
-                                </h1>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
+                                        <BarChart3 className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    </div>
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Activity className="w-4 h-4" />
+                                        {t('Customer Dashboard')}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
+                                    >
+                                        {t('Inventory Overview')}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <Calendar className="w-4 h-4" />
+                                        {t('Real-time stock management and analytics')}
+                                    </motion.p>
+                                </div>
                             </div>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
                             <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
                             >
-                                <Link
-                                    href={route("customer.dashboard")}
-                                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2 transition-colors"
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={toggleFilters}
+                                    className="gap-2"
+                                >
+                                    <Filter className="h-4 w-4" />
+                                    {t('Filters')}
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleFilter}
+                                    className="gap-2"
                                 >
                                     <RefreshCcw className="h-4 w-4" />
-                                    <span>{t("Refresh")}</span>
-                                </Link>
+                                    {t('Apply')}
+                                </Button>
                             </motion.div>
                         </div>
                     </motion.header>
 
-                    {/* Main Content Container */}
-                    <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-slate-50 dark:bg-slate-950">
-                        <div className="max-w-7xl mx-auto relative">
-                            {/* Background Elements */}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/30 to-purple-50/30 dark:from-slate-900/30 dark:to-slate-800/30 pointer-events-none"></div>
-                            <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-200/30 dark:bg-blue-900/20 rounded-full filter blur-3xl animate-pulse pointer-events-none"></div>
-                            <div
-                                className="absolute -bottom-40 -right-40 w-80 h-80 bg-purple-200/30 dark:bg-purple-900/20 rounded-full filter blur-3xl animate-pulse pointer-events-none"
-                                style={{ animationDelay: "1s" }}
-                            ></div>
-                            <div
-                                className="absolute top-1/3 right-1/4 w-40 h-40 bg-pink-200/20 dark:bg-pink-900/10 rounded-full filter blur-2xl animate-pulse pointer-events-none"
-                                style={{ animationDelay: "2s" }}
-                            ></div>
-
-                            <div className="relative z-10">
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                                    <motion.div
-                                        ref={(el) =>
-                                            (statsCardsRef.current[0] = el)
-                                        }
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.05,
-                                        }}
-                                        whileHover={{
-                                            y: -5,
-                                            transition: { duration: 0.2 },
-                                        }}
-                                        className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg relative overflow-hidden"
-                                    >
-                                        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-                                        <div className="card-shine"></div>
-                                        <div className="p-6 relative z-10">
-                                            <div className="flex justify-between items-center mb-3">
-                                                <h2 className="text-lg font-medium text-white">
-                                                    {t("Total Stock In")}
-                                                </h2>
-                                                <div className="p-2 bg-white/20 rounded-lg">
-                                                    <ArrowUpRight className="h-5 w-5 text-white" />
-                                                </div>
-                                            </div>
-                                            <div className="text-3xl font-bold text-white mb-1">
-                                                <AnimatedCounter
-                                                    value={
-                                                        mergedStats.total_income_quantity
-                                                    }
-                                                />
-                                            </div>
-                                            <p className="text-blue-100">
-                                                {formatCurrency(
-                                                    mergedStats.total_income
-                                                )}
-                                            </p>
-
-                                            <div className="mt-4 flex items-center text-sm text-white/90">
-                                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                    <TrendingUp className="h-3.5 w-3.5 inline mr-1" />
-                                                    <span>
-                                                        {t("Incoming Stock")}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    <motion.div
-                                        ref={(el) =>
-                                            (statsCardsRef.current[1] = el)
-                                        }
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.1,
-                                        }}
-                                        whileHover={{
-                                            y: -5,
-                                            transition: { duration: 0.2 },
-                                        }}
-                                        className="bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl shadow-lg relative overflow-hidden"
-                                    >
-                                        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-                                        <div className="card-shine"></div>
-                                        <div className="p-6 relative z-10">
-                                            <div className="flex justify-between items-center mb-3">
-                                                <h2 className="text-lg font-medium text-white">
-                                                    {t("Total Stock Out")}
-                                                </h2>
-                                                <div className="p-2 bg-white/20 rounded-lg">
-                                                    <ArrowDownRight className="h-5 w-5 text-white" />
-                                                </div>
-                                            </div>
-                                            <div className="text-3xl font-bold text-white mb-1">
-                                                <AnimatedCounter
-                                                    value={
-                                                        mergedStats.total_outcome_quantity
-                                                    }
-                                                />
-                                            </div>
-                                            <p className="text-pink-100">
-                                                {formatCurrency(
-                                                    mergedStats.total_outcome
-                                                )}
-                                            </p>
-
-                                            <div className="mt-4 flex items-center text-sm text-white/90">
-                                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                    <ShoppingCart className="h-3.5 w-3.5 inline mr-1" />
-                                                    <span>
-                                                        {t("Outgoing Stock")}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    <motion.div
-                                        ref={(el) =>
-                                            (statsCardsRef.current[2] = el)
-                                        }
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.15,
-                                        }}
-                                        whileHover={{
-                                            y: -5,
-                                            transition: { duration: 0.2 },
-                                        }}
-                                        className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg relative overflow-hidden"
-                                    >
-                                        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-                                        <div className="card-shine"></div>
-                                        <div className="p-6 relative z-10">
-                                            <div className="flex justify-between items-center mb-3">
-                                                <h2 className="text-lg font-medium text-white">
-                                                    {t("Net Stock")}
-                                                </h2>
-                                                <div className="p-2 bg-white/20 rounded-lg">
-                                                    <Layers className="h-5 w-5 text-white" />
-                                                </div>
-                                            </div>
-                                            <div className="text-3xl font-bold text-white mb-1">
-                                                <AnimatedCounter
-                                                    value={
-                                                        mergedStats.net_quantity
-                                                    }
-                                                />
-                                            </div>
-                                            <p className="text-emerald-100">
-                                                {t("Current stock level")}
-                                            </p>
-
-                                            <div className="mt-4 flex items-center text-sm text-white/90">
-                                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                    {mergedStats.net_quantity >
-                                                    0 ? (
-                                                        <ArrowUp className="h-3.5 w-3.5 inline mr-1" />
-                                                    ) : (
-                                                        <ArrowDown className="h-3.5 w-3.5 inline mr-1" />
-                                                    )}
-                                                    <span>
-                                                        {t("Total Inventory")}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    <motion.div
-                                        ref={(el) =>
-                                            (statsCardsRef.current[3] = el)
-                                        }
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.2,
-                                        }}
-                                        whileHover={{
-                                            y: -5,
-                                            transition: { duration: 0.2 },
-                                        }}
-                                        className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg relative overflow-hidden"
-                                    >
-                                        <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-                                        <div className="card-shine"></div>
-                                        <div className="p-6 relative z-10">
-                                            <div className="flex justify-between items-center mb-3">
-                                                <h2 className="text-lg font-medium text-white">
-                                                    {t("Net Value")}
-                                                </h2>
-                                                <div className="p-2 bg-white/20 rounded-lg">
-                                                    <DollarSign className="h-5 w-5 text-white" />
-                                                </div>
-                                            </div>
-                                            <div className="text-3xl font-bold text-white mb-1">
-                                                <AnimatedCounter
-                                                    value={parseFloat(
-                                                        mergedStats.net_value
-                                                    )}
-                                                    prefix="$"
-                                                />
-                                            </div>
-                                            <p className="text-amber-100">
-                                                {t("Total inventory value")}
-                                            </p>
-
-                                            <div className="mt-4 flex items-center text-sm text-white/90">
-                                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/10 backdrop-blur-sm">
-                                                    <CreditCard className="h-3.5 w-3.5 inline mr-1" />
-                                                    <span>
-                                                        {t("Asset Worth")}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
+                    {/* Filters Panel */}
+                    <AnimatePresence>
+                        {showFilters && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-white/20 dark:border-slate-700/50 overflow-hidden"
+                            >
+                                <div className="p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                            {t('Date From')}
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={dateFrom}
+                                            onChange={(e) => setDateFrom(e.target.value)}
+                                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                            {t('Date To')}
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={dateTo}
+                                            onChange={(e) => setDateTo(e.target.value)}
+                                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                            {t('Chart Type')}
+                                        </label>
+                                        <select
+                                            value={chartType}
+                                            onChange={(e) => setChartType(e.target.value)}
+                                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                                        >
+                                            <option value="monthly">{t('Monthly')}</option>
+                                            <option value="weekly">{t('Weekly')}</option>
+                                            <option value="daily">{t('Daily')}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                            {t('Product Filter')}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={productFilter}
+                                            onChange={(e) => setProductFilter(e.target.value)}
+                                            placeholder={t('Search products...')}
+                                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white"
+                                        />
+                                    </div>
                                 </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                                {/* Top Products */}
-                                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6 mb-8 overflow-hidden">
-                                    <h2 className="text-xl font-bold mb-4">
-                                        {t("Top Products")}
-                                    </h2>
-                                    {mergedStats.top_products &&
-                                    mergedStats.top_products.length > 0 ? (
-                                        <div className="overflow-x-auto max-w-full">
-                                            <table className="w-full min-w-full">
-                                                <thead>
-                                                    <tr className="border-b">
-                                                        <th className="text-left p-2">
-                                                            {t("Product")}
-                                                        </th>
-                                                        <th className="text-right p-2">
-                                                            {t("Stock In")}
-                                                        </th>
-                                                        <th className="text-right p-2">
-                                                            {t("Stock Out")}
-                                                        </th>
-                                                        <th className="text-right p-2">
-                                                            {t("Net")}
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {mergedStats.top_products.map(
-                                                        (product) => (
-                                                            <tr
-                                                                key={product.id}
-                                                                className="border-b hover:bg-slate-50"
-                                                            >
-                                                                <td className="p-2">
-                                                                    {
-                                                                        product.name
-                                                                    }
-                                                                </td>
-                                                                <td className="text-right p-2">
-                                                                    {
-                                                                        product.income_quantity
-                                                                    }
-                                                                </td>
-                                                                <td className="text-right p-2">
-                                                                    {
-                                                                        product.outcome_quantity
-                                                                    }
-                                                                </td>
-                                                                <td className="text-right p-2 font-medium">
-                                                                    {
-                                                                        product.net_quantity
-                                                                    }
-                                                                </td>
-                                                            </tr>
-                                                        )
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ) : (
-                                        <p className="text-gray-500 text-center py-4">
-                                            {t("No products data available")}
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Recent Stock Movements */}
+                    {/* Main Content */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
+                        <div className="p-8">
+                            {/* Stats Cards */}
+                            <motion.div
+                                variants={animationVariants.staggerChildren}
+                                initial="hidden"
+                                animate="visible"
+                                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8"
+                            >
+                                {/* Total Products */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 0.4 }}
-                                    className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
+                                    variants={animationVariants.scaleIn}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50"
                                 >
-                                    <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center">
-                                                <RefreshCcw className="h-5 w-5 text-blue-500 mr-2" />
-                                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                                    {t(
-                                                        "Recent Stock Movements"
-                                                    )}
-                                                </h2>
-                                            </div>
-                                            <div className="flex space-x-2">
-                                                <Link
-                                                    href={route(
-                                                        "customer.stock-incomes.index"
-                                                    )}
-                                                    className="px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-400 rounded-lg flex items-center gap-1.5 transition-colors"
-                                                >
-                                                    <ArrowUpRight className="h-3.5 w-3.5" />
-                                                    <span>
-                                                        {t("View All Incoming")}
-                                                    </span>
-                                                </Link>
-                                                <Link
-                                                    href={route(
-                                                        "customer.stock-outcomes.index"
-                                                    )}
-                                                    className="px-3 py-1.5 text-sm bg-pink-50 hover:bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:hover:bg-pink-900/50 dark:text-pink-400 rounded-lg flex items-center gap-1.5 transition-colors"
-                                                >
-                                                    <ArrowDownRight className="h-3.5 w-3.5" />
-                                                    <span>
-                                                        {t("View All Outgoing")}
-                                                    </span>
-                                                </Link>
-                                            </div>
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                                {t('Total Products')}
+                                            </p>
+                                            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                <AnimatedCounter 
+                                                    value={inventoryOverview.total_products || 0}
+                                                    className="text-blue-600 dark:text-blue-400"
+                                                />
+                                            </p>
+                                        </div>
+                                        <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
+                                            <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                         </div>
                                     </div>
-                                    <div className="p-6">
-                                        {mergedStats.recent_movements &&
-                                        mergedStats.recent_movements.length >
-                                            0 ? (
-                                            <div className="overflow-x-auto max-w-full">
-                                                <table className="w-full min-w-full">
-                                                    <thead>
-                                                        <tr>
-                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Type")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Product")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Quantity")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Total")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Reference")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Date")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Actions")}
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                                        {mergedStats.recent_movements.map(
-                                                            (
-                                                                movement,
-                                                                index
-                                                            ) => (
-                                                                <motion.tr
-                                                                    key={`${movement.type}-${movement.id}`}
-                                                                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
-                                                                    initial={{
-                                                                        opacity: 0,
-                                                                        y: 10,
-                                                                    }}
-                                                                    animate={{
-                                                                        opacity: 1,
-                                                                        y: 0,
-                                                                    }}
-                                                                    transition={{
-                                                                        duration: 0.3,
-                                                                        delay:
-                                                                            index *
-                                                                                0.05 +
-                                                                            0.4,
-                                                                    }}
-                                                                >
-                                                                    <td className="px-4 py-3">
-                                                                        <div
-                                                                            className={`px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${
-                                                                                movement.type ===
-                                                                                "income"
-                                                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                                                                                    : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
-                                                                            }`}
-                                                                        >
-                                                                            {movement.type ===
-                                                                            "income" ? (
-                                                                                <ArrowUpRight className="h-3 w-3" />
-                                                                            ) : (
-                                                                                <ArrowDownRight className="h-3 w-3" />
-                                                                            )}
-                                                                            <span>
-                                                                                {movement.type ===
-                                                                                "income"
-                                                                                    ? t(
-                                                                                          "In"
-                                                                                      )
-                                                                                    : t(
-                                                                                          "Out"
-                                                                                      )}
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-3">
-                                                                        <div className="flex items-center">
-                                                                            <div className="h-7 w-7 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-2">
-                                                                                <Package className="h-3.5 w-3.5" />
-                                                                            </div>
-                                                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                                                {
-                                                                                    movement.product
-                                                                                }
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-center">
-                                                                        <span className="font-medium text-slate-900 dark:text-white">
-                                                                            {
-                                                                                movement.quantity
-                                                                            }
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-right">
-                                                                        <span className="font-medium text-slate-900 dark:text-white">
-                                                                            {formatCurrency(
-                                                                                movement.total
-                                                                            )}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3">
-                                                                        <div className="flex items-center">
-                                                                            <Hash className="h-3.5 w-3.5 text-slate-400 mr-1.5" />
-                                                                            <span className="text-slate-600 dark:text-slate-300">
-                                                                                {
-                                                                                    movement.reference
-                                                                                }
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-3">
-                                                                        <div className="flex items-center">
-                                                                            <Calendar className="h-3.5 w-3.5 text-slate-400 mr-1.5" />
-                                                                            <span className="text-slate-600 dark:text-slate-300">
-                                                                                {
-                                                                                    movement.date
-                                                                                }
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-right">
-                                                                        <Link
-                                                                            href={route(
-                                                                                movement.type ===
-                                                                                    "income"
-                                                                                    ? "customer.stock-incomes.show"
-                                                                                    : "customer.stock-outcomes.show",
-                                                                                movement.id
-                                                                            )}
-                                                                            className="inline-flex items-center px-2.5 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200"
-                                                                        >
-                                                                            <Eye className="h-3.5 w-3.5 mr-1" />
-                                                                            <span>
-                                                                                {t(
-                                                                                    "View"
-                                                                                )}
-                                                                            </span>
-                                                                        </Link>
-                                                                    </td>
-                                                                </motion.tr>
-                                                            )
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                </motion.div>
+
+                                {/* Total Quantity */}
+                                <motion.div
+                                    variants={animationVariants.scaleIn}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                                {t('Total Quantity')}
+                                            </p>
+                                            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                <AnimatedCounter 
+                                                    value={inventoryOverview.total_quantity || 0}
+                                                    className="text-green-600 dark:text-green-400"
+                                                />
+                                            </p>
+                                        </div>
+                                        <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-xl">
+                                            <Layers className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Total Value */}
+                                <motion.div
+                                    variants={animationVariants.scaleIn}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                                {t('Total Value')}
+                                            </p>
+                                            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                <AnimatedCounter 
+                                                    value={formatCurrency(inventoryOverview.total_value || 0)}
+                                                    className="text-purple-600 dark:text-purple-400"
+                                                />
+                                            </p>
+                                        </div>
+                                        <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-xl">
+                                            <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Net Movement */}
+                                <motion.div
+                                    variants={animationVariants.scaleIn}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                                {t('Net Movement')}
+                                            </p>
+                                            <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                                <AnimatedCounter 
+                                                    value={financialSummary.net_movement?.quantity || 0}
+                                                    className="text-orange-600 dark:text-orange-400"
+                                                />
+                                            </p>
+                                        </div>
+                                        <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-xl">
+                                            <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+
+                            {/* Charts Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8 mb-8">
+                                {/* Stock Movement Chart */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.8, duration: 0.5 }}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50"
+                                >
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                            {t('Stock Movement')}
+                                        </h3>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">{t('Income')}</span>
+                                            <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                                            <span className="text-sm text-slate-600 dark:text-slate-400">{t('Outcome')}</span>
+                                        </div>
+                                    </div>
+                                    <div className="h-80">
+                                        {stockMovementCharts.labels && stockMovementCharts.quantity_datasets && stockMovementCharts.labels.length > 0 ? (
+                                            <Line
+                                                data={{
+                                                    labels: stockMovementCharts.labels,
+                                                    datasets: stockMovementCharts.quantity_datasets
+                                                }}
+                                                options={{
+                                                    ...chartOptions,
+                                                    plugins: {
+                                                        ...chartOptions.plugins,
+                                                        title: {
+                                                            display: false
+                                                        }
+                                                    }
+                                                }}
+                                                redraw={false}
+                                            />
                                         ) : (
-                                            <div className="text-center py-12">
-                                                <div className="mx-auto h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                                                    <RefreshCcw className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                                            <div className="flex items-center justify-center h-full">
+                                                <div className="text-center">
+                                                    <BarChart3 className="mx-auto h-12 w-12 text-slate-400 mb-2" />
+                                                    <p className="text-slate-500 dark:text-slate-400">{t('No chart data available')}</p>
+                                                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('Try adjusting your filters')}</p>
                                                 </div>
-                                                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">
-                                                    {t(
-                                                        "No recent stock movements"
-                                                    )}
-                                                </h3>
-                                                <p className="text-slate-500 dark:text-slate-400 mb-6">
-                                                    {t(
-                                                        "Add your first stock entry to see movements here"
-                                                    )}
-                                                </p>
-                                                <Link
-                                                    href={route(
-                                                        "customer.stock-incomes.create"
-                                                    )}
-                                                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
-                                                >
-                                                    <Plus className="h-4 w-4 mr-1.5" />
-                                                    <span>
-                                                        {t("Add Stock")}
-                                                    </span>
-                                                </Link>
                                             </div>
                                         )}
                                     </div>
                                 </motion.div>
 
-                                {/* Charts Section */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                                    {/* Monthly Stock Chart */}
-                                    <motion.div
-                                        ref={(el) =>
-                                            (chartsRef.current[0] = el)
-                                        }
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.25,
-                                        }}
-                                        className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
-                                    >
-                                        <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
-                                            <div className="flex items-center">
-                                                <BarChart3 className="h-5 w-5 text-blue-500 mr-2" />
-                                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                                    {t(
-                                                        "Monthly Stock Movement"
-                                                    )}
-                                                </h2>
-                                            </div>
-                                        </div>
-                                        <div className="p-6">
-                                            <div className="h-72">
-                                                {mergedStats.monthly_stock_data &&
-                                                mergedStats.monthly_stock_data
-                                                    .length > 0 ? (
-                                                    <ResponsiveContainer
-                                                        width="100%"
-                                                        height="100%"
-                                                    >
-                                                        <BarChart
-                                                            data={
-                                                                mergedStats.monthly_stock_data
-                                                            }
-                                                        >
-                                                            <CartesianGrid
-                                                                strokeDasharray="3 3"
-                                                                vertical={false}
-                                                                className="stroke-slate-200 dark:stroke-slate-700"
-                                                            />
-                                                            <XAxis
-                                                                dataKey="name"
-                                                                axisLine={false}
-                                                                tickLine={false}
-                                                                className="text-slate-500 dark:text-slate-400 text-xs"
-                                                            />
-                                                            <YAxis
-                                                                axisLine={false}
-                                                                tickLine={false}
-                                                                className="text-slate-500 dark:text-slate-400 text-xs"
-                                                            />
-                                                            <Tooltip
-                                                                contentStyle={{
-                                                                    backgroundColor:
-                                                                        "rgba(255, 255, 255, 0.9)",
-                                                                    borderColor:
-                                                                        "#e2e8f0",
-                                                                    borderRadius:
-                                                                        "0.5rem",
-                                                                    boxShadow:
-                                                                        "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                                                                    paddingTop:
-                                                                        "0.5rem",
-                                                                    paddingBottom:
-                                                                        "0.5rem",
-                                                                }}
-                                                            />
-                                                            <Bar
-                                                                name={t(
-                                                                    "Stock In"
-                                                                )}
-                                                                dataKey="income"
-                                                                fill="#3b82f6"
-                                                                radius={[
-                                                                    4, 4, 0, 0,
-                                                                ]}
-                                                                animationDuration={
-                                                                    800
-                                                                }
-                                                            />
-                                                            <Bar
-                                                                name={t(
-                                                                    "Stock Out"
-                                                                )}
-                                                                dataKey="outcome"
-                                                                fill="#ec4899"
-                                                                radius={[
-                                                                    4, 4, 0, 0,
-                                                                ]}
-                                                                animationDuration={
-                                                                    800
-                                                                }
-                                                                animationBegin={
-                                                                    100
-                                                                }
-                                                            />
-                                                        </BarChart>
-                                                    </ResponsiveContainer>
-                                                ) : (
-                                                    <div className="h-full flex items-center justify-center flex-col">
-                                                        <BarChart3 className="h-16 w-16 text-slate-200 dark:text-slate-700 mb-4" />
-                                                        <p className="text-slate-400 dark:text-slate-500">
-                                                            {t(
-                                                                "No monthly data available"
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Stock Distribution Chart */}
-                                    <motion.div
-                                        ref={(el) =>
-                                            (chartsRef.current[1] = el)
-                                        }
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.3,
-                                        }}
-                                        className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
-                                    >
-                                        <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
-                                            <div className="flex items-center">
-                                                <Package className="h-5 w-5 text-purple-500 mr-2" />
-                                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                                    {t("Stock Distribution")}
-                                                </h2>
-                                            </div>
-                                        </div>
-                                        <div className="p-6">
-                                            <div className="h-72">
-                                                {mergedStats.stock_distribution &&
-                                                mergedStats.stock_distribution
-                                                    .length > 0 ? (
-                                                    <ResponsiveContainer
-                                                        width="100%"
-                                                        height="100%"
-                                                    >
-                                                        <PieChart>
-                                                            <Pie
-                                                                data={
-                                                                    mergedStats.stock_distribution
-                                                                }
-                                                                cx="50%"
-                                                                cy="50%"
-                                                                innerRadius={60}
-                                                                outerRadius={90}
-                                                                paddingAngle={2}
-                                                                dataKey="value"
-                                                                nameKey="name"
-                                                                animationDuration={
-                                                                    1000
-                                                                }
-                                                                label={({
-                                                                    name,
-                                                                    percent,
-                                                                }) =>
-                                                                    `${name}: ${(
-                                                                        percent *
-                                                                        100
-                                                                    ).toFixed(
-                                                                        0
-                                                                    )}%`
-                                                                }
-                                                                labelLine={
-                                                                    false
-                                                                }
-                                                            >
-                                                                {mergedStats.stock_distribution.map(
-                                                                    (
-                                                                        entry,
-                                                                        index
-                                                                    ) => (
-                                                                        <Cell
-                                                                            key={`cell-${index}`}
-                                                                            fill={
-                                                                                COLORS[
-                                                                                    index %
-                                                                                        COLORS.length
-                                                                                ]
-                                                                            }
-                                                                        />
-                                                                    )
-                                                                )}
-                                                            </Pie>
-                                                            <Tooltip
-                                                                formatter={(
-                                                                    value
-                                                                ) => [
-                                                                    value,
-                                                                    "Quantity",
-                                                                ]}
-                                                                contentStyle={{
-                                                                    backgroundColor:
-                                                                        "rgba(255, 255, 255, 0.9)",
-                                                                    borderColor:
-                                                                        "#e2e8f0",
-                                                                    borderRadius:
-                                                                        "0.5rem",
-                                                                    boxShadow:
-                                                                        "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                                                                    paddingTop:
-                                                                        "0.5rem",
-                                                                    paddingBottom:
-                                                                        "0.5rem",
-                                                                }}
-                                                            />
-                                                        </PieChart>
-                                                    </ResponsiveContainer>
-                                                ) : (
-                                                    <div className="h-full flex items-center justify-center flex-col">
-                                                        <Package className="h-16 w-16 text-slate-200 dark:text-slate-700 mb-4" />
-                                                        <p className="text-slate-400 dark:text-slate-500">
-                                                            {t(
-                                                                "No distribution data available"
-                                                            )}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </div>
-
-                                {/* Top Products */}
+                                {/* Product Performance Chart */}
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.3, delay: 0.35 }}
-                                    className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800 mb-8"
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.9, duration: 0.5 }}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50"
                                 >
-                                    <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
-                                        <div className="flex items-center">
-                                            <TrendingUp className="h-5 w-5 text-emerald-500 mr-2" />
-                                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                                {t("Top Products")}
-                                            </h2>
-                                        </div>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                            {t('Product Performance')}
+                                        </h3>
                                     </div>
-                                    <div className="p-4">
-                                        {mergedStats.top_products &&
-                                        mergedStats.top_products.length > 0 ? (
-                                            <div className="overflow-x-auto max-w-full">
-                                                <table className="w-full min-w-full">
-                                                    <thead>
-                                                        <tr>
-                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Product")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Stock In")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Stock Out")}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t(
-                                                                    "Net Quantity"
-                                                                )}
-                                                            </th>
-                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Net Total")}
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                                        {mergedStats.top_products.map(
-                                                            (
-                                                                product,
-                                                                index
-                                                            ) => (
-                                                                <motion.tr
-                                                                    key={
-                                                                        product.id
-                                                                    }
-                                                                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                                                                    initial={{
-                                                                        opacity: 0,
-                                                                        y: 10,
-                                                                    }}
-                                                                    animate={{
-                                                                        opacity: 1,
-                                                                        y: 0,
-                                                                    }}
-                                                                    transition={{
-                                                                        duration: 0.3,
-                                                                        delay:
-                                                                            index *
-                                                                                0.05 +
-                                                                            0.35,
-                                                                    }}
-                                                                >
-                                                                    <td className="px-4 py-3">
-                                                                        <div className="flex items-center">
-                                                                            <div className="h-8 w-8 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-3">
-                                                                                <Package className="h-4 w-4" />
-                                                                            </div>
-                                                                            <span className="font-medium text-slate-900 dark:text-white">
-                                                                                {
-                                                                                    product.name
-                                                                                }
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-right">
-                                                                        <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                                                                            {
-                                                                                product.income_quantity
-                                                                            }
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-right">
-                                                                        <span className="text-rose-600 dark:text-rose-400 font-medium">
-                                                                            {
-                                                                                product.outcome_quantity
-                                                                            }
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-right">
-                                                                        <span className="font-semibold text-slate-900 dark:text-white">
-                                                                            {
-                                                                                product.net_quantity
-                                                                            }
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className="px-4 py-3 text-right">
-                                                                        <span className="font-semibold text-slate-900 dark:text-white">
-                                                                            {formatCurrency(
-                                                                                product.net_total
-                                                                            )}
-                                                                        </span>
-                                                                    </td>
-                                                                </motion.tr>
-                                                            )
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                    <div className="h-80">
+                                        {productPerformance.length > 0 ? (
+                                            <Bar
+                                                data={{
+                                                    labels: productPerformance.slice(0, 5).map(item => item.product_name),
+                                                    datasets: [{
+                                                        label: t('Total Value'),
+                                                        data: productPerformance.slice(0, 5).map(item => item.total_value),
+                                                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                                                        borderColor: 'rgb(59, 130, 246)',
+                                                        borderWidth: 1
+                                                    }]
+                                                }}
+                                                options={{
+                                                    ...chartOptions,
+                                                    plugins: {
+                                                        ...chartOptions.plugins,
+                                                        title: {
+                                                            display: false
+                                                        }
+                                                    }
+                                                }}
+                                                redraw={false}
+                                            />
                                         ) : (
-                                            <div className="text-center py-8">
-                                                <Package className="h-12 w-12 text-slate-200 dark:text-slate-700 mx-auto mb-3" />
-                                                <p className="text-slate-500 dark:text-slate-400">
-                                                    {t(
-                                                        "No product data available"
-                                                    )}
-                                                </p>
+                                            <div className="flex items-center justify-center h-full">
+                                                <div className="text-center">
+                                                    <Package2 className="mx-auto h-12 w-12 text-slate-400 mb-2" />
+                                                    <p className="text-slate-500 dark:text-slate-400">{t('No product data available')}</p>
+                                                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('Try adjusting your filters')}</p>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
                                 </motion.div>
                             </div>
+
+                            {/* Recent Activities */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 1.0, duration: 0.5 }}
+                                className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 dark:border-slate-700/50 mb-8"
+                            >
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                        {t('Recent Activities')}
+                                    </h3>
+                                  
+                                </div>
+                                <div className="space-y-4">
+                                    {recentActivities.length > 0 ? (
+                                        recentActivities.map((activity, index) => (
+                                            <motion.div
+                                                key={`${activity.id}-${activity.type}-${activity.reference}`}
+                                                initial={{ x: -20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 1.1 + index * 0.1, duration: 0.4 }}
+                                                className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600/50 transition-colors"
+                                            >
+                                                <div className="flex items-center space-x-4">
+                                                    <div className={`p-2 rounded-lg ${activity.type === 'income' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                                                        {activity.type === 'income' ? (
+                                                            <ArrowUpRight className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                        ) : (
+                                                            <ArrowDownRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                                            {activity.product}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                            {activity.reference} • {activity.relative_time}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                        {formatNumber(activity.quantity)} {activity.unit_name}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {formatCurrency(activity.total)}
+                                                    </p>
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-8">
+                                            <Package className="mx-auto h-12 w-12 text-slate-400" />
+                                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                                {t('No recent activities')}
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
                         </div>
                     </main>
                 </div>

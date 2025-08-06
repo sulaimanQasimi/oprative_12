@@ -19,6 +19,9 @@ return new class extends Migration
             $table->foreignId('to_customer_id')->constrained('customers')->cascadeOnDelete();
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
             $table->text('notes')->nullable();
+            $table->decimal('price', 15, 2);
+            $table->decimal('total', 15, 2);
+      
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamp('transfer_date');
             $table->timestamp('completed_at')->nullable();
