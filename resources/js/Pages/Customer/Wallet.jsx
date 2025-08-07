@@ -423,11 +423,11 @@ const DashboardCard = React.memo(({ card, index, dashboardCardsRef }) => (
             }}
         />
 
-        <div ref={(el) => (dashboardCardsRef.current[index] = el)} className="relative z-10 p-10">
+        <div ref={(el) => (dashboardCardsRef.current[index] = el)} className="relative z-10 p-6">
             <div className="flex justify-between items-start mb-8">
                 <div className="flex-1">
                     <motion.h3 
-                        className="text-2xl font-bold text-white mb-3"
+                        className="text-xl font-bold text-white mb-2"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.3 + 0.2 }}
@@ -435,7 +435,7 @@ const DashboardCard = React.memo(({ card, index, dashboardCardsRef }) => (
                         {card.title}
                     </motion.h3>
                     <motion.p 
-                        className="text-white/90 text-base"
+                        className="text-white/90 text-sm"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.3 + 0.3 }}
@@ -459,7 +459,7 @@ const DashboardCard = React.memo(({ card, index, dashboardCardsRef }) => (
             </div>
             
             <motion.div 
-                className="text-5xl font-bold text-white mb-6 flex items-end"
+                className="text-3xl font-bold text-white mb-4 flex items-end"
                 whileHover={{ scale: 1.05 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -862,13 +862,13 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                     {t("Wallet Management")}
                                 </motion.span>
                                 <motion.h1 
-                                    className="text-5xl font-bold text-slate-800 dark:text-white flex items-center gap-6"
+                                    className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-4"
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.5 }}
                                 >
                                     <motion.div 
-                                        className="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-2xl border border-white/20 animate-glow"
+                                        className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-xl border border-white/20 animate-glow"
                                         whileHover={{ 
                                             scale: 1.1,
                                             rotate: 5,
@@ -877,7 +877,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                         variants={animationVariants.float}
                                         animate="animate"
                                     >
-                                        <WalletIcon className="h-12 w-12 text-white drop-shadow-lg" />
+                                        <WalletIcon className="h-8 w-8 text-white drop-shadow-lg" />
                                     </motion.div>
                                     <motion.span 
                                         className="animate-float"
@@ -893,7 +893,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                         animate={{ opacity: 1, scale: 1 }}
                                         transition={{ delay: 0.7 }}
                                     >
-                                        <Badge variant="outline" className="ml-6 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-400 dark:border-emerald-800 rounded-full px-8 py-4 text-2xl font-bold shadow-xl">
+                                        <Badge variant="outline" className="ml-4 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-400 dark:border-emerald-800 rounded-full px-6 py-2 text-lg font-bold shadow-lg">
                                             {wallet.balance} AFN
                                         </Badge>
                                     </motion.div>
@@ -916,8 +916,8 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                     transition={{ delay: 0.8 }}
                                 >
                                     <Link href={route('customer.wallet.withdraw.form')}>
-                                        <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-3xl flex items-center gap-4 px-10 py-5 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800">
-                                            <ArrowDownRight className="h-7 w-7" />
+                                        <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl flex items-center gap-3 px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800">
+                                            <ArrowDownRight className="h-5 w-5" />
                                             {t("Withdraw")}
                                         </Button>
                                     </Link>
@@ -933,8 +933,8 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                     transition={{ delay: 0.9 }}
                                 >
                                     <Link href={route('customer.wallet.deposit.form')}>
-                                        <Button className="bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-800 text-white flex items-center gap-4 px-10 py-5 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-3xl border border-white/20">
-                                            <Plus className="h-7 w-7" />
+                                        <Button className="bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-800 text-white flex items-center gap-3 px-6 py-3 shadow-xl hover:shadow-2xl transition-all duration-300 rounded-2xl border border-white/20">
+                                            <Plus className="h-5 w-5" />
                                             {t("Deposit")}
                                         </Button>
                                     </Link>
@@ -950,11 +950,11 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                 <Button
                                     size="sm"
                                     variant="outline"
-                                    className="flex items-center gap-4 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-3xl px-8 py-5 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800"
+                                    className="flex items-center gap-3 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800"
                                     onClick={handleRefresh}
                                     disabled={isFiltering}
                                 >
-                                    <RefreshCw className={`h-6 w-6 ${isFiltering ? 'animate-spin' : ''}`} />
+                                    <RefreshCw className={`h-5 w-5 ${isFiltering ? 'animate-spin' : ''}`} />
                                     {t("Refresh")}
                                 </Button>
                             </motion.div>
@@ -996,14 +996,14 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                             <div className="relative z-10">
                                 {/* Premium Dashboard Stats Section */}
                                 <motion.div
-                                    className="bg-white/95 dark:bg-slate-900/95 border border-slate-200/50 dark:border-slate-800/50 p-12 relative flex-shrink-0 mb-12 rounded-3xl shadow-2xl backdrop-blur-2xl"
+                                    className="bg-white/95 dark:bg-slate-900/95 border border-slate-200/50 dark:border-slate-800/50 p-8 relative flex-shrink-0 mb-8 rounded-2xl shadow-xl backdrop-blur-2xl"
                                     variants={animationVariants.fadeIn}
                                     initial="hidden"
                                     animate="visible"
                                 >
                                     <div className="relative z-10">
-                                        <motion.div 
-                                            className="grid grid-cols-1 md:grid-cols-3 gap-12"
+                                                                                <motion.div
+                                            className="grid grid-cols-1 md:grid-cols-3 gap-8"
                                             variants={animationVariants.staggerChildren}
                                             initial="hidden"
                                             animate="visible"
