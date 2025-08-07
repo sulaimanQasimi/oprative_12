@@ -1,21 +1,25 @@
 {
+  "Withdraw": "برداشت",
+  "Deposit": "وارد",
+  "Available for transactions": "موجودی فعلی",
+  "Total Deposits": "مجموع واردات",
+  "All time deposits": "مجموع واردات",
+  "Total Withdrawals": "مجموع برداشت",
+  "All time withdrawals": "مجموع برداشت",
+  "Transaction History": "تاریخچه معاملات",
+  "Transaction Type": "نوع معاملات",
+  "total results": "تعداد نتایج",
   "Imported": "واردات",
   "Exported": "صادرات",
   "Batch created": "دسته ساخته شده",
   "View sale details and manage confirmation": "مشاهده جزئیات فروش و مدیریت تایید",
   "Warehouse Transfer": "انتقال گدام",
-"transfers":"انتقال",
-
-"Customer Dashboard":"داشبورد مغازه",
-
-"Inventory Overview":"نمای کلی موجودی",
-"Real-time stock management and analytics":"مدیریت و تحلیل موجودی به صورت لحظه‌ای",
-"Your Inventory":"موجودی شما",
-"Complete list of products in your inventory with batch tracking":"لیست کامل محصولات موجودی شما با ردیابی دسته",
-
-
-
-
+  "transfers": "انتقال",
+  "Customer Dashboard": "داشبورد مغازه",
+  "Inventory Overview": "نمای کلی موجودی",
+  "Real-time stock management and analytics": "مدیریت و تحلیل موجودی به صورت لحظه‌ای",
+  "Your Inventory": "موجودی شما",
+  "Complete list of products in your inventory with batch tracking": "لیست کامل محصولات موجودی شما با ردیابی دسته",
   "unique products": "محصولات منحصر به فرد",
   "Stock Quantity": "موجودی",
   "units in stock": "واحدهای موجود",
@@ -27,14 +31,8 @@
   "Quantity Distribution": "توزیع موجودی",
   "Total imported": "خرج",
   "Total exported": "وارد",
-  
-
-
-
-
   "Edit Mode": "حالت ویرایش",
   "Update warehouse information and settings": "به روز رسانی اطلاعات و تنظیمات گدام",
-
   "Update the basic information for this warehouse": "به روز رسانی اطلاعات اصلی برای این گدام",
   "Income Value": "ارزش ورودی",
   "Outcome Value": "ارزش خروجی",

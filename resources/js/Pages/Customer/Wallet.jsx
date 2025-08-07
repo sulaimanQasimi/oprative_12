@@ -112,63 +112,68 @@ const AnimatedCounter = React.memo(({
 });
 
 // Enhanced PageLoader with more dynamic animations
-const PageLoader = React.memo(({ isVisible }) => (
-    <AnimatePresence>
-        {isVisible && (
-            <motion.div
-                className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
-                initial={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
-            >
-                <div className="absolute inset-0 bg-grid-pattern opacity-[0.05]"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-transparent to-teal-500/20 animate-pulse"></div>
-                <div className="relative z-10 flex flex-col items-center">
-                    <motion.div 
-                        className="relative" 
-                        animate={{ 
-                            scale: [0.95, 1.05, 0.95],
-                            rotate: [0, 5, -5, 0]
-                        }} 
-                        transition={{ 
-                            duration: 4, 
-                            repeat: Infinity, 
-                            ease: 'easeInOut' 
-                        }}
-                    >
-                        <div className="relative flex items-center justify-center h-48 w-48">
-                            <motion.div 
-                                className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full opacity-20 blur-xl"
-                                animate={{ scale: [1, 1.2, 1] }}
-                                transition={{ duration: 3, repeat: Infinity }}
-                            />
-                            <motion.div 
-                                className="relative z-10 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 h-24 w-24 rounded-3xl flex items-center justify-center shadow-2xl border border-white/20"
-                                animate={{ 
-                                    rotate: [0, 10, 0, -10, 0], 
-                                    scale: [1, 1.1, 1, 1.1, 1] 
-                                }} 
-                                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                            >
-                                <WalletIcon className="h-12 w-12 text-white drop-shadow-lg" />
-                            </motion.div>
-                        </div>
-                    </motion.div>
-                    <motion.div
-                        className="mt-8 text-white/80 text-lg font-medium"
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                    >
-                        Loading Wallet...
-                    </motion.div>
-                </div>
-            </motion.div>
-        )}
-    </AnimatePresence>
-));
+const PageLoader = React.memo(({ isVisible }) => {
+    const { t } = useLaravelReactI18n();
+    
+    return (
+        <AnimatePresence>
+            {isVisible && (
+                <motion.div
+                    className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                >
+                    <div className="absolute inset-0 bg-grid-pattern opacity-[0.05]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-transparent to-teal-500/20 animate-pulse"></div>
+                    <div className="relative z-10 flex flex-col items-center">
+                        <motion.div 
+                            className="relative" 
+                            animate={{ 
+                                scale: [0.95, 1.05, 0.95],
+                                rotate: [0, 5, -5, 0]
+                            }} 
+                            transition={{ 
+                                duration: 4, 
+                                repeat: Infinity, 
+                                ease: 'easeInOut' 
+                            }}
+                        >
+                            <div className="relative flex items-center justify-center h-48 w-48">
+                                <motion.div 
+                                    className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full opacity-20 blur-xl"
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 3, repeat: Infinity }}
+                                />
+                                <motion.div 
+                                    className="relative z-10 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 h-24 w-24 rounded-3xl flex items-center justify-center shadow-2xl border border-white/20"
+                                    animate={{ 
+                                        rotate: [0, 10, 0, -10, 0], 
+                                        scale: [1, 1.1, 1, 1.1, 1] 
+                                    }} 
+                                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                                >
+                                    <WalletIcon className="h-12 w-12 text-white drop-shadow-lg" />
+                                </motion.div>
+                            </div>
+                        </motion.div>
+                        <motion.div
+                            className="mt-8 text-white/80 text-lg font-medium"
+                            animate={{ opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                        >
+                            {t('Loading Wallet...')}
+                        </motion.div>
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+});
 
 // Enhanced Pagination component
 const Pagination = React.memo(({ data, onPageChange }) => {
+    const { t } = useLaravelReactI18n();
     if (!data || !data.links || data.links.length <= 3) return null;
 
     return (
@@ -180,7 +185,7 @@ const Pagination = React.memo(({ data, onPageChange }) => {
         >
             <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
                 <span className="font-medium">
-                    Showing {data.from || 0} to {data.to || 0} of {data.total || 0} results
+                    {t('Showing')} {data.from || 0} {t('to')} {data.to || 0} {t('of')} {data.total || 0} {t('results')}
                 </span>
             </div>
             <div className="flex items-center gap-2">
@@ -200,7 +205,7 @@ const Pagination = React.memo(({ data, onPageChange }) => {
                                     className="flex items-center gap-1 rounded-xl border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200"
                                 >
                                     <ChevronLeft className="h-4 w-4" />
-                                    Previous
+                                    {t('Previous')}
                                 </Button>
                             </motion.div>
                         );
@@ -219,7 +224,7 @@ const Pagination = React.memo(({ data, onPageChange }) => {
                                     onClick={() => link.url && onPageChange(link.url)}
                                     className="flex items-center gap-1 rounded-xl border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-200"
                                 >
-                                    Next
+                                    {t('Next')}
                                     <ChevronRight className="h-4 w-4" />
                                 </Button>
                             </motion.div>
@@ -344,109 +349,113 @@ const DashboardCard = React.memo(({ card, index, dashboardCardsRef }) => (
 ));
 
 // Enhanced Transaction Row component with better animations
-const TransactionRow = React.memo(({ tx, index }) => (
-    <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ 
-            duration: 0.4, 
-            delay: index * 0.05,
-            ease: [0.25, 0.46, 0.45, 0.94]
-        }}
-        whileHover={{ 
-            y: -2,
-            scale: 1.01,
-            transition: { duration: 0.2 }
-        }}
-        className="px-6 py-5 bg-white/90 dark:bg-slate-900/90 border-b border-slate-100/50 dark:border-slate-800/50 last:border-0 grid grid-cols-12 items-center hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-teal-50/50 dark:hover:from-slate-800/50 dark:hover:to-emerald-900/20 transition-all duration-300 group backdrop-blur-sm"
-    >
-        <div className="col-span-4 md:col-span-3 lg:col-span-3 flex items-center gap-4">
-            <motion.div 
-                className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-lg ${
-                    tx.type === 'deposit' 
-                        ? 'bg-gradient-to-br from-green-500 to-emerald-600' 
-                        : 'bg-gradient-to-br from-rose-500 to-red-600'
-                }`}
-                whileHover={{ 
-                    scale: 1.1,
-                    rotate: 5,
-                    transition: { duration: 0.2 }
-                }}
-            >
-                {tx.type === 'deposit' ? (
-                    <ArrowUpRight className="h-6 w-6" />
-                ) : (
-                    <ArrowDownRight className="h-6 w-6" />
-                )}
-            </motion.div>
-            <div className="min-w-0">
-                <h3 className="font-semibold text-slate-900 dark:text-white truncate text-lg">
-                    {tx.type === 'deposit' ? 'Wallet Deposit' : 'Wallet Withdrawal'}
-                </h3>
-                <div className="flex items-center gap-3 mt-1">
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+const TransactionRow = React.memo(({ tx, index }) => {
+    const { t } = useLaravelReactI18n();
+    
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ 
+                duration: 0.4, 
+                delay: index * 0.05,
+                ease: [0.25, 0.46, 0.45, 0.94]
+            }}
+            whileHover={{ 
+                y: -2,
+                scale: 1.01,
+                transition: { duration: 0.2 }
+            }}
+            className="px-6 py-5 bg-white/90 dark:bg-slate-900/90 border-b border-slate-100/50 dark:border-slate-800/50 last:border-0 grid grid-cols-12 items-center hover:bg-gradient-to-r hover:from-emerald-50/50 hover:to-teal-50/50 dark:hover:from-slate-800/50 dark:hover:to-emerald-900/20 transition-all duration-300 group backdrop-blur-sm"
+        >
+            <div className="col-span-4 md:col-span-3 lg:col-span-3 flex items-center gap-4">
+                <motion.div 
+                    className={`h-12 w-12 rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-lg ${
                         tx.type === 'deposit' 
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                    }`}>
-                        {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
-                    </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                        ID: {tx.id}
-                    </span>
+                            ? 'bg-gradient-to-br from-green-500 to-emerald-600' 
+                            : 'bg-gradient-to-br from-rose-500 to-red-600'
+                    }`}
+                    whileHover={{ 
+                        scale: 1.1,
+                        rotate: 5,
+                        transition: { duration: 0.2 }
+                    }}
+                >
+                    {tx.type === 'deposit' ? (
+                        <ArrowUpRight className="h-6 w-6" />
+                    ) : (
+                        <ArrowDownRight className="h-6 w-6" />
+                    )}
+                </motion.div>
+                <div className="min-w-0">
+                    <h3 className="font-semibold text-slate-900 dark:text-white truncate text-lg">
+                        {tx.type === 'deposit' ? t('Wallet Deposit') : t('Wallet Withdrawal')}
+                    </h3>
+                    <div className="flex items-center gap-3 mt-1">
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                            tx.type === 'deposit' 
+                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                            {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
+                        </span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
+                            {t('ID')}: {tx.id}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:block">
-            <motion.div 
-                className={`font-bold text-xl ${
-                    tx.type === 'deposit' 
-                        ? 'text-green-600 dark:text-green-400' 
-                        : 'text-red-600 dark:text-red-400'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-            >
-                {tx.type === 'deposit' ? '+' : '-'}{tx.amount} AFN
-            </motion.div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                {tx.type === 'deposit' ? 'Credit' : 'Debit'}
-            </div>
-        </div>
-        
-        <div className="col-span-3 md:col-span-3 lg:col-span-3 text-center hidden md:block">
-            <div className="text-sm text-slate-700 dark:text-slate-300 truncate font-medium">
-                {tx.description || 'No description provided'}
-            </div>
-        </div>
-        
-        <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden lg:block">
-            <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                {tx.formatted_date || new Date(tx.created_at).toLocaleDateString()}
-            </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {tx.formatted_time || new Date(tx.created_at).toLocaleTimeString()}
-            </div>
-        </div>
-        
-        <div className="col-span-8 md:col-span-2 lg:col-span-2 flex justify-end gap-2">
-            <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-            >
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-10 w-10 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
-                    title="View Details"
+            
+            <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:block">
+                <motion.div 
+                    className={`font-bold text-xl ${
+                        tx.type === 'deposit' 
+                            ? 'text-green-600 dark:text-green-400' 
+                            : 'text-red-600 dark:text-red-400'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
                 >
-                    <Eye className="h-5 w-5" />
-                </Button>
-            </motion.div>
-        </div>
-    </motion.div>
-));
+                    {tx.type === 'deposit' ? '+' : '-'}{tx.amount} AFN
+                </motion.div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                    {tx.type === 'deposit' ? t('Credit') : t('Debit')}
+                </div>
+            </div>
+            
+            <div className="col-span-3 md:col-span-3 lg:col-span-3 text-center hidden md:block">
+                <div className="text-sm text-slate-700 dark:text-slate-300 truncate font-medium">
+                    {tx.description || t('No description provided')}
+                </div>
+            </div>
+            
+            <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden lg:block">
+                <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                    {tx.formatted_date || new Date(tx.created_at).toLocaleDateString()}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    {tx.formatted_time || new Date(tx.created_at).toLocaleTimeString()}
+                </div>
+            </div>
+            
+            <div className="col-span-8 md:col-span-2 lg:col-span-2 flex justify-end gap-2">
+                <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                >
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-10 w-10 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+                        title={t('View Details')}
+                    >
+                        <Eye className="h-5 w-5" />
+                    </Button>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+});
 
 export default function Wallet({ auth, customer, wallet, transactions, statistics, filters }) {
     const { t } = useLaravelReactI18n();
@@ -471,30 +480,30 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
     // Memoized dashboard cards data
     const dashboardCards = useMemo(() => [
         {
-            title: "Current Balance",
+            title: t("Current Balance"),
             value: wallet.balance,
             suffix: " AFN",
             icon: <WalletIcon className="h-6 w-6" />,
             bgClass: "from-emerald-500 to-teal-600",
-            trend: "Available for transactions",
+            trend: t("Available for transactions"),
         },
         {
-            title: "Total Deposits",
+            title: t("Total Deposits"),
             value: statistics.total_deposits,
             suffix: " AFN",
             icon: <ArrowUpRight className="h-6 w-6" />,
             bgClass: "from-green-500 to-emerald-600",
-            trend: "All time deposits",
+            trend: t("All time deposits"),
         },
         {
-            title: "Total Withdrawals",
+            title: t("Total Withdrawals"),
             value: statistics.total_withdrawals,
             suffix: " AFN",
             icon: <ArrowDownRight className="h-6 w-6" />,
             bgClass: "from-rose-500 to-red-600",
-            trend: "All time withdrawals",
+            trend: t("All time withdrawals"),
         },
-    ], [wallet.balance, statistics.total_deposits, statistics.total_withdrawals]);
+    ], [wallet.balance, statistics.total_deposits, statistics.total_withdrawals, t]);
 
     // Memoized filter parameters
     const filterParams = useMemo(() => ({
@@ -726,7 +735,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                     >
                                         <WalletIcon className="h-10 w-10 text-white drop-shadow-lg" />
                                     </motion.div>
-                                    <span className="animate-float">{customer.name} Wallet</span>
+                                    <span className="animate-float">{customer.name} {t('Wallet')}</span>
                                     <motion.div
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
@@ -893,7 +902,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                 disabled={!hasActiveFilters}
                                             >
                                                 <Filter className="h-5 w-5" />
-                                                Clear Filters
+                                                {t('Clear Filters')}
                                             </Button>
                                         </motion.div>
                                     </div>
@@ -917,7 +926,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                     >
                                                         <Filter className="h-6 w-6 text-white" />
                                                     </motion.div>
-                                                    Search & Filters
+                                                    {t('Search & Filters')}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-8">
@@ -927,7 +936,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-slate-400" />
                                                         <Input
                                                             type="text"
-                                                            placeholder="Search transactions..."
+                                                            placeholder={t("Search transactions...")}
                                                             value={searchTerm}
                                                             onChange={(e) => handleSearchChange(e.target.value)}
                                                             className="pl-12 pr-4 py-4 w-full rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
@@ -940,12 +949,12 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                         handleFilterChange('type', value);
                                                     }}>
                                                         <SelectTrigger className="w-full rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm py-4">
-                                                            <SelectValue placeholder="Transaction Type" />
+                                                            <SelectValue placeholder={t("Transaction Type")} />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="">All Types</SelectItem>
-                                                            <SelectItem value="deposit">Deposits</SelectItem>
-                                                            <SelectItem value="withdraw">Withdrawals</SelectItem>
+                                                            <SelectItem value="">{t("All Types")}</SelectItem>
+                                                            <SelectItem value="deposit">{t("Deposits")}</SelectItem>
+                                                            <SelectItem value="withdraw">{t("Withdrawals")}</SelectItem>
                                                         </SelectContent>
                                                     </Select>
 
@@ -954,7 +963,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                         <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-slate-400" />
                                                         <Input
                                                             type="date"
-                                                            placeholder="From Date"
+                                                            placeholder={t("From Date")}
                                                             value={dateFrom}
                                                             onChange={(e) => {
                                                                 setDateFrom(e.target.value);
@@ -969,7 +978,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                         <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-slate-400" />
                                                         <Input
                                                             type="date"
-                                                            placeholder="To Date"
+                                                            placeholder={t("To Date")}
                                                             value={dateTo}
                                                             onChange={(e) => {
                                                                 setDateTo(e.target.value);
@@ -985,16 +994,16 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                     <div className="flex items-center gap-8">
                                                         <div className="text-sm text-slate-600 dark:text-slate-400">
                                                             <span className="font-bold text-lg">
-                                                                {transactions?.total || 0} total results
+                                                                {transactions?.total || 0} {t('total results')}
                                                             </span>
                                                             {hasActiveFilters && (
                                                                 <span className="ml-3 text-emerald-600 dark:text-emerald-400 font-bold">
-                                                                    (filtered)
+                                                                    ({t('filtered')})
                                                                 </span>
                                                             )}
                                                         </div>
                                                         <div className="flex items-center gap-4">
-                                                            <span className="text-sm text-slate-600 dark:text-slate-400 font-bold">Show:</span>
+                                                            <span className="text-sm text-slate-600 dark:text-slate-400 font-bold">{t('Show')}:</span>
                                                             <Select value={perPage.toString()} onValueChange={(value) => {
                                                                 setPerPage(parseInt(value));
                                                                 handleFilterChange('per_page', value);
@@ -1037,11 +1046,11 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                         >
                                                             <WalletIcon className="h-6 w-6 text-white" />
                                                         </motion.div>
-                                                        Transaction History
+                                                        {t('Transaction History')}
                                                     </CardTitle>
                                                     <div className="flex items-center gap-4">
                                                         <Badge variant="outline" className="bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-400 dark:border-emerald-800 rounded-full px-6 py-3 font-bold text-lg shadow-lg">
-                                                            {transactions?.data?.length || 0} of {transactions?.total || 0} records
+                                                            {transactions?.data?.length || 0} {t('of')} {transactions?.total || 0} {t('records')}
                                                         </Badge>
                                                         <motion.div
                                                             whileHover={{ scale: 1.05, y: -2 }}
@@ -1055,7 +1064,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                                 disabled={isFiltering}
                                                             >
                                                                 <Download className="h-5 w-5" />
-                                                                Export
+                                                                {t('Export')}
                                                             </Button>
                                                         </motion.div>
                                                     </div>
@@ -1098,12 +1107,12 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                             <WalletIcon className="h-16 w-16 text-slate-400" />
                                                         </motion.div>
                                                         <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                                                            {hasActiveFilters ? 'No matching transactions found' : 'No transactions yet'}
+                                                            {hasActiveFilters ? t('No matching transactions found') : t('No transactions yet')}
                                                         </h3>
                                                         <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-10 text-lg">
                                                             {hasActiveFilters
-                                                                ? 'Try adjusting your search criteria or clear filters to see more results.'
-                                                                : 'Start using your wallet by making your first deposit or withdrawal. All your transaction history will appear here.'
+                                                                ? t('Try adjusting your search criteria or clear filters to see more results.')
+                                                                : t('Start using your wallet by making your first deposit or withdrawal. All your transaction history will appear here.')
                                                             }
                                                         </p>
                                                         <div className="flex items-center justify-center gap-6">
@@ -1118,7 +1127,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                                         className="flex items-center gap-3 rounded-2xl px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
                                                                     >
                                                                         <Filter className="h-6 w-6" />
-                                                                        Clear Filters
+                                                                        {t('Clear Filters')}
                                                                     </Button>
                                                                 </motion.div>
                                                             ) : (
@@ -1130,7 +1139,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                                         <Link href={route('customer.wallet.deposit.form')}>
                                                                             <Button className="bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-800 text-white flex items-center gap-3 px-8 py-4 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-2xl border border-white/20">
                                                                                 <Plus className="h-6 w-6" />
-                                                                                Make Deposit
+                                                                                {t('Make Deposit')}
                                                                             </Button>
                                                                         </Link>
                                                                     </motion.div>
@@ -1141,7 +1150,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                                         <Link href={route('customer.wallet.withdraw.form')}>
                                                                             <Button variant="outline" className="flex items-center gap-3 rounded-2xl px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                                                                                 <ArrowDownRight className="h-6 w-6" />
-                                                                                Withdraw Funds
+                                                                                {t('Withdraw Funds')}
                                                                             </Button>
                                                                         </Link>
                                                                     </motion.div>
