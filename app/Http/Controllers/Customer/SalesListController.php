@@ -86,14 +86,20 @@ class SalesListController extends Controller
 
     public function show($saleId)
     {
-        
         // Get the authenticated customer
         $customer = Auth::guard('customer_user')->user()->customer;
         $sale = Sale::where('customer_id', $customer->id)
             ->findOrFail($saleId);
 
-        $sale->load(['saleItems.product', 'customer', 'currency', 'payments']);
-
+        // Load relationships with batch information
+        $sale->load([
+            'saleItems.product.unit',
+            'saleItems.batch',
+            'customer',
+            'currency',
+            'payments',
+            'warehouse'
+        ]);
         return Inertia::render('Customer/Sales/Show', [
             'sale' => $sale
         ]);
