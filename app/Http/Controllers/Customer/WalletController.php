@@ -27,15 +27,13 @@ class WalletController extends Controller
         $customerUser = Auth::guard('customer_user')->user();
         $customer = $customerUser->customer ?? null;
 
-        if (!$customer) {
-            return redirect()->route('customer.dashboard')->with('error', 'No customer account found.');
-        }
-
-        $wallet = $customer->wallet;
+        // Get or create wallet for CustomerUser
+        $wallet = $customerUser->wallet;
         if (!$wallet) {
-            $wallet = $customer->createWallet([
-                'name' => $customer->name . ' Wallet',
-                'slug' => 'customer-' . $customer->id,
+            // Create wallet for CustomerUser instead of Customer
+            $wallet = $customerUser->createWallet([
+                'name' => $customerUser->name . ' Wallet',
+                'slug' => 'customer-user-' . $customerUser->id,
             ]);
         }
 
@@ -187,13 +185,9 @@ class WalletController extends Controller
     public function depositForm(Request $request)
     {
         $customerUser = Auth::guard('customer_user')->user();
-        $customer = $customerUser->customer ?? null;
-        
-        if (!$customer) {
-            return redirect()->route('customer.dashboard')->with('error', 'No customer account found.');
-        }
+       
 
-        $wallet = $customer->wallet;
+        $wallet = $customerUser->wallet;
 
         // Get recent deposits for reference
         $recentDeposits = $wallet->transactions()
@@ -222,9 +216,9 @@ class WalletController extends Controller
                 ] : null,
             ],
             'customer' => [
-                'id' => $customer->id,
-                'name' => $customer->name,
-                'email' => $customer->email,
+                'id' => $customerUser->customer->id,
+                'name' => $customerUser->customer->name,
+                'email' => $customerUser->customer->email,
             ],
             'wallet' => [
                 'id' => $wallet->id,
@@ -238,12 +232,7 @@ class WalletController extends Controller
     public function deposit(Request $request)
     {
         $customerUser = Auth::guard('customer_user')->user();
-        $customer = $customerUser->customer ?? null;
-        
-        if (!$customer) {
-            return redirect()->route('customer.dashboard')->with('error', 'No customer account found.');
-        }
-
+       
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01|max:999999999.99',
             'description' => 'nullable|string|max:1000',
@@ -252,12 +241,12 @@ class WalletController extends Controller
         try {
             DB::beginTransaction();
 
-            $wallet = $customer->wallet;
+            $wallet = $customerUser->wallet;
 
             $wallet->deposit($validated['amount'], [
                 'description' => $validated['description'] ?? 'Manual deposit',
                 'created_by' => Auth::guard('customer_user')->id(),
-                'customer_id' => $customer->id,
+                'customer_id' => $customerUser->id,
                 'user_name' => Auth::guard('customer_user')->user()->name,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -265,7 +254,7 @@ class WalletController extends Controller
 
             // Log the activity
             Log::info('Customer wallet deposit completed', [
-                'customer_id' => $customer->id,
+                'customer_id' => $customerUser->id,
                 'wallet_id' => $wallet->id,
                 'amount' => $validated['amount'],
                 'user_id' => Auth::guard('customer_user')->id(),
@@ -285,8 +274,8 @@ class WalletController extends Controller
                     $message .= "*موجودی جدید:* `" . number_format($wallet->balance, 2) . " افغانی`\n";
                     $message .= "\n*اطلاعات کاربر:*\n";
                     $message .= "👤 *نام:* `" . $customerUser->name . "`\n";
-                    $message .= "🏢 *مغازه:* `" . $customer->name . "`\n";
-                    $message .= "📞 *تلفن:* `" . $customer->phone . "`\n";
+                    $message .= "🏢 *مغازه:* `" . $customerUser->customer->name . "`\n";
+                    $message .= "📞 *تلفن:* `" . $customerUser->customer->phone . "`\n";
                     $message .= "🕐 *زمان:* " . Carbon::now()->format('Y-m-d H:i:s');
                     
                     $telegramService->queueMessage($message, $customerUser->chat_id, 'Markdown');
@@ -306,7 +295,7 @@ class WalletController extends Controller
             DB::rollBack();
 
             Log::error('Customer wallet deposit failed', [
-                'customer_id' => $customer->id,
+                'customer_id' => $customerUser->id,
                 'amount' => $validated['amount'],
                 'user_id' => Auth::guard('customer_user')->id(),
                 'error' => $e->getMessage(),
@@ -321,13 +310,8 @@ class WalletController extends Controller
     public function withdrawForm(Request $request)
     {
         $customerUser = Auth::guard('customer_user')->user();
-        $customer = $customerUser->customer ?? null;
-        
-        if (!$customer) {
-            return redirect()->route('customer.dashboard')->with('error', 'No customer account found.');
-        }
-
-        $wallet = $customer->wallet;
+       
+        $wallet = $customerUser->wallet;
 
         // Get recent withdrawals for reference
         $recentWithdrawals = $wallet->transactions()
@@ -356,9 +340,9 @@ class WalletController extends Controller
                 ] : null,
             ],
             'customer' => [
-                'id' => $customer->id,
-                'name' => $customer->name,
-                'email' => $customer->email,
+                'id' => $customerUser->customer->id,
+                'name' => $customerUser->customer->name,
+                'email' => $customerUser->customer->email,
             ],
             'wallet' => [
                 'id' => $wallet->id,
@@ -373,10 +357,6 @@ class WalletController extends Controller
     {
         $customerUser = Auth::guard('customer_user')->user();
         $customer = $customerUser->customer ?? null;
-        
-        if (!$customer) {
-            return redirect()->route('customer.dashboard')->with('error', 'No customer account found.');
-        }
 
         $validated = $request->validate([
             'amount' => 'required|numeric|min:0.01|max:999999999.99',
@@ -386,7 +366,7 @@ class WalletController extends Controller
         try {
             DB::beginTransaction();
 
-            $wallet = $customer->wallet;
+            $wallet = $customerUser->wallet;
 
             if ($wallet->balance < $validated['amount']) {
                 return redirect()->back()->withErrors([
@@ -397,7 +377,7 @@ class WalletController extends Controller
             $wallet->withdraw($validated['amount'], [
                 'description' => $validated['description'] ?? 'Manual withdrawal',
                 'created_by' => Auth::guard('customer_user')->id(),
-                'customer_id' => $customer->id,
+                'customer_id' => $customerUser->id,
                 'user_name' => Auth::guard('customer_user')->user()->name,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
@@ -405,7 +385,7 @@ class WalletController extends Controller
 
             // Log the activity
             Log::info('Customer wallet withdrawal completed', [
-                'customer_id' => $customer->id,
+                'customer_id' => $customerUser->id,
                 'wallet_id' => $wallet->id,
                 'amount' => $validated['amount'],
                 'user_id' => Auth::guard('customer_user')->id(),
@@ -425,8 +405,8 @@ class WalletController extends Controller
                     $message .= "*موجودی جدید:* `" . number_format($wallet->balance, 2) . " افغانی`\n";
                     $message .= "\n*اطلاعات کاربر:*\n";
                     $message .= "👤 *نام:* `" . $customerUser->name . "`\n";
-                    $message .= "🏢 *مغازه:* `" . $customer->name . "`\n";
-                    $message .= "📞 *تلفن:* `" . $customer->phone . "`\n";
+                    $message .= "🏢 *مغازه:* `" . $customerUser->customer->name . "`\n";
+                    $message .= "📞 *تلفن:* `" . $customerUser->customer->phone . "`\n";
                     $message .= "🕐 *زمان:* " . Carbon::now()->format('Y-m-d H:i:s');
                     
                     $telegramService->queueMessage($message, $customerUser->chat_id, 'Markdown');
@@ -446,7 +426,7 @@ class WalletController extends Controller
             DB::rollBack();
 
             Log::error('Customer wallet withdrawal failed', [
-                'customer_id' => $customer->id,
+                'customer_id' => $customerUser->id,
                 'amount' => $validated['amount'],
                 'user_id' => Auth::guard('customer_user')->id(),
                 'error' => $e->getMessage(),
@@ -470,7 +450,7 @@ class WalletController extends Controller
             return redirect()->route('customer.dashboard')->with('error', 'No customer account found.');
         }
 
-        $wallet = $customer->wallet;
+        $wallet = $customerUser->wallet;
 
         // Get all transactions with filters
         $search = $request->get('search', '');
@@ -497,7 +477,7 @@ class WalletController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $filename = 'customer_wallet_transactions_' . $customer->id . '_' . date('Y-m-d_H-i-s') . '.csv';
+        $filename = 'customer_wallet_transactions_' . $customerUser->id . '_' . date('Y-m-d_H-i-s') . '.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -543,13 +523,9 @@ class WalletController extends Controller
     public function getTransaction(Request $request, $transactionId)
     {
         $customerUser = Auth::guard('customer_user')->user();
-        $customer = $customerUser->customer ?? null;
-        
-        if (!$customer) {
-            return response()->json(['error' => 'No customer account found'], 403);
-        }
 
-        $wallet = $customer->wallet;
+
+        $wallet = $customerUser->wallet;
         $transaction = $wallet->transactions()->find($transactionId);
 
         if (!$transaction) {

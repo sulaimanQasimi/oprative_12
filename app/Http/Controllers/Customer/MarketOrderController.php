@@ -11,6 +11,7 @@ use App\Models\CustomerStockProduct;
 use App\Models\Account;
 use App\Models\AccountOutcome;
 use App\Services\TelegramService;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -469,7 +470,9 @@ class MarketOrderController extends Controller
                 'notes' => $request->input('notes')
             ]);
             //
-            $order->customer->deposit($subtotal, ['description' => $order->order_number]);
+
+            $customerUser = Auth::guard('customer_user')->user();
+            $customerUser->deposit($subtotal, ['description' => $order->order_number]);
 
             // Process each order item
             foreach ($items as $item) {
