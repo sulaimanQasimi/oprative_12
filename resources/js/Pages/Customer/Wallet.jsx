@@ -12,7 +12,7 @@ import anime from 'animejs';
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { debounce } from 'lodash';
 
-// Enhanced animation variants with more dynamic effects
+// Enhanced animation variants with premium UX effects
 const animationVariants = {
     fadeIn: {
         hidden: { opacity: 0, scale: 0.95 },
@@ -20,19 +20,19 @@ const animationVariants = {
             opacity: 1, 
             scale: 1,
             transition: { 
-                duration: 0.6,
+                duration: 0.8,
                 ease: [0.25, 0.46, 0.45, 0.94]
             }
         }
     },
     slideUp: {
-        hidden: { opacity: 0, y: 30, scale: 0.95 },
+        hidden: { opacity: 0, y: 40, scale: 0.95 },
         visible: { 
             opacity: 1, 
             y: 0, 
             scale: 1,
             transition: { 
-                duration: 0.7,
+                duration: 0.9,
                 ease: [0.25, 0.46, 0.45, 0.94]
             }
         }
@@ -42,17 +42,17 @@ const animationVariants = {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.15,
-                delayChildren: 0.2
+                staggerChildren: 0.12,
+                delayChildren: 0.3
             }
         }
     },
     cardHover: {
         hover: {
-            y: -12,
-            scale: 1.02,
+            y: -15,
+            scale: 1.03,
             transition: {
-                duration: 0.3,
+                duration: 0.4,
                 ease: [0.25, 0.46, 0.45, 0.94]
             }
         }
@@ -61,9 +61,43 @@ const animationVariants = {
         animate: {
             scale: [1, 1.05, 1],
             transition: {
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        }
+    },
+    float: {
+        animate: {
+            y: [0, -8, 0],
+            transition: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+            }
+        }
+    },
+    glow: {
+        animate: {
+            boxShadow: [
+                "0 0 20px rgba(16, 185, 129, 0.3)",
+                "0 0 30px rgba(16, 185, 129, 0.6)",
+                "0 0 20px rgba(16, 185, 129, 0.3)"
+            ],
+            transition: {
                 duration: 2,
                 repeat: Infinity,
                 ease: "easeInOut"
+            }
+        }
+    },
+    shimmer: {
+        animate: {
+            x: ["-100%", "100%"],
+            transition: {
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "linear"
             }
         }
     }
@@ -111,7 +145,7 @@ const AnimatedCounter = React.memo(({
     );
 });
 
-// Enhanced PageLoader with more dynamic animations
+// Enhanced PageLoader with premium UX animations
 const PageLoader = React.memo(({ isVisible }) => {
     const { t } = useLaravelReactI18n();
     
@@ -122,10 +156,41 @@ const PageLoader = React.memo(({ isVisible }) => {
                     className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    transition={{ duration: 0.5, ease: 'easeInOut' }}
+                    transition={{ duration: 0.6, ease: 'easeInOut' }}
                 >
-                    <div className="absolute inset-0 bg-grid-pattern opacity-[0.05]"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-transparent to-teal-500/20 animate-pulse"></div>
+                    {/* Premium Background Effects */}
+                    <div className="absolute inset-0 bg-grid-pattern opacity-[0.08]"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-transparent to-teal-500/30 animate-pulse"></div>
+                    
+                    {/* Floating Particles */}
+                    <motion.div
+                        className="absolute top-1/4 left-1/4 w-4 h-4 bg-emerald-400 rounded-full opacity-60"
+                        animate={{ 
+                            y: [0, -20, 0],
+                            x: [0, 10, 0],
+                            scale: [1, 1.2, 1]
+                        }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                    />
+                    <motion.div
+                        className="absolute top-1/3 right-1/3 w-3 h-3 bg-teal-400 rounded-full opacity-50"
+                        animate={{ 
+                            y: [0, -15, 0],
+                            x: [0, -8, 0],
+                            scale: [1, 1.3, 1]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity, delay: 1 }}
+                    />
+                    <motion.div
+                        className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-emerald-300 rounded-full opacity-40"
+                        animate={{ 
+                            y: [0, -10, 0],
+                            x: [0, 5, 0],
+                            scale: [1, 1.4, 1]
+                        }}
+                        transition={{ duration: 2.5, repeat: Infinity, delay: 2 }}
+                    />
+                    
                     <div className="relative z-10 flex flex-col items-center">
                         <motion.div 
                             className="relative" 
@@ -139,30 +204,75 @@ const PageLoader = React.memo(({ isVisible }) => {
                                 ease: 'easeInOut' 
                             }}
                         >
-                            <div className="relative flex items-center justify-center h-48 w-48">
+                            <div className="relative flex items-center justify-center h-56 w-56">
+                                {/* Outer Glow Ring */}
                                 <motion.div 
-                                    className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full opacity-20 blur-xl"
-                                    animate={{ scale: [1, 1.2, 1] }}
+                                    className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full opacity-30 blur-2xl"
+                                    animate={{ scale: [1, 1.3, 1] }}
                                     transition={{ duration: 3, repeat: Infinity }}
                                 />
+                                
+                                {/* Middle Ring */}
                                 <motion.div 
-                                    className="relative z-10 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 h-24 w-24 rounded-3xl flex items-center justify-center shadow-2xl border border-white/20"
+                                    className="absolute inset-4 bg-gradient-to-br from-emerald-300 to-teal-400 rounded-full opacity-20 blur-xl"
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
+                                />
+                                
+                                {/* Main Wallet Icon Container */}
+                                <motion.div 
+                                    className="relative z-10 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 h-32 w-32 rounded-3xl flex items-center justify-center shadow-2xl border border-white/20"
                                     animate={{ 
                                         rotate: [0, 10, 0, -10, 0], 
                                         scale: [1, 1.1, 1, 1.1, 1] 
                                     }} 
                                     transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                                    whileHover={{ scale: 1.05 }}
                                 >
-                                    <WalletIcon className="h-12 w-12 text-white drop-shadow-lg" />
+                                    <WalletIcon className="h-16 w-16 text-white drop-shadow-lg" />
                                 </motion.div>
+                                
+                                {/* Rotating Border */}
+                                <motion.div
+                                    className="absolute inset-0 rounded-3xl border-2 border-emerald-400/50"
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                                />
                             </div>
                         </motion.div>
+                        
+                        {/* Loading Text with Typing Effect */}
                         <motion.div
-                            className="mt-8 text-white/80 text-lg font-medium"
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 2, repeat: Infinity }}
+                            className="mt-10 text-white/90 text-xl font-medium"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5, duration: 0.8 }}
                         >
-                            {t('Loading Wallet...')}
+                            <motion.span
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            >
+                                {t('Loading Wallet...')}
+                            </motion.span>
+                        </motion.div>
+                        
+                        {/* Progress Dots */}
+                        <motion.div className="flex gap-2 mt-6">
+                            {[0, 1, 2].map((i) => (
+                                <motion.div
+                                    key={i}
+                                    className="w-2 h-2 bg-emerald-400 rounded-full"
+                                    animate={{ 
+                                        scale: [1, 1.5, 1],
+                                        opacity: [0.5, 1, 0.5]
+                                    }}
+                                    transition={{ 
+                                        duration: 1.5, 
+                                        repeat: Infinity, 
+                                        delay: i * 0.2 
+                                    }}
+                                />
+                            ))}
                         </motion.div>
                     </div>
                 </motion.div>
@@ -257,42 +367,44 @@ const Pagination = React.memo(({ data, onPageChange }) => {
     );
 });
 
-// Enhanced Dashboard Card component with premium effects
+// Enhanced Dashboard Card component with premium UX effects
 const DashboardCard = React.memo(({ card, index, dashboardCardsRef }) => (
     <motion.div
         className={`relative overflow-hidden rounded-3xl shadow-2xl group cursor-pointer`}
-        initial={{ opacity: 0, y: 30, scale: 0.9 }}
+        initial={{ opacity: 0, y: 40, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ 
-            duration: 0.8, 
-            delay: index * 0.15, 
+            duration: 1, 
+            delay: index * 0.2, 
             ease: [0.25, 0.46, 0.45, 0.94] 
         }}
         whileHover={{ 
-            y: -15, 
-            scale: 1.03,
-            transition: { duration: 0.3 }
+            y: -20, 
+            scale: 1.05,
+            transition: { duration: 0.4 }
         }}
         variants={animationVariants.cardHover}
     >
-        {/* Animated background gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${card.bgClass} opacity-90`} />
+        {/* Premium Background Layers */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${card.bgClass} opacity-95`} />
         <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
         
-        {/* Animated shine effect */}
+        {/* Animated Shimmer Effect */}
         <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
             initial={{ x: '-100%' }}
             animate={{ x: '100%' }}
             transition={{ duration: 3, repeat: Infinity, delay: index * 0.5 }}
         />
         
-        {/* Floating particles */}
+        {/* Floating Particles */}
         <motion.div
-            className="absolute top-4 right-4"
+            className="absolute top-6 right-6"
             animate={{ 
-                y: [0, -10, 0],
-                rotate: [0, 180, 360]
+                y: [0, -15, 0],
+                rotate: [0, 180, 360],
+                scale: [1, 1.2, 1]
             }}
             transition={{ 
                 duration: 4, 
@@ -300,49 +412,79 @@ const DashboardCard = React.memo(({ card, index, dashboardCardsRef }) => (
                 delay: index * 0.3
             }}
         >
-            <Sparkles className="h-5 w-5 text-white/60" />
+            <Sparkles className="h-6 w-6 text-white/70" />
         </motion.div>
 
-        <div ref={(el) => (dashboardCardsRef.current[index] = el)} className="relative z-10 p-8">
-            <div className="flex justify-between items-start mb-6">
-                <div>
-                    <h3 className="text-xl font-bold text-white mb-2">{card.title}</h3>
-                    <p className="text-white/80 text-sm">{card.trend}</p>
+        {/* Glow Effect on Hover */}
+        <motion.div
+            className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            style={{
+                background: `radial-gradient(circle at center, ${card.bgClass.split(' ')[1].replace('from-', '')}40, transparent 70%)`
+            }}
+        />
+
+        <div ref={(el) => (dashboardCardsRef.current[index] = el)} className="relative z-10 p-10">
+            <div className="flex justify-between items-start mb-8">
+                <div className="flex-1">
+                    <motion.h3 
+                        className="text-2xl font-bold text-white mb-3"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.3 + 0.2 }}
+                    >
+                        {card.title}
+                    </motion.h3>
+                    <motion.p 
+                        className="text-white/90 text-base"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.3 + 0.3 }}
+                    >
+                        {card.trend}
+                    </motion.p>
                 </div>
                 <motion.div 
-                    className="p-3 bg-white/20 rounded-2xl backdrop-blur-sm border border-white/20 shadow-lg"
+                    className="p-4 bg-white/20 rounded-3xl backdrop-blur-sm border border-white/30 shadow-xl"
                     whileHover={{ 
                         rotate: 360,
-                        scale: 1.1,
-                        transition: { duration: 0.5 }
+                        scale: 1.15,
+                        transition: { duration: 0.6 }
                     }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.3 + 0.4 }}
                 >
                     {card.icon}
                 </motion.div>
             </div>
             
             <motion.div 
-                className="text-4xl font-bold text-white mb-4 flex items-end"
+                className="text-5xl font-bold text-white mb-6 flex items-end"
                 whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.3 + 0.5 }}
             >
                 <AnimatedCounter 
                     value={typeof card.value === "string" ? parseInt(card.value.replace(/[^0-9.-]+/g, "")) : card.value} 
                     suffix={card.suffix || ""} 
-                    duration={2500} 
+                    duration={3000} 
                 />
             </motion.div>
             
             <motion.div 
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm py-2 px-4 rounded-full border border-white/20"
+                className="inline-flex items-center gap-3 bg-white/25 backdrop-blur-sm py-3 px-6 rounded-2xl border border-white/30 shadow-lg"
                 whileHover={{ 
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                    scale: 1.05
+                    backgroundColor: 'rgba(255, 255, 255, 0.35)',
+                    scale: 1.05,
+                    y: -2
                 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.3 + 0.6 }}
             >
-                <Star className="h-4 w-4 text-white/80" />
-                <span className="text-white/90 text-sm font-medium">{card.trend}</span>
+                <Star className="h-5 w-5 text-white/90" />
+                <span className="text-white/95 text-base font-semibold">{card.trend}</span>
             </motion.div>
         </div>
     </motion.div>
@@ -701,46 +843,57 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                     {/* Premium Enhanced Header */}
                     <motion.header
                         ref={headerRef}
-                        initial={{ opacity: 0, y: -30, scale: 0.95 }}
+                        initial={{ opacity: 0, y: -40, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         transition={{ 
-                            duration: 0.8,
+                            duration: 1,
                             ease: [0.25, 0.46, 0.45, 0.94]
                         }}
-                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b border-slate-200/50 dark:border-slate-800/50 py-8 px-10 flex items-center justify-between sticky top-0 z-30 shadow-2xl"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 flex items-center justify-between sticky top-0 z-30 shadow-2xl"
                     >
-                        <div className="flex items-center space-x-8">
+                        <div className="flex items-center space-x-10">
                             <div className="relative flex flex-col">
                                 <motion.span 
-                                    className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2"
-                                    initial={{ opacity: 0, x: -20 }}
+                                    className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3"
+                                    initial={{ opacity: 0, x: -30 }}
                                     animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: 0.3 }}
+                                    transition={{ delay: 0.4 }}
                                 >
                                     {t("Wallet Management")}
                                 </motion.span>
                                 <motion.h1 
-                                    className="text-4xl font-bold text-slate-800 dark:text-white flex items-center gap-4"
-                                    initial={{ opacity: 0, y: 20 }}
+                                    className="text-5xl font-bold text-slate-800 dark:text-white flex items-center gap-6"
+                                    initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.4 }}
+                                    transition={{ delay: 0.5 }}
                                 >
                                     <motion.div 
-                                        className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-2xl border border-white/20 animate-glow"
+                                        className="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-2xl border border-white/20 animate-glow"
                                         whileHover={{ 
                                             scale: 1.1,
                                             rotate: 5,
-                                            transition: { duration: 0.3 }
+                                            transition: { duration: 0.4 }
                                         }}
+                                        variants={animationVariants.float}
+                                        animate="animate"
                                     >
-                                        <WalletIcon className="h-10 w-10 text-white drop-shadow-lg" />
+                                        <WalletIcon className="h-12 w-12 text-white drop-shadow-lg" />
                                     </motion.div>
-                                    <span className="animate-float">{customer.name} {t('Wallet')}</span>
+                                    <motion.span 
+                                        className="animate-float"
+                                        variants={animationVariants.float}
+                                        animate="animate"
+                                    >
+                                        {customer.name} {t('Wallet')}
+                                    </motion.span>
                                     <motion.div
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.7 }}
                                     >
-                                        <Badge variant="outline" className="ml-4 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-400 dark:border-emerald-800 rounded-full px-6 py-3 text-xl font-bold shadow-lg">
+                                        <Badge variant="outline" className="ml-6 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-400 dark:border-emerald-800 rounded-full px-8 py-4 text-2xl font-bold shadow-xl">
                                             {wallet.balance} AFN
                                         </Badge>
                                     </motion.div>
@@ -749,19 +902,22 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                         </div>
 
                         <motion.div 
-                            className="flex items-center space-x-4"
-                            initial={{ opacity: 0, x: 30 }}
+                            className="flex items-center space-x-6"
+                            initial={{ opacity: 0, x: 40 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.5 }}
+                            transition={{ delay: 0.6 }}
                         >
                             {(customer.permissions.withdraw_wallet) && (
                                 <motion.div
-                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    whileHover={{ scale: 1.05, y: -3 }}
                                     whileTap={{ scale: 0.95 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.8 }}
                                 >
                                     <Link href={route('customer.wallet.withdraw.form')}>
-                                        <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl flex items-center gap-3 px-8 py-4 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-                                            <ArrowDownRight className="h-6 w-6" />
+                                        <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-3xl flex items-center gap-4 px-10 py-5 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800">
+                                            <ArrowDownRight className="h-7 w-7" />
                                             {t("Withdraw")}
                                         </Button>
                                     </Link>
@@ -770,29 +926,35 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
 
                             {(customer.permissions.deposit_wallet) && (
                                 <motion.div
-                                    whileHover={{ scale: 1.05, y: -2 }}
+                                    whileHover={{ scale: 1.05, y: -3 }}
                                     whileTap={{ scale: 0.95 }}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.9 }}
                                 >
                                     <Link href={route('customer.wallet.deposit.form')}>
-                                        <Button className="bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-800 text-white flex items-center gap-3 px-8 py-4 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-2xl border border-white/20">
-                                            <Plus className="h-6 w-6" />
+                                        <Button className="bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-800 text-white flex items-center gap-4 px-10 py-5 shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-3xl border border-white/20">
+                                            <Plus className="h-7 w-7" />
                                             {t("Deposit")}
                                         </Button>
                                     </Link>
                                 </motion.div>
                             )}
                             <motion.div
-                                whileHover={{ scale: 1.05, y: -2 }}
+                                whileHover={{ scale: 1.05, y: -3 }}
                                 whileTap={{ scale: 0.95 }}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 1.0 }}
                             >
                                 <Button
                                     size="sm"
                                     variant="outline"
-                                    className="flex items-center gap-3 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl px-6 py-4 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+                                    className="flex items-center gap-4 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-3xl px-8 py-5 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800"
                                     onClick={handleRefresh}
                                     disabled={isFiltering}
                                 >
-                                    <RefreshCw className={`h-5 w-5 ${isFiltering ? 'animate-spin' : ''}`} />
+                                    <RefreshCw className={`h-6 w-6 ${isFiltering ? 'animate-spin' : ''}`} />
                                     {t("Refresh")}
                                 </Button>
                             </motion.div>
@@ -800,21 +962,12 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                     </motion.header>
 
                     {/* Enhanced Main Content Container */}
-                    <main className="flex-1 overflow-y-auto overflow-x-hidden p-10 bg-gradient-to-br from-slate-50 via-emerald-50/20 to-teal-50/20 dark:from-slate-950 dark:via-emerald-950/10 dark:to-teal-950/10">
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden p-12 bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-950 dark:via-emerald-950/20 dark:to-teal-950/20">
                         <div className="max-w-7xl mx-auto relative">
                             {/* Premium Background Elements */}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50/60 to-teal-50/60 dark:from-slate-900/60 dark:to-slate-800/60 pointer-events-none"></div>
+                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50/70 to-teal-50/70 dark:from-slate-900/70 dark:to-slate-800/70 pointer-events-none"></div>
                             <motion.div 
-                                className="absolute -top-40 -left-40 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-900/40 rounded-full filter blur-3xl animate-pulse pointer-events-none"
-                                animate={{ 
-                                    scale: [1, 1.2, 1],
-                                    opacity: [0.3, 0.6, 0.3]
-                                }}
-                                transition={{ duration: 4, repeat: Infinity }}
-                            />
-                            <motion.div
-                                className="absolute -bottom-40 -right-40 w-96 h-96 bg-teal-200/50 dark:bg-teal-900/40 rounded-full filter blur-3xl animate-pulse pointer-events-none"
-                                style={{ animationDelay: "1s" }}
+                                className="absolute -top-40 -left-40 w-96 h-96 bg-emerald-200/60 dark:bg-emerald-900/50 rounded-full filter blur-3xl animate-pulse pointer-events-none"
                                 animate={{ 
                                     scale: [1, 1.3, 1],
                                     opacity: [0.4, 0.7, 0.4]
@@ -822,25 +975,39 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                 transition={{ duration: 5, repeat: Infinity }}
                             />
                             <motion.div
-                                className="absolute top-1/3 right-1/4 w-48 h-48 bg-emerald-200/40 dark:bg-emerald-900/30 rounded-full filter blur-2xl animate-pulse pointer-events-none"
-                                style={{ animationDelay: "2s" }}
+                                className="absolute -bottom-40 -right-40 w-96 h-96 bg-teal-200/60 dark:bg-teal-900/50 rounded-full filter blur-3xl animate-pulse pointer-events-none"
+                                style={{ animationDelay: "1s" }}
                                 animate={{ 
-                                    y: [0, -20, 0],
-                                    opacity: [0.2, 0.5, 0.2]
+                                    scale: [1, 1.4, 1],
+                                    opacity: [0.5, 0.8, 0.5]
                                 }}
                                 transition={{ duration: 6, repeat: Infinity }}
+                            />
+                            <motion.div
+                                className="absolute top-1/3 right-1/4 w-48 h-48 bg-emerald-200/50 dark:bg-emerald-900/40 rounded-full filter blur-2xl animate-pulse pointer-events-none"
+                                style={{ animationDelay: "2s" }}
+                                animate={{ 
+                                    y: [0, -25, 0],
+                                    opacity: [0.3, 0.6, 0.3]
+                                }}
+                                transition={{ duration: 7, repeat: Infinity }}
                             />
 
                             <div className="relative z-10">
                                 {/* Premium Dashboard Stats Section */}
-                                <motion.div 
-                                    className="bg-white/95 dark:bg-slate-900/95 border border-slate-200/50 dark:border-slate-800/50 p-10 relative flex-shrink-0 mb-10 rounded-3xl shadow-2xl backdrop-blur-2xl"
+                                <motion.div
+                                    className="bg-white/95 dark:bg-slate-900/95 border border-slate-200/50 dark:border-slate-800/50 p-12 relative flex-shrink-0 mb-12 rounded-3xl shadow-2xl backdrop-blur-2xl"
                                     variants={animationVariants.fadeIn}
                                     initial="hidden"
                                     animate="visible"
                                 >
                                     <div className="relative z-10">
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                        <motion.div 
+                                            className="grid grid-cols-1 md:grid-cols-3 gap-12"
+                                            variants={animationVariants.staggerChildren}
+                                            initial="hidden"
+                                            animate="visible"
+                                        >
                                             {dashboardCards.map((card, index) => (
                                                 <DashboardCard
                                                     key={index}
@@ -849,59 +1016,61 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                     dashboardCardsRef={dashboardCardsRef}
                                                 />
                                             ))}
-                                        </div>
+                                        </motion.div>
                                     </div>
                                 </motion.div>
 
                                 {/* Premium Transactions Section */}
                                 <motion.div 
-                                    className="mb-10"
+                                    className="mb-12"
                                     variants={animationVariants.slideUp}
                                     initial="hidden"
                                     animate="visible"
                                 >
-                                    <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center justify-between mb-10">
                                         <motion.h2 
-                                            className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-4"
-                                            initial={{ opacity: 0, x: -30 }}
+                                            className="text-4xl font-bold text-slate-900 dark:text-white flex items-center gap-6"
+                                            initial={{ opacity: 0, x: -40 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.6 }}
+                                            transition={{ delay: 0.8 }}
                                         >
                                             <motion.div 
-                                                className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-lg"
+                                                className="p-4 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-xl"
                                                 whileHover={{ 
                                                     scale: 1.1,
                                                     rotate: 5,
-                                                    transition: { duration: 0.3 }
+                                                    transition: { duration: 0.4 }
                                                 }}
+                                                variants={animationVariants.float}
+                                                animate="animate"
                                             >
-                                                <WalletIcon className="h-8 w-8 text-white" />
+                                                <WalletIcon className="h-10 w-10 text-white" />
                                             </motion.div>
                                             {t('Transaction History')}
                                             {isFiltering && (
                                                 <motion.div 
-                                                    className="ml-4 animate-spin"
+                                                    className="ml-6 animate-spin"
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                 >
-                                                    <RefreshCw className="h-6 w-6 text-emerald-500" />
+                                                    <RefreshCw className="h-8 w-8 text-emerald-500" />
                                                 </motion.div>
                                             )}
                                         </motion.h2>
                                         <motion.div 
-                                            className="flex items-center gap-4"
-                                            initial={{ opacity: 0, x: 30 }}
+                                            className="flex items-center gap-6"
+                                            initial={{ opacity: 0, x: 40 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.7 }}
+                                            transition={{ delay: 0.9 }}
                                         >
                                             <Button
                                                 size="sm"
                                                 variant="outline"
                                                 onClick={clearFilters}
-                                                className="flex items-center gap-3 rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+                                                className="flex items-center gap-4 rounded-3xl px-8 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800"
                                                 disabled={!hasActiveFilters}
                                             >
-                                                <Filter className="h-5 w-5" />
+                                                <Filter className="h-6 w-6" />
                                                 {t('Clear Filters')}
                                             </Button>
                                         </motion.div>
@@ -909,37 +1078,37 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
 
                                     {/* Premium Advanced Filters */}
                                     <motion.div
-                                        initial={{ opacity: 0, y: 30 }}
+                                        initial={{ opacity: 0, y: 40 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.8 }}
+                                        transition={{ delay: 1.0 }}
                                     >
-                                        <Card className="border border-slate-200/50 dark:border-slate-800/50 shadow-2xl rounded-3xl overflow-hidden mb-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl">
-                                            <CardHeader className="bg-gradient-to-r from-slate-50/90 to-emerald-50/90 dark:from-slate-800/90 dark:to-emerald-900/30 border-b border-slate-200/50 dark:border-slate-800/50 px-8 py-6">
-                                                <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-4">
+                                        <Card className="border border-slate-200/50 dark:border-slate-800/50 shadow-2xl rounded-3xl overflow-hidden mb-12 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl">
+                                            <CardHeader className="bg-gradient-to-r from-slate-50/90 to-emerald-50/90 dark:from-slate-800/90 dark:to-emerald-900/30 border-b border-slate-200/50 dark:border-slate-800/50 px-10 py-8">
+                                                <CardTitle className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-6">
                                                     <motion.div 
-                                                        className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-lg"
+                                                        className="p-4 rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-xl"
                                                         whileHover={{ 
                                                             scale: 1.1,
                                                             rotate: 5,
-                                                            transition: { duration: 0.3 }
+                                                            transition: { duration: 0.4 }
                                                         }}
                                                     >
-                                                        <Filter className="h-6 w-6 text-white" />
+                                                        <Filter className="h-8 w-8 text-white" />
                                                     </motion.div>
                                                     {t('Search & Filters')}
                                                 </CardTitle>
                                             </CardHeader>
-                                            <CardContent className="p-8">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                                            <CardContent className="p-10">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
                                                     {/* Premium Search Input */}
                                                     <div className="relative">
-                                                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-slate-400" />
+                                                        <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 h-7 w-7 text-slate-400" />
                                                         <Input
                                                             type="text"
                                                             placeholder={t("Search transactions...")}
                                                             value={searchTerm}
                                                             onChange={(e) => handleSearchChange(e.target.value)}
-                                                            className="pl-12 pr-4 py-4 w-full rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+                                                            className="pl-14 pr-5 py-5 w-full rounded-3xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm"
                                                         />
                                                     </div>
 
@@ -948,7 +1117,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                         setTypeFilter(value);
                                                         handleFilterChange('type', value);
                                                     }}>
-                                                        <SelectTrigger className="w-full rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm py-4">
+                                                        <SelectTrigger className="w-full rounded-3xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm py-5">
                                                             <SelectValue placeholder={t("Transaction Type")} />
                                                         </SelectTrigger>
                                                         <SelectContent>
@@ -960,7 +1129,7 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
 
                                                     {/* Premium Date From */}
                                                     <div className="relative">
-                                                        <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-slate-400" />
+                                                        <Calendar className="absolute left-5 top-1/2 transform -translate-y-1/2 h-7 w-7 text-slate-400" />
                                                         <Input
                                                             type="date"
                                                             placeholder={t("From Date")}
@@ -969,13 +1138,13 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                                 setDateFrom(e.target.value);
                                                                 handleFilterChange('date_from', e.target.value);
                                                             }}
-                                                            className="pl-12 pr-4 py-4 w-full rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+                                                            className="pl-14 pr-5 py-5 w-full rounded-3xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm"
                                                         />
                                                     </div>
 
                                                     {/* Premium Date To */}
                                                     <div className="relative">
-                                                        <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-slate-400" />
+                                                        <Calendar className="absolute left-5 top-1/2 transform -translate-y-1/2 h-7 w-7 text-slate-400" />
                                                         <Input
                                                             type="date"
                                                             placeholder={t("To Date")}
@@ -984,31 +1153,31 @@ export default function Wallet({ auth, customer, wallet, transactions, statistic
                                                                 setDateTo(e.target.value);
                                                                 handleFilterChange('date_to', e.target.value);
                                                             }}
-                                                            className="pl-12 pr-4 py-4 w-full rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm"
+                                                            className="pl-14 pr-5 py-5 w-full rounded-3xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm"
                                                         />
                                                     </div>
                                                 </div>
 
                                                 {/* Premium Results Summary & Per Page */}
-                                                <div className="flex items-center justify-between pt-8 border-t border-slate-200/50 dark:border-slate-700/50">
-                                                    <div className="flex items-center gap-8">
-                                                        <div className="text-sm text-slate-600 dark:text-slate-400">
-                                                            <span className="font-bold text-lg">
+                                                <div className="flex items-center justify-between pt-10 border-t border-slate-200/50 dark:border-slate-700/50">
+                                                    <div className="flex items-center gap-10">
+                                                        <div className="text-base text-slate-600 dark:text-slate-400">
+                                                            <span className="font-bold text-xl">
                                                                 {transactions?.total || 0} {t('total results')}
                                                             </span>
                                                             {hasActiveFilters && (
-                                                                <span className="ml-3 text-emerald-600 dark:text-emerald-400 font-bold">
+                                                                <span className="ml-4 text-emerald-600 dark:text-emerald-400 font-bold">
                                                                     ({t('filtered')})
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center gap-4">
-                                                            <span className="text-sm text-slate-600 dark:text-slate-400 font-bold">{t('Show')}:</span>
+                                                        <div className="flex items-center gap-6">
+                                                            <span className="text-base text-slate-600 dark:text-slate-400 font-bold">{t('Show')}:</span>
                                                             <Select value={perPage.toString()} onValueChange={(value) => {
                                                                 setPerPage(parseInt(value));
                                                                 handleFilterChange('per_page', value);
                                                             }}>
-                                                                <SelectTrigger className="w-28 rounded-2xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
+                                                                <SelectTrigger className="w-32 rounded-3xl border-slate-200 dark:border-slate-700 focus:border-emerald-500 dark:focus:border-emerald-500 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm">
                                                                     <SelectValue />
                                                                 </SelectTrigger>
                                                                 <SelectContent>
