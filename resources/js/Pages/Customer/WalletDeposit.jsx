@@ -3,41 +3,28 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
-import { Wallet as WalletIcon, ArrowUpRight, Plus, DollarSign, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Input } from '@/Components/ui/input';
+import { Textarea } from '@/Components/ui/textarea';
+import { Wallet as WalletIcon, ArrowUpRight, Plus, DollarSign, ArrowLeft, RefreshCw, Sparkles, Zap, Star } from 'lucide-react';
 import CustomerNavbar from "@/Components/CustomerNavbar";
 import { motion } from 'framer-motion';
-import anime from 'animejs';
 import { useLaravelReactI18n } from "laravel-react-i18n";
 
-// Safe querySelector utility function
-const safeQuerySelector = (element, selector) => {
-    if (!element || !selector) return null;
-    try {
-        return element.querySelector(selector);
-    } catch (error) {
-        console.error("Error in querySelector:", error);
-        return null;
-    }
-};
-
 const PageLoader = ({ isVisible }) => (
-    <motion.div
-        className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: isVisible ? 1 : 0, pointerEvents: isVisible ? 'all' : 'none' }}
-        transition={{ duration: 0.5, ease: 'easeInOut' }}
-    >
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+    <div className={`fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden transition-opacity duration-500 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.08]"></div>
         <div className="relative z-10 flex flex-col items-center">
-            <motion.div className="relative" animate={{ scale: [0.95, 1.05, 0.95] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}>
-                <div className="relative flex items-center justify-center h-40 w-40">
-                    <motion.div className="relative z-10 bg-gradient-to-br from-emerald-500 to-teal-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl" animate={{ rotate: [0, 10, 0, -10, 0], scale: [1, 1.1, 1, 1.1, 1] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}>
-                        <WalletIcon className="h-10 w-10 text-white drop-shadow-lg" />
-                    </motion.div>
+            <div className="relative flex items-center justify-center h-48 w-48">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full opacity-30 blur-2xl"></div>
+                <div className="relative z-10 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 h-24 w-24 rounded-3xl flex items-center justify-center shadow-2xl border border-white/20">
+                    <WalletIcon className="h-12 w-12 text-white drop-shadow-lg" />
                 </div>
-            </motion.div>
+            </div>
+            <div className="mt-8 text-white/90 text-lg font-medium">
+                Loading Deposit Form...
+            </div>
         </div>
-    </motion.div>
+    </div>
 );
 
 export default function WalletDeposit({ auth, customer, wallet }) {
@@ -45,63 +32,16 @@ export default function WalletDeposit({ auth, customer, wallet }) {
     const { data, setData, post, processing, errors } = useForm({ amount: '', description: '' });
     const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState(null);
-    const [isAnimated, setIsAnimated] = useState(false);
-
-    // Refs for animation targets
-    const headerRef = useRef(null);
-    const formCardRef = useRef(null);
-    const timelineRef = useRef(null);
 
     useEffect(() => {
-        const timer = setTimeout(() => setLoading(false), 1200);
+        const timer = setTimeout(() => setLoading(false), 1000);
         return () => clearTimeout(timer);
     }, []);
-
-    // Initialize animations
-    useEffect(() => {
-        if (!isAnimated && !loading) {
-            timelineRef.current = anime.timeline({
-                easing: "easeOutExpo",
-                duration: 800,
-            });
-
-            timelineRef.current.add({
-                targets: headerRef.current,
-                opacity: [0, 1],
-                translateY: [-20, 0],
-                duration: 600,
-            });
-
-            timelineRef.current.add(
-                {
-                    targets: formCardRef.current,
-                    opacity: [0, 1],
-                    translateY: [30, 0],
-                    scale: [0.95, 1],
-                    duration: 700,
-                },
-                "-=400"
-            );
-
-            setIsAnimated(true);
-        }
-    }, [isAnimated, loading]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route('customer.wallet.deposit'), {
             onSuccess: () => setSuccess('Deposit successful!'),
-            onError: () => {
-                // Add shake animation on error
-                if (formCardRef.current) {
-                    anime({
-                        targets: formCardRef.current,
-                        translateX: [0, -10, 10, -10, 10, 0],
-                        duration: 500,
-                        easing: "easeInOutQuart",
-                    });
-                }
-            }
         });
     };
 
@@ -109,39 +49,29 @@ export default function WalletDeposit({ auth, customer, wallet }) {
         <>
             <Head title={`Deposit to ${customer.name} Wallet`}>
                 <style>{`
-                    @keyframes shimmer {
-                        0% { transform: translateX(-100%); }
-                        100% { transform: translateX(100%); }
-                    }
-                    .animate-shimmer { animation: shimmer 3s infinite; }
                     .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                             linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-                        background-size: 14px 14px;
+                        background-size: 20px 20px;
                     }
                     .dark .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                             linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
                     }
-                    .card-shine {
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 50%;
-                        height: 100%;
-                        background: linear-gradient(
-                            to right,
-                            rgba(255, 255, 255, 0) 0%,
-                            rgba(255, 255, 255, 0.3) 50%,
-                            rgba(255, 255, 255, 0) 100%
-                        );
-                        animation: shimmer 3s infinite;
+                    .gradient-border {
+                        background: linear-gradient(45deg, #10b981, #14b8a6, #06b6d4, #10b981);
+                        background-size: 300% 300%;
+                        animation: gradient-shift 3s ease infinite;
+                    }
+                    @keyframes gradient-shift {
+                        0%, 100% { background-position: 0% 50%; }
+                        50% { background-position: 100% 50%; }
                     }
                 `}</style>
             </Head>
             <PageLoader isVisible={loading} />
             
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 dark:from-slate-950 dark:via-emerald-950/20 dark:to-teal-950/20 overflow-hidden max-w-full">
                 {/* Sidebar */}
                 <CustomerNavbar
                     auth={auth || { user: { name: "Customer" } }}
@@ -150,261 +80,172 @@ export default function WalletDeposit({ auth, customer, wallet }) {
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden max-w-full">
-                    {/* Header */}
-                    <motion.header
-                        ref={headerRef}
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
-                    >
-                        <div className="flex items-center space-x-4">
+                    {/* Premium Header */}
+                    <header className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 flex items-center justify-between sticky top-0 z-30 shadow-xl">
+                        <div className="flex items-center space-x-6">
                             <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">
+                                <span className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-2">
                                     {t("Wallet Management")}
                                 </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <h1 className="text-3xl font-bold text-slate-800 dark:text-white flex items-center gap-4">
+                                    <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-xl">
+                                        <WalletIcon className="h-8 w-8 text-white" />
+                                    </div>
                                     {t("Deposit to")} {customer.name} {t("Wallet")}
-                                    <Badge variant="outline" className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full">
+                                    <Badge variant="outline" className="ml-4 bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-700 border-emerald-200 dark:from-emerald-900/40 dark:to-teal-900/40 dark:text-emerald-400 dark:border-emerald-800 rounded-full px-6 py-2 text-lg font-bold shadow-lg">
                                         {t("Balance")}: {wallet.balance} AFN
                                     </Badge>
                                 </h1>
                             </div>
                         </div>
 
-                        <div className="flex items-center space-x-2">
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                <Link href={route('customer.wallet')}>
-                                    <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg flex items-center gap-2">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Wallet")}
-                                    </Button>
-                                </Link>
-                            </motion.div>
-                            <motion.div
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
-                                    onClick={() => window.location.reload()}
-                                >
-                                    <RefreshCw className="h-3.5 w-3.5" />
-                                    {t("Refresh")}
+                        <div className="flex items-center space-x-4">
+                            <Link href={route('customer.wallet')}>
+                                <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl flex items-center gap-3 px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800">
+                                    <ArrowLeft className="h-5 w-5" />
+                                    {t("Back to Wallet")}
                                 </Button>
-                            </motion.div>
+                            </Link>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex items-center gap-3 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl px-6 py-3 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-800"
+                                onClick={() => window.location.reload()}
+                            >
+                                <RefreshCw className="h-5 w-5" />
+                                {t("Refresh")}
+                            </Button>
                         </div>
-                    </motion.header>
+                    </header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 bg-slate-50 dark:bg-slate-950">
-                        <div className="max-w-2xl mx-auto relative">
-                            {/* Background Elements */}
-                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50/30 to-teal-50/30 dark:from-slate-900/30 dark:to-slate-800/30 pointer-events-none"></div>
-                            <div className="absolute -top-40 -left-40 w-80 h-80 bg-emerald-200/30 dark:bg-emerald-900/20 rounded-full filter blur-3xl animate-pulse pointer-events-none"></div>
-                            <div
-                                className="absolute -bottom-40 -right-40 w-80 h-80 bg-teal-200/30 dark:bg-teal-900/20 rounded-full filter blur-3xl animate-pulse pointer-events-none"
-                                style={{ animationDelay: "1s" }}
-                            ></div>
+                    <main className="flex-1 overflow-y-auto overflow-x-hidden p-8 bg-gradient-to-br from-slate-50 via-emerald-50/20 to-teal-50/20 dark:from-slate-950 dark:via-emerald-950/10 dark:to-teal-950/10">
+                        <div className="max-w-4xl mx-auto relative">
+                            {/* Premium Background Elements */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50/60 to-teal-50/60 dark:from-slate-900/60 dark:to-slate-800/60 pointer-events-none"></div>
+                            <div className="absolute -top-40 -left-40 w-96 h-96 bg-emerald-200/50 dark:bg-emerald-900/40 rounded-full filter blur-3xl pointer-events-none"></div>
+                            <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-teal-200/50 dark:bg-teal-900/40 rounded-full filter blur-3xl pointer-events-none"></div>
+                            <div className="absolute top-1/3 right-1/4 w-48 h-48 bg-emerald-200/40 dark:bg-emerald-900/30 rounded-full filter blur-2xl pointer-events-none"></div>
 
                             <div className="relative z-10">
-                    {/* Current Balance Card */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="mb-8"
-                    >
-                        <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
-                            <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
-                            <motion.div
-                                initial={{ opacity: 0.1, scale: 0.8 }}
-                                animate={{ opacity: [0.1, 0.15, 0.1], scale: [0.8, 0.9, 0.8] }}
-                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                                className="absolute right-4 bottom-4"
-                            >
-                                <DollarSign className="h-16 w-16" />
-                            </motion.div>
-                            <CardContent className="p-6 relative z-10">
-                                <div className="flex justify-between items-center mb-4">
-                                    <span className="font-medium text-lg">Current Balance</span>
-                                    <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm border border-white/10">
-                                        <WalletIcon className="h-6 w-6" />
-                                    </div>
-                                </div>
-                                <div className="text-3xl font-bold">{wallet.balance} AFN</div>
-                                <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit border border-white/10">
-                                    <span>Available for transactions</span>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    {/* Deposit Form */}
-                    <motion.div
-                        ref={formCardRef}
-                        className="relative"
-                        onHoverStart={(e) => {
-                            try {
-                                anime({
-                                    targets: e.currentTarget,
-                                    boxShadow: ["0 4px 12px rgba(0,0,0,0.1)", "0 20px 40px rgba(0,0,0,0.15)"],
-                                    translateY: [0, -5],
-                                    duration: 300,
-                                    easing: "easeOutQuint",
-                                });
-                                const shineElement = safeQuerySelector(e.currentTarget, ".card-shine");
-                                if (shineElement) {
-                                    anime({
-                                        targets: shineElement,
-                                        translateX: ["0%", "100%"],
-                                        duration: 1200,
-                                        easing: "easeInOutQuart",
-                                    });
-                                }
-                            } catch (error) {
-                                console.error("Error in onHoverStart:", error);
-                            }
-                        }}
-                        onHoverEnd={(e) => {
-                            try {
-                                anime({
-                                    targets: e.currentTarget,
-                                    boxShadow: ["0 20px 40px rgba(0,0,0,0.15)", "0 4px 12px rgba(0,0,0,0.1)"],
-                                    translateY: [-5, 0],
-                                    duration: 300,
-                                    easing: "easeOutQuint",
-                                });
-                            } catch (error) {
-                                console.error("Error in onHoverEnd:", error);
-                            }
-                        }}
-                    >
-                        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden relative">
-                            <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full pointer-events-none"></div>
-                            <CardHeader className="bg-gradient-to-r from-emerald-50 via-white to-emerald-50 dark:from-slate-800/50 dark:via-slate-900 dark:to-slate-800/50 border-b border-slate-200 dark:border-slate-800 px-6 py-4 relative">
-                                <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
-                                <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 relative z-10">
-                                    <div className="p-2 bg-emerald-500 rounded-lg shadow-lg">
-                                        <ArrowUpRight className="h-6 w-6 text-white" />
-                                    </div>
-                                    Deposit Funds
-                                </CardTitle>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 relative z-10">
-                                    Add funds to your wallet for transactions and operations
-                                </p>
-                            </CardHeader>
-                            <CardContent className="p-6">
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.3 }}
-                                    >
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                            Amount (AFN) <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <DollarSign className="h-5 w-5 text-slate-400" />
-                                            </div>
-                                            <input
-                                                type="number"
-                                                min="0.01"
-                                                step="0.01"
-                                                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 text-lg font-medium"
-                                                placeholder="Enter amount to deposit"
-                                                value={data.amount}
-                                                onChange={e => setData('amount', e.target.value)}
-                                                required
-                                            />
+                                {/* Current Balance Card */}
+                                <div className="mb-8">
+                                    <Card className="bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 text-white border-0 rounded-3xl shadow-2xl overflow-hidden relative group">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+                                        <div className="absolute right-0 top-0 w-40 h-40 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-10 translate-x-10"></div>
+                                        <div className="absolute right-6 bottom-6">
+                                            <DollarSign className="h-20 w-20 text-white/20" />
                                         </div>
-                                        {errors.amount && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="text-red-600 text-sm mt-2 flex items-center gap-1"
-                                            >
-                                                <span className="h-1 w-1 rounded-full bg-red-500"></span>
-                                                {errors.amount}
-                                            </motion.div>
-                                        )}
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.4 }}
-                                    >
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                            Description (Optional)
-                                        </label>
-                                        <textarea
-                                            rows={3}
-                                            className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 resize-none"
-                                            placeholder="Enter a description for this deposit..."
-                                            value={data.description}
-                                            onChange={e => setData('description', e.target.value)}
-                                        />
-                                        {errors.description && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="text-red-600 text-sm mt-2 flex items-center gap-1"
-                                            >
-                                                <span className="h-1 w-1 rounded-full bg-red-500"></span>
-                                                {errors.description}
-                                            </motion.div>
-                                        )}
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.5 }}
-                                        className="flex items-center gap-3 pt-4"
-                                    >
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                            className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium py-3 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                                        >
-                                            {processing ? (
-                                                <div className="flex items-center gap-2">
-                                                    <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                                    Processing...
+                                        <CardContent className="p-8 relative z-10">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <span className="font-semibold text-xl">Current Balance</span>
+                                                <div className="p-3 bg-white/20 rounded-2xl shadow-inner backdrop-blur-sm border border-white/20">
+                                                    <WalletIcon className="h-7 w-7" />
                                                 </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2">
-                                                    <Plus className="h-5 w-5" />
-                                                    Deposit Funds
-                                                </div>
-                                            )}
-                                        </Button>
-                                    </motion.div>
-
-                                    {success && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.95 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4"
-                                        >
-                                            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
-                                                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                                <span className="font-medium">{success}</span>
                                             </div>
-                                        </motion.div>
-                                    )}
-                                </form>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+                                            <div className="text-4xl font-bold mb-4">{wallet.balance} AFN</div>
+                                            <div className="inline-flex items-center gap-2 text-sm text-white/90 backdrop-blur-sm bg-white/10 py-2 px-4 rounded-xl border border-white/20">
+                                                <Sparkles className="h-4 w-4" />
+                                                <span>Available for transactions</span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Deposit Form */}
+                                <div className="relative">
+                                    <Card className="border border-slate-200/50 dark:border-slate-800/50 shadow-2xl rounded-3xl overflow-hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl">
+                                        <CardHeader className="bg-gradient-to-r from-slate-50/90 to-emerald-50/90 dark:from-slate-800/90 dark:to-emerald-900/30 border-b border-slate-200/50 dark:border-slate-800/50 px-8 py-6">
+                                            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-4">
+                                                <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 shadow-xl">
+                                                    <ArrowUpRight className="h-7 w-7 text-white" />
+                                                </div>
+                                                Deposit Funds
+                                            </CardTitle>
+                                            <p className="text-base text-slate-600 dark:text-slate-400 mt-2">
+                                                Add funds to your wallet for transactions and operations
+                                            </p>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            <form onSubmit={handleSubmit} className="space-y-8">
+                                                <div>
+                                                    <label className="block text-base font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                        Amount (AFN) <span className="text-red-500">*</span>
+                                                    </label>
+                                                    <div className="relative">
+                                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                            <DollarSign className="h-6 w-6 text-slate-400" />
+                                                        </div>
+                                                        <Input
+                                                            type="number"
+                                                            min="0.01"
+                                                            step="0.01"
+                                                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 text-lg font-medium shadow-lg"
+                                                            placeholder="Enter amount to deposit"
+                                                            value={data.amount}
+                                                            onChange={e => setData('amount', e.target.value)}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    {errors.amount && (
+                                                        <div className="text-red-600 text-sm mt-3 flex items-center gap-2">
+                                                            <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                                                            {errors.amount}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-base font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                        Description (Optional)
+                                                    </label>
+                                                    <Textarea
+                                                        rows={4}
+                                                        className="w-full px-4 py-4 rounded-2xl bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 resize-none shadow-lg"
+                                                        placeholder="Enter a description for this deposit..."
+                                                        value={data.description}
+                                                        onChange={e => setData('description', e.target.value)}
+                                                    />
+                                                    {errors.description && (
+                                                        <div className="text-red-600 text-sm mt-3 flex items-center gap-2">
+                                                            <span className="h-2 w-2 rounded-full bg-red-500"></span>
+                                                            {errors.description}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex items-center gap-4 pt-6">
+                                                    <Button
+                                                        type="submit"
+                                                        disabled={processing}
+                                                        className="flex-1 bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-700 hover:from-emerald-600 hover:via-teal-700 hover:to-emerald-800 text-white font-semibold py-4 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        {processing ? (
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                                Processing...
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-3">
+                                                                <Plus className="h-6 w-6" />
+                                                                Deposit Funds
+                                                            </div>
+                                                        )}
+                                                    </Button>
+                                                </div>
+
+                                                {success && (
+                                                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-6 shadow-lg">
+                                                        <div className="flex items-center gap-3 text-green-700 dark:text-green-400">
+                                                            <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                                                            <span className="font-semibold text-lg">{success}</span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </form>
+                                        </CardContent>
+                                    </Card>
+                                </div>
                             </div>
                         </div>
                     </main>
