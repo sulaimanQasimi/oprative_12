@@ -107,16 +107,14 @@ class MarketOrderController extends Controller
 
         $customerInventory = \DB::table('customer_inventory')
             ->join('products', 'customer_inventory.product_id', '=', 'products.id')
-            ->leftJoin('units as retail_units', 'products.retail_unit_id', '=', 'retail_units.id')
-            ->leftJoin('units as wholesale_units', 'products.wholesale_unit_id', '=', 'wholesale_units.id')
+            ->leftJoin('units', 'products.unit_id', '=', 'units.id')
             ->where('customer_inventory.customer_id', $this->getCustomerId())
             ->where('customer_inventory.product_barcode', $barcode)
             ->where('customer_inventory.remaining_qty', '>', 0)
             ->select(
                 'customer_inventory.*',
                 'products.*',
-                'retail_units.name as retail_unit_name',
-                'wholesale_units.name as wholesale_unit_name',
+                'units.name as unit_name',
                 'customer_inventory.product_id',
                 'customer_inventory.product_name',
                 'customer_inventory.product_barcode',
@@ -176,11 +174,11 @@ class MarketOrderController extends Controller
                     ->join('units', 'products.retail_unit_id', '=', 'units.id')
                     ->first();
                 
-                $retailUnitName = $retailUnitResult ? $retailUnitResult->retail_unit_name : 'Retail Unit';
+                $retailUnitName = $retailUnitResult ? $retailUnitResult->unit_name : 'Retail Unit';
 
 
 
-                $wholesaleUnitName = $item->inventory_unit_name ?: $item->wholesale_unit_name ?: 'Wholesale Unit';
+                $wholesaleUnitName = $item->inventory_unit_name ?: $item->unit_name ?: 'Wholesale Unit';
 
                 return (object) [
                     'id' => $item->batch_id,
@@ -209,7 +207,7 @@ class MarketOrderController extends Controller
                 ->join('units', 'products.unit_id', '=', 'units.id')
                 ->first()
                 ->retail_unit_name;
-            $wholesaleUnitName = $firstItem->inventory_unit_name ?: $firstItem->wholesale_unit_name ?: 'Wholesale Unit';
+            $wholesaleUnitName = $firstItem->inventory_unit_name ?: $firstItem->unit_name ?: 'Wholesale Unit';
 
             $product = (object) [
                 'id' => $firstItem->product_id,
@@ -263,7 +261,7 @@ class MarketOrderController extends Controller
 
 
                 ?: 'Piece';
-            $wholesaleUnitName = $item->inventory_unit_name ?: $item->wholesale_unit_name ?: 'Wholesale Unit';
+            $wholesaleUnitName = $item->inventory_unit_name ?: $item->unit_name ?: 'Wholesale Unit';
 
             $product = (object) [
                 'id' => $item->product_id,
@@ -528,10 +526,12 @@ class MarketOrderController extends Controller
                     $actualUnitsNeeded = $item['quantity']; // e.g., 5 pieces = 5 pieces
                 }
 
-                // Verify sufficient stock
-                if ($stockProduct->net_quantity < $actualUnitsNeeded) {
+                    // Verify sufficient stock
+                    Log::info("Stock product: " . $stockProduct->remaining_qty);
+                    Log::info("Actual units needed: " . $actualUnitsNeeded);
+                if ($stockProduct->remaining_qty < $actualUnitsNeeded) {
                     $productName = $stockProduct->product->name;
-                    throw new \Exception("Insufficient stock for product: {$productName}. Required: {$actualUnitsNeeded}, Available: {$stockProduct->net_quantity}");
+                    throw new \Exception("Insufficient stock for product: {$productName}. Required: {$actualUnitsNeeded}, Available: {$stockProduct->remaining_qty}");
                 }
 
                 $storeQuantity = $actualUnitsNeeded; // Always store actual units consumed
